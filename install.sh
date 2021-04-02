@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-dependencies=("stow" "zsh" "oh-my-zsh" "nvim" "brew")
+dependencies=("stow" "zsh" "oh-my-zsh" "nvim" "brew" "misc_essentials")
 
 function install() {
  if which $1; then
@@ -37,6 +37,9 @@ function install() {
  ;;
  asdf)
   git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.0
+ ;;
+ misc_essentials)
+  apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
  ;;
  esac
 }
