@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # installs all of the bash dependencies
-dependencies=("stow" "zsh")
+dependencies=("stow" "zsh" "oh-my-zsh")
 
 function install() {
  case $1 in
@@ -11,7 +11,9 @@ function install() {
  
  zsh)
    apt-get install zsh
-
+ ;;
+ oh-my-zsh)
+   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" 
  ;;
  esac
 }
@@ -26,8 +28,6 @@ for t in ${dependencies[@]}; do
     continue
   else
     echo "must download package $t"
-    apt-get install $t
+    install $t
   fi
 done
-
-
