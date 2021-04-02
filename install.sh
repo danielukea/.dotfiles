@@ -3,6 +3,11 @@
 dependencies=("stow" "zsh" "oh-my-zsh" "nvim" "brew")
 
 function install() {
+ if which $1; then
+     echo 'already installed'
+     return 0
+ fi
+
  case $1 in
  stow)
    apt-get install stow
@@ -29,6 +34,9 @@ function install() {
  ;;
  scmpuff)
   brew install scmpuff
+ ;;
+ asdf)
+  git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.0
  ;;
  esac
 }

@@ -70,7 +70,7 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git brew)
+plugins=(git brew asdf)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -102,3 +102,12 @@ alias zshconfig="vim ~/.zshrc"
 
 # setup
 eval "$(scmpuff init -s)"
+
+# append completions to fpath
+fpath=(${ASDF_DIR}/completions $fpath)
+# initialise completions with ZSH's compinit
+autoload -Uz compinit
+compinit
+
+# nvidia cuda 
+export PATH=/usr/local/cuda-11.2/bin${PATH:+:${PATH}}
