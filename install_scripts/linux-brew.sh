@@ -1,8 +1,8 @@
 #! /usr/bin/env bash
 
 # >/dev/null silences the output
-if which brew >/dev/null; then
-    echo "brew is already installed check: /home/linuxbrew/.linuxbrew/bin/brew"
+if [[ -d "/home/linuxbrew/.linuxbrew" ]]; then
+    echo "brew is already installed check: /home/linuxbrew/.linuxbrew"
 else
   echo "installing brew..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
