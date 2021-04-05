@@ -2,7 +2,7 @@
 
 brew_dependencies=("scmpuff")
 
-if which brew >/dev/null; then
+if [[ -d "/home/linuxbrew/.linuxbrew" ]]; then
     echo "installing brew dependencies"
     for d in $brew_dependencies; do
         if brew list $d >/dev/null;then
