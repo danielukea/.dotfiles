@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
 
+# dependencies are arranged via install type
 APT=(
  apt-transport-https # docker
  build-essential
