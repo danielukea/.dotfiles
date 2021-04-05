@@ -1,10 +1,10 @@
 #! /usr/bin/env bash
 
-brew_dependencies=("scmpuff")
+source ./dependencies.sh
 
 if [[ -d "/home/linuxbrew/.linuxbrew" ]]; then
     echo "installing brew dependencies"
-    for d in $brew_dependencies; do
+    for d in "${BREW[@]}"; do
         if brew list $d >/dev/null;then
             echo "$d already installed."
         else
