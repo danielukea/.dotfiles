@@ -311,6 +311,27 @@ map <leader>sp [s
 map <leader>sa zg
 map <leader>s? z=
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => NetRW  rather then nerd tree
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" defaults to browser split of horizontal on open new files
+" 0 - reusing same window
+" 1 - open files in a new horizontal split
+" 2 - open files in a new vertical split
+" 3 - open files in a new tab
+" 4 - open in previous window
+let g:netrw_browse_split = 0 
+
+nmap <leader>f :Explore<CR>
+nmap <leader><s-f> :edit.<CR>
+
+" Sets discover window pixel width
+let g:netrw_winsize = 25 
+
+let g:netrw_banner = 0
+let g:netrw_liststyle = 3
+let g:netrw_altv = 1
+let g:netrw_winsize = 25
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Misc

@@ -46,7 +46,10 @@ APT=(
  python-imaging-tk
  python-openssl
  python3-dev
+ python3-dev
+ python3-pip
  python3-tk
+ python3-venv
  screen
  stow
  tk-dev
