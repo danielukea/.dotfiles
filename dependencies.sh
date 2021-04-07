@@ -3,27 +3,54 @@
 # dependencies are arranged via install type
 APT=(
  apt-transport-https # docker
+ autoconf
  build-essential
  ca-certificates # docker
+ cmake
  curl # docker
+ gfortran
  git
  gnupg # docker
+ libatlas-base-dev
+ libavcodec-dev
+ libavformat-dev
  libbz2-dev
  libffi-dev
+ libglu1-mesa
+ libglu1-mesa-dev
+ libgtk-3-dev
+ libjpeg-dev
+ liblapack-dev
  liblzma-dev
  libncurses5-dev
  libncursesw5-dev
+ libopenblas-dev
+ libpng-dev
  libreadline-dev
  libsqlite3-dev
  libssl-dev
+ libswscale-dev
+ libtiff-dev
+ libv4l-dev
+ libx11-xcb-dev
+ libx264-dev
+ libxi-dev
+ libxmu-dev
+ libxvidcore-dev
  llvm
  lsb-release # docker
  make
  neovim
  pipenv
+ pkg-config
+ python-imaging-tk
  python-openssl
+ python3-dev
+ python3-tk
+ screen
  stow
  tk-dev
+ unzip
  wget
  xz-utils
  zlib1g-dev
