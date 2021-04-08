@@ -9,6 +9,7 @@
 "           https://github.com/amix/vimrc
 "
 " Sections:
+"    -> Vim Plug
 "    -> General
 "    -> VIM user interface
 "    -> Colors and Fonts
@@ -25,7 +26,16 @@
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Vim Plug
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Specify a directory for plugins
+" - For Neovim: stdpath('data') . '/plugged'
+" - Avoid using standard Vim directory names like 'plugin'
+call plug#begin('~/.vim/plugged')
 
+" Initialize plugin system
+call plug#end()
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => General
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
