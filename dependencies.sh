@@ -53,6 +53,7 @@ APT=(
  screen
  stow
  tk-dev
+ tmux
  unzip
  wget
  xz-utils
