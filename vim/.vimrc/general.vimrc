@@ -9,8 +9,6 @@
 "           https://github.com/amix/vimrc
 "
 " Sections:
-"    -> Vim Plug
-"    -> Plugin
 "    -> General
 "    -> VIM user interface
 "    -> Colors and Fonts
@@ -25,23 +23,6 @@
 "    -> Misc
 "    -> Helper functions
 "
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" => Vim Plug
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Specify a directory for plugins
-" - For Neovim: stdpath('data') . '/plugged'
-" - Avoid using standard Vim directory names like 'plugin'
-" - Avoid using \" quotes. Plug sees this as a comment
-call plug#begin('~/.vim/plugged')
-" Language Server Protocol client config for nvim
-Plug 'neovim/nvim-lspconfig'
-
-call plug#end()
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" => Plugins
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
