@@ -6,6 +6,9 @@ source ~/.vimrc/init.vim
 
 lua << EOF
  require'lspconfig'.pyright.setup{
-   cmd = { "npx", "pyright-langserver", "--stdio" }
+   cmd = { "npx", "pyright-langserver", "--stdio" },
+   python = { 
+     venvPath = "/home/luke/.local/share/virtualenvs/*", 
+     },
  }
 EOF
