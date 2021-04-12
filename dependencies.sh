@@ -8,9 +8,12 @@ APT=(
  ca-certificates # docker
  cmake
  curl # docker
+ dirmngr
+ gawk
  gfortran
  git
  gnupg # docker
+ gpg
  libatlas-base-dev
  libavcodec-dev
  libavformat-dev
