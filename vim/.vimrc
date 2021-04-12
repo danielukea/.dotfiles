@@ -33,9 +33,10 @@
 " Specify a directory for plugins
 " - For Neovim: stdpath('data') . '/plugged'
 " - Avoid using standard Vim directory names like 'plugin'
+" - Avoid using \" quotes. Plug sees this as a comment
 call plug#begin('~/.vim/plugged')
 " Language Server Protocol client config for nvim
-Plug "neovim/nvim-lspconfig"
+Plug 'neovim/nvim-lspconfig'
 
 call plug#end()
 
