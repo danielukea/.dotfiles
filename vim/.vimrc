@@ -10,6 +10,7 @@
 "
 " Sections:
 "    -> Vim Plug
+"    -> Plugin
 "    -> General
 "    -> VIM user interface
 "    -> Colors and Fonts
@@ -33,9 +34,15 @@
 " - For Neovim: stdpath('data') . '/plugged'
 " - Avoid using standard Vim directory names like 'plugin'
 call plug#begin('~/.vim/plugged')
+" Language Server Protocol client config for nvim
+Plug "neovim/nvim-lspconfig"
 
-" Initialize plugin system
 call plug#end()
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Plugins
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => General
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
