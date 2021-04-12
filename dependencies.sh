@@ -40,7 +40,7 @@ APT=(
  llvm
  lsb-release # docker
  make
- neovim
+ neovim # nvim using unstalbe 0.5.0 currently
  pipenv
  pkg-config
  python-imaging-tk
@@ -63,5 +63,9 @@ APT=(
 
 BREW=(
  scmpuff
+)
+
+NPM=(
+pyright
 )
 
