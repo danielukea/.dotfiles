@@ -29,6 +29,7 @@ APT=(
  libncursesw5-dev
  libopenblas-dev
  libpng-dev
+ libpq-dev
  libreadline-dev
  libsqlite3-dev
  libssl-dev
