@@ -71,5 +71,6 @@ BREW=(
 
 NPM=(
 pyright
+tree-sitter-cli
 )
 
