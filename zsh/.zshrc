@@ -100,6 +100,9 @@ source $ZSH/oh-my-zsh.sh
 alias vim="nvim"
 alias zshconfig="vim ~/.zshrc"
 
+# jupyter is used for python scientific work
+alias jupyter="~/.asdf/installs/python/3.8.2/bin/jupyter"
+
 # setup
 eval "$(scmpuff init -s)"
 
