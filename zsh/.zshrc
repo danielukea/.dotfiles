@@ -106,6 +106,13 @@ alias jupyter="~/.asdf/installs/python/3.8.2/bin/jupyter"
 # setup
 eval "$(scmpuff init -s)"
 
+# open a file with fzf and nvim
+fo() {
+  nvim $(fzf-tmux)
+}
+fco() {
+    git checkout $(git branch | fzf-tmux -d 15)
+}
 # append completions to fpath
 fpath=(${ASDF_DIR}/completions $fpath)
 # initialise completions with ZSH's compinit

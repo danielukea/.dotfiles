@@ -10,6 +10,7 @@ APT=(
  curl # docker
  dirmngr
  flatpak
+ fzf
  gawk
  gfortran
  git
@@ -55,6 +56,7 @@ APT=(
  python3-pip
  python3-tk
  python3-venv
+ ripgrep
  screen
  stow
  tk-dev
