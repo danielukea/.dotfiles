@@ -9,6 +9,7 @@ APT=(
  cmake
  curl # docker
  dirmngr
+ flatpak
  gawk
  gfortran
  git
