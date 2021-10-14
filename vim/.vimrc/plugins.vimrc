@@ -28,17 +28,21 @@ Plug 'hrsh7th/cmp-buffer'
 
 " Plug adds solidity based syntax ( Ethereum smartcontract language)
 Plug 'tomlion/vim-solidity'
+Plug 'junegunn/fzf'
 
 " Plug to add tree sitter
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'} 
 
 call plug#end()
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Nvim fuzzy finder config 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set rtp+=/usr/bin/fzf
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Nvim LSP Auto Completion 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set completeopt=menu,menuone,noselect
-
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Nvim LSP Config 
