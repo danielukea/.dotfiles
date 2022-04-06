@@ -26,6 +26,12 @@ Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/cmp-buffer'
 
+" for running tests
+Plug 'vim-test/vim-test'
+
+" for interacting with tmux from vim
+Plug 'preservim/vimux'
+
 " Plug adds solidity based syntax ( Ethereum smartcontract language)
 Plug 'tomlion/vim-solidity'
 Plug 'junegunn/fzf'
@@ -35,10 +41,13 @@ Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 call plug#end()
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Vim testing strategy 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let test#strategy = "vimux"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Nvim fuzzy finder config 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set rtp+=/usr/bin/fzf
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Nvim LSP Auto Completion 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
