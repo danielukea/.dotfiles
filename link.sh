@@ -6,7 +6,7 @@
 # This ensures stow is installed on first time runs on the machine
 brew list stow &>/dev/null || brew install stow
 
-STOW_FOLDERS="nvim,tmux,kitty"
+STOW_FOLDERS="nvim,tmux,kitty,zsh"
 DOT_FILES="$HOME/.dotfiles"
 
 pushd $DOT_FILES

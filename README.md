@@ -1,5 +1,9 @@
 # .dotfiles
 Dot Files for dev environment.
 
-## Installing
-Install the script via the ./install.sh
+
+
+# TODO:
+[ ] - Look into Brewfile
+[ ] - Look into Aptfile
+
