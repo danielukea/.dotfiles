@@ -1,20 +1,11 @@
 return {
-  {
-    "AlexvZyl/nordic.nvim",
-    config = function()
-      require("nordic").setup({
-        transparent_bg = true,
-      })
-      require("notify").setup({
-        background_colour = "#000000",
-      })
-    end,
-  },
+  { "neanias/everforest-nvim" },
+
+  -- Configure LazyVim to load scheme
   {
     "LazyVim/LazyVim",
     opts = {
-      transparent = true,
-      colorscheme = "nordic",
+      colorscheme = "everforest",
     },
   },
 }
