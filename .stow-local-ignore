@@ -1,7 +1,1 @@
-\.git
-.gitignore
-.tool-versions
-LICENSE
-README.md
-delete_links.sh
-link.sh
+.gitmodules

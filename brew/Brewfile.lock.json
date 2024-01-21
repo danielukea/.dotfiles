@@ -1034,7 +1034,7 @@
         }
       },
       "ruby-build": {
-        "version": "HEAD-e1b36a3",
+        "version": "20240119",
         "bottle": {
           "rebuild": 0,
           "root_url": "https://ghcr.io/v2/homebrew/core",
@@ -1304,6 +1304,20 @@
               "cellar": "/home/linuxbrew/.linuxbrew/Cellar",
               "url": "https://ghcr.io/v2/homebrew/core/vips/blobs/sha256:5793d85ac3a625f530eac21f16606132f9ad24085f4f92fd5afad61b45fa115f",
               "sha256": "5793d85ac3a625f530eac21f16606132f9ad24085f4f92fd5afad61b45fa115f"
+            }
+          }
+        }
+      },
+      "asdf": {
+        "version": "0.14.0",
+        "bottle": {
+          "rebuild": 0,
+          "root_url": "https://ghcr.io/v2/homebrew/core",
+          "files": {
+            "all": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/asdf/blobs/sha256:2aa1302895c8908cef593cd3e9b3be3aea517595c8cd8bcb380cc0474db0bd05",
+              "sha256": "2aa1302895c8908cef593cd3e9b3be3aea517595c8cd8bcb380cc0474db0bd05"
             }
           }
         }
