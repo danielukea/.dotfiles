@@ -1,11 +1,4 @@
-#! /usr/bin/env bash
+brew list asdf &>/dev/null || brew install asdf
+asdf plugin add ruby
 
-sudo apt update
-sudo apt upgrade
-
-for f in ./install_scripts/*; do
-    echo "running install script for $f ..."
-    bash "$f" || echo "$f failed to install."
-    echo "install file: $f has been run"
-done
-echo "finished installing"
+asdf install
