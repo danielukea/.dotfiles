@@ -8,3 +8,9 @@ vim.keymap.set(
   require("telescope.builtin").resume,
   { noremap = true, silent = true, desc = "Resume" }
 )
+vim.keymap.set(
+  "n",
+  "<leader>by",
+  ":CopyRelPath<CR>",
+  { noremap = true, silent = true, desc = "Copy the Relative Path" }
+)
