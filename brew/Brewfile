@@ -1,5 +1,6 @@
 tap "homebrew/bundle"
 tap "homebrew/services"
+tap "raycast"
 
 brew "asdf"
 brew "coreutils"
@@ -22,3 +23,5 @@ brew "scmpuff"
 brew "stow"
 brew "the_silver_searcher"
 brew "tmux"
+brew "shortcat"
+brew "raycast"
