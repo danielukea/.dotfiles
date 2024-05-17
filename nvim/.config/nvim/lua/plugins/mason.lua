@@ -9,7 +9,7 @@ return {
       "stylua",
       "shfmt",
       "solargraph",
-      "rubocop"
+      "rubocop",
       -- "flake8",
     },
   },

@@ -29,3 +29,7 @@ fco() {
   git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
 }
 
+
+cdf() {
+  cd $(find * -type d | fzf)
+}
