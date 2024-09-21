@@ -104,4 +104,6 @@ source $ZSH/oh-my-zsh.sh
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [[ -f ~/.fzf_commands.zsh ]] && source ~/.fzf_commands.zsh
 . /opt/homebrew/opt/asdf/libexec/asdf.sh
+
+export PATH="/Users/lukedanielson/.local/bin:$PATH"
 eval "$(scmpuff init --shell=sh)"
