@@ -1,27 +1,22 @@
-tap "homebrew/bundle"
-tap "homebrew/services"
-tap "raycast"
+# Minimal Brewfile for devcontainer workflow
 
-brew "asdf"
-brew "coreutils"
-brew "curl"
-brew "fzf"
-brew "gh"
-brew "git"
-brew "harfbuzz"
-brew "lazygit"
-brew "libssh2"
-brew "neovim"
-brew "openjdk"
-brew "overmind"
-brew "postgresql@14", restart_service: true
-brew "reattach-to-user-namespace"
-brew "redis", restart_service: true
-brew "ripgrep"
-brew "ruby-build", args: ["HEAD"]
-brew "scmpuff"
-brew "stow"
-brew "the_silver_searcher"
-brew "tmux"
-brew "shortcat"
-brew "raycast"
+tap "homebrew/bundle"
+
+# Essential system tools
+brew "git"                    # Version control
+brew "curl"                   # HTTP client
+brew "stow"                   # Dotfiles management
+
+# Terminal and shell enhancements
+brew "fzf"                    # Fuzzy finder
+brew "ripgrep"                # Fast text search
+
+# Version management
+brew "mise"                   # Tool version manager (replaces asdf)
+
+# Terminal and editor tools
+brew "neovim"                 # Editor
+brew "tmux"                   # Terminal multiplexer
+
+# Optional: Uncomment if needed
+# brew "lazygit"              # Git UI

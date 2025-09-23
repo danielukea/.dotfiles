@@ -1,5 +1,0 @@
-asdf-plugin-manager  https://github.com/asdf-community/asdf-plugin-manager.git  f674bf5
-java                 https://github.com/halcyon/asdf-java.git                   53b8c18
-nodejs               https://github.com/asdf-vm/asdf-nodejs.git                 9275f49
-python               https://github.com/danhper/asdf-python.git                 5e277e2
-ruby                 https://github.com/asdf-vm/asdf-ruby.git                   4e5b177
