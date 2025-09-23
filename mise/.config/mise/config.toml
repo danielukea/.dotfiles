@@ -1,14 +1,7 @@
-# mise configuration file
-# This replaces the old asdf .tool-versions and .plugin-versions files
-
 [tools]
 node = "24"
 "npm:@anthropic-ai/claude-code" = "latest"
+ruby = "3.4"
 
 [settings]
-# Global mise settings
-verbose = true
-jobs = 4
-
-# Legacy file support (if you have existing .tool-versions files)
-legacy_version_file = true
+idiomatic_version_file_enable_tools = ["ruby"]
