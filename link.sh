@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
+set -e  # Exit on any error
+
 if [ "$#" -eq 0 ] || [ "$1" = "--help" ]; then
   echo "$0: Manage dotfiles by creating or removing symbolic links."
   echo
@@ -20,7 +22,7 @@ if [ "$#" -eq 0 ] || [ "$1" = "--help" ]; then
   echo "  Ensure that your dotfiles are organized within the ~/.dotfiles directory, with each configuration in its own subdirectory."
   echo
   echo "Author:"
-  echo "  Your Name"
+  echo "  Luke Danielson"
   exit 0
 fi
 
@@ -34,10 +36,10 @@ link_dotfiles() {
   for folder in */; do
     folder=${folder%/}  # Remove trailing slash
     echo "Symlinking $folder dotfiles to home directory"
-    stow $folder -v
+    stow $folder -v --adopt
   done
   popd
-  echo "Done - dotfiles linked"
+  echo "✅ Dotfiles linked successfully!"
 }
 
 unlink_dotfiles() {
@@ -48,7 +50,7 @@ unlink_dotfiles() {
     stow -D $folder -v
   done
   popd
-  echo "Done - dotfiles unlinked"
+  echo "✅ Dotfiles unlinked successfully!"
 }
 
 case "$1" in
