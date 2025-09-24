@@ -114,4 +114,4 @@ export PATH="/Users/lukedanielson/.local/bin:$PATH"
 eval "$(mise activate zsh)"
 
 # Optional: Uncomment if you need these
-# eval "$(scmpuff init --shell=sh)"  # Git status integration
+eval "$(scmpuff init --shell=sh)"  # Git status integration
