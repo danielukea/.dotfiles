@@ -1,6 +1,8 @@
 [tools]
 node = "24"
 "npm:@anthropic-ai/claude-code" = "latest"
+"npm:@devcontainers/cli" = "latest"
+"npm:devcontainer" = "latest"
 ruby = "3.4"
 
 [settings]

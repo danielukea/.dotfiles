@@ -107,6 +107,9 @@ source $ZSH/oh-my-zsh.sh
 source <(fzf --zsh)
 [[ -f ~/.fzf_commands.zsh ]] && source ~/.fzf_commands.zsh
 
+# Wealthbox development aliases
+[[ -f ~/.wealthbox_aliases.zsh ]] && source ~/.wealthbox_aliases.zsh
+
 # Add local bin to PATH
 export PATH="/Users/lukedanielson/.local/bin:$PATH"
 
@@ -114,4 +117,4 @@ export PATH="/Users/lukedanielson/.local/bin:$PATH"
 eval "$(mise activate zsh)"
 
 # Optional: Uncomment if you need these
-# eval "$(scmpuff init --shell=sh)"  # Git status integration
+eval "$(scmpuff init --shell=sh)"  # Git status integration
