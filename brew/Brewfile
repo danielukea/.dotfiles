@@ -13,6 +13,7 @@ brew "mise"                   # Tool version manager (replaces asdf)
 # Terminal and editor tools
 brew "neovim"                 # Editor
 brew "tmux"                   # Terminal multiplexer
+brew "scmpuff"
 
 # Ruby build dependencies
 brew "openssl@3"              # SSL/TLS library
