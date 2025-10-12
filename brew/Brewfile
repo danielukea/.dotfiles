@@ -22,4 +22,4 @@ brew "readline"               # Command line editing library
 brew "zlib"                   # Compression library
 
 # Optional: Uncomment if needed
-# brew "lazygit"              # Git UI
+ brew "lazygit"              # Git UI
