@@ -30,22 +30,39 @@ return {
 
         -- Set up clipboard integration with proper function calls
         local osc52 = require("osc52")
+
+        -- Store clipboard content locally since OSC52 can't read back
+        local clipboard_cache = {lines = {}, regtype = "v"}
+
         vim.g.clipboard = {
           name = "osc52",
           copy = {
             ["+"] = function(lines, regtype)
+              -- Cache the lines and regtype locally
+              clipboard_cache.lines = lines
+              clipboard_cache.regtype = regtype
+              -- Send to host via OSC52
               osc52.copy(table.concat(lines, "\n"))
             end,
             ["*"] = function(lines, regtype)
+              clipboard_cache.lines = lines
+              clipboard_cache.regtype = regtype
               osc52.copy(table.concat(lines, "\n"))
             end,
           },
           paste = {
             ["+"] = function()
-              return vim.fn.split(vim.fn.getreg("+"), "\n"), vim.fn.getregtype("+")
+              -- Return cached lines and regtype for pasting
+              if #clipboard_cache.lines > 0 then
+                return clipboard_cache.lines, clipboard_cache.regtype
+              end
+              return {""}, "v"
             end,
             ["*"] = function()
-              return vim.fn.split(vim.fn.getreg("*"), "\n"), vim.fn.getregtype("*")
+              if #clipboard_cache.lines > 0 then
+                return clipboard_cache.lines, clipboard_cache.regtype
+              end
+              return {""}, "v"
             end,
           },
         }

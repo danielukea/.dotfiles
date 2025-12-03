@@ -1,17 +1,17 @@
 return {
-  "epwalsh/obsidian.nvim",
-  version = "*",
-  lazy = true,
-  ft = "markdown",
-  dependencies = {
-    "nvim-lua/plenary.nvim",
+  "obsidian-nvim/obsidian.nvim",
+  version = "*", -- recommended, use latest release instead of latest commit
+  event = {
+    "BufReadPre " .. vim.fn.expand("~") .. "/Documents/Wealthbox/*.md",
+    "BufNewFile " .. vim.fn.expand("~") .. "/Documents/Wealthbox/*.md",
   },
   opts = {
     workspaces = {
       {
-        name = "wealthbox",
-        path = "~/Documents/Wealthbox",
+        name = "work",
+        path = "~/Documents/Wealthbox/",
       },
     },
+    ui = { enable = true },
   },
 }
