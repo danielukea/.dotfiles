@@ -27,3 +27,12 @@ wrc() {
     fi
     bin/docker/interactive.sh rails c "$@"
 }
+
+w-overmind-dev() {
+  devcontainer exec --workspace-folder . cat Procfile.dev_frontend Procfile.dev_background <(echo "server: bin/dev_server") | overmind start -f /dev/stdin
+}
+
+
+refresh_devcontainer() {
+ devcontainer up --workspace-folder . --remove-existing-container
+}
