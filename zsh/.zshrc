@@ -118,3 +118,24 @@ eval "$(mise activate zsh)"
 
 # Optional: Uncomment if you need these
 eval "$(scmpuff init --shell=sh)"  # Git status integration
+
+# === AWS Profile Aliases ===
+_aws-set-profile(){
+  local sso_session expires
+  echo "activating aws profile: $1" >&2
+  export AWS_PROFILE="$1"
+  export AWS_DEFAULT_REGION="us-east-1"
+  sso_session="$(aws configure get sso_session 2>/dev/null)"
+  if [[ -n "$sso_session" ]]; then
+    expires=$(aws configure export-credentials | jq -r '.Expiration')
+    if [[ -z "$expires" || $(gdate --date "$expires" +'%s') -lt $(gdate --date "+2 hours" +'%s') ]]; then
+     echo "refreshing sso session" >&2
+     aws sso login --sso-session "$sso_session"
+    fi
+  fi
+}
+for p in $(cat ${AWS_CONFIG_FILE:-~/.aws/config} | grep -E '^[[:space:]]*\[profile' | awk '{print substr($2, 1, length($2)-1)}'); do
+  [[ "$p" == "default" ]] && continue
+  eval "awsp-$p(){ _aws-set-profile \"$p\" }"
+done
+# === End AWS Profile Aliases ===
