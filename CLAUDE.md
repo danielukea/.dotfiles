@@ -44,3 +44,8 @@ Uses `mise` (not asdf) for runtime version management. Global tools are defined 
 
 ### Tmux Keybindings
 Prefix is `C-s` (not `C-b`). Vim-style pane navigation: `h/j/k/l`. Split with `|` and `-`.
+
+## Known Issues
+
+### noice.nvim crashes
+noice.nvim can cause nvim to crash when pressing `:` to enter command mode. This is due to incompatibility with certain Neovim versions (seen with 0.11.5). Fix: disable noice in `nvim/.config/nvim/lua/plugins/noice.lua` with `enabled = false`. Noice is purely cosmetic (fancy command line and notification UI) so disabling it doesn't affect functionality.
