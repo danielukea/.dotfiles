@@ -1,6 +1,6 @@
 [tools]
-neovim = "0.11.2"
-node = "24"
+neovim = "latest"
+node = "latest"
 "npm:@anthropic-ai/claude-code" = "latest"
 "npm:@devcontainers/cli" = "latest"
 "npm:devcontainer" = "latest"
@@ -8,4 +8,4 @@ prettier = "latest"
 ruby = "3.4"
 
 [settings]
-idiomatic_version_file_enable_tools = ["python"]
+idiomatic_version_file_enable_tools = ["ruby", "node", "python"]

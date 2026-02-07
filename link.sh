@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 set -e  # Exit on any error
 
@@ -16,7 +16,7 @@ if [ "$#" -eq 0 ] || [ "$1" = "--help" ]; then
   echo "              Example: $0 unlink"
   echo
   echo "Dependencies:"
-  echo "  - Homebrew (for installing stow)"
+  echo "  - Homebrew (macOS) or apt (Ubuntu) for installing stow"
   echo
   echo "Note:"
   echo "  Ensure that your dotfiles are organized within the ~/.dotfiles directory, with each configuration in its own subdirectory."
@@ -26,7 +26,14 @@ if [ "$#" -eq 0 ] || [ "$1" = "--help" ]; then
   exit 0
 fi
 
-brew list stow &>/dev/null || brew install stow
+# Install stow if not present (cross-platform)
+if ! command -v stow &>/dev/null; then
+  if [[ "$(uname)" == "Darwin" ]]; then
+    brew install stow
+  else
+    sudo apt-get update && sudo apt-get install -y stow
+  fi
+fi
 
 
 DOT_FILES="$HOME/.dotfiles"

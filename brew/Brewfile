@@ -2,6 +2,11 @@
 brew "git"                    # Version control
 brew "curl"                   # HTTP client
 brew "stow"                   # Dotfiles management
+brew "jq"                     # JSON processor (used by AWS aliases)
+brew "coreutils"              # GNU utilities (provides gdate on macOS)
+
+# Cloud tools
+brew "awscli"                 # AWS CLI
 
 # Terminal and shell enhancements
 brew "fzf"                    # Fuzzy finder
@@ -13,13 +18,13 @@ brew "mise"                   # Tool version manager (replaces asdf)
 # Terminal and editor tools
 brew "neovim"                 # Editor
 brew "tmux"                   # Terminal multiplexer
-brew "scmpuff"
+
+# Git enhancements
+brew "scmpuff"                # Git status number shortcuts
+brew "lazygit"                # Git UI
 
 # Ruby build dependencies
 brew "openssl@3"              # SSL/TLS library
 brew "libyaml"                # YAML library (needed for psych extension)
 brew "readline"               # Command line editing library
 brew "zlib"                   # Compression library
-
-# Optional: Uncomment if needed
- brew "lazygit"              # Git UI

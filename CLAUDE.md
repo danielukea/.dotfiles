@@ -6,14 +6,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a personal dotfiles repository using GNU Stow for symlink management. Each top-level directory represents a "package" that gets symlinked to the home directory.
 
+**Supported platforms:** macOS and Ubuntu/Debian Linux
+
 ## Commands
 
 ### Installation
 ```bash
-./install.sh              # Full setup: unlinks, re-links dotfiles, runs brew bundle
+./install.sh              # Full setup: unlinks, re-links dotfiles, installs packages
 ./link.sh link            # Symlink all dotfiles packages to ~
 ./link.sh unlink          # Remove all symlinks from ~
 ```
+
+The install script auto-detects the OS:
+- **macOS**: Uses `brew bundle` with `brew/Brewfile`
+- **Ubuntu/Debian**: Uses `apt` with `packages.apt`, plus manual installs for mise, scmpuff, lazygit
 
 ### Adding New Configurations
 1. Create a new directory at the repo root (e.g., `newapp/`)
@@ -24,7 +30,8 @@ This is a personal dotfiles repository using GNU Stow for symlink management. Ea
 
 ### Package Structure
 Each directory is a Stow package that mirrors `$HOME`:
-- `brew/` - Brewfile for Homebrew dependencies
+- `brew/` - Brewfile for Homebrew dependencies (macOS)
+- `packages.apt` - apt package list (Ubuntu/Debian)
 - `claude/` - Claude Code configuration (`.claude/` settings, agents, commands, templates)
 - `kitty/` - Terminal emulator config (`.config/kitty/`)
 - `mise/` - Tool version manager config (`.config/mise/`)
