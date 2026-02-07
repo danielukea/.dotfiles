@@ -1,2 +1,10 @@
 /vim/.vim/plugged/**
 node_modules/*
+
+# Claude runtime/cache directories
+claude/.claude/debug/
+claude/.claude/history.jsonl
+claude/.claude/projects/
+claude/.claude/shell-snapshots/
+claude/.claude/statsig/
+claude/.claude/todos/
