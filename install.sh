@@ -167,6 +167,21 @@ change_shell() {
   fi
 }
 
+# Load dotfiles sync agent (macOS only)
+load_sync_agent() {
+  if [[ "$OS" != "macos" ]]; then
+    return 0
+  fi
+
+  local plist="$HOME/Library/LaunchAgents/com.dotfiles.sync.plist"
+  if [[ -f "$plist" ]]; then
+    log "Loading dotfiles sync agent..."
+    launchctl unload "$plist" 2>/dev/null || true
+    launchctl load "$plist"
+    log "Sync agent loaded (pulls from GitHub every 5 min)"
+  fi
+}
+
 # Verify installation
 verify_installation() {
   log "Verifying installation..."
@@ -212,6 +227,7 @@ main() {
   install_packages
   link_dotfiles
   change_shell
+  load_sync_agent
   verify_installation
 
   log ""
