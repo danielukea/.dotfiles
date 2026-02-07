@@ -139,3 +139,6 @@ for p in $(cat ${AWS_CONFIG_FILE:-~/.aws/config} | grep -E '^[[:space:]]*\[profi
   eval "awsp-$p(){ _aws-set-profile \"$p\" }"
 done
 # === End AWS Profile Aliases ===
+
+# SSH aliases
+alias prod='ssh -t production "TERM=xterm-256color tmux attach || tmux new"'
