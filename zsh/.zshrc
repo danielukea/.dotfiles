@@ -103,41 +103,72 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Essential tools for terminal workflow
-source <(fzf --zsh)
-[[ -f ~/.fzf_commands.zsh ]] && source ~/.fzf_commands.zsh
+# Add local bin to PATH
+export PATH="$HOME/.local/bin:$PATH"
+
+# Homebrew setup (Linux)
+if [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+# Homebrew setup (macOS Apple Silicon)
+if [[ -f /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+# mise (tool version manager) - replaces asdf
+if command -v mise &>/dev/null; then
+  eval "$(mise activate zsh)"
+fi
+
+# fzf - fuzzy finder
+if command -v fzf &>/dev/null; then
+  source <(fzf --zsh)
+  [[ -f ~/.fzf_commands.zsh ]] && source ~/.fzf_commands.zsh
+fi
+
+# scmpuff - git status number shortcuts
+if command -v scmpuff &>/dev/null; then
+  eval "$(scmpuff init --shell=sh)"
+fi
 
 # Wealthbox development aliases
 [[ -f ~/.wealthbox_aliases.zsh ]] && source ~/.wealthbox_aliases.zsh
 
-# Add local bin to PATH
-export PATH="/Users/lukedanielson/.local/bin:$PATH"
-
-# mise (tool version manager) - replaces asdf
-eval "$(mise activate zsh)"
-
-# Optional: Uncomment if you need these
-eval "$(scmpuff init --shell=sh)"  # Git status integration
-
 # === AWS Profile Aliases ===
-_aws-set-profile(){
-  local sso_session expires
-  echo "activating aws profile: $1" >&2
-  export AWS_PROFILE="$1"
-  export AWS_DEFAULT_REGION="us-east-1"
-  sso_session="$(aws configure get sso_session 2>/dev/null)"
-  if [[ -n "$sso_session" ]]; then
-    expires=$(aws configure export-credentials | jq -r '.Expiration')
-    if [[ -z "$expires" || $(gdate --date "$expires" +'%s') -lt $(gdate --date "+2 hours" +'%s') ]]; then
-     echo "refreshing sso session" >&2
-     aws sso login --sso-session "$sso_session"
+# Requires: jq, awscli, coreutils (for gdate on macOS)
+if command -v aws &>/dev/null && command -v jq &>/dev/null; then
+  _aws-set-profile(){
+    local sso_session expires
+    echo "activating aws profile: $1" >&2
+    export AWS_PROFILE="$1"
+    export AWS_DEFAULT_REGION="us-east-1"
+    sso_session="$(aws configure get sso_session 2>/dev/null)"
+    if [[ -n "$sso_session" ]]; then
+      expires=$(aws configure export-credentials | jq -r '.Expiration')
+      # Use gdate on macOS (from coreutils), date on Linux
+      local date_cmd="date"
+      if [[ "$(uname)" == "Darwin" ]]; then
+        if command -v gdate &>/dev/null; then
+          date_cmd="gdate"
+        else
+          echo "WARNING: gdate not found. Install coreutils: brew install coreutils" >&2
+          return 1
+        fi
+      fi
+      if [[ -z "$expires" || $($date_cmd --date "$expires" +'%s') -lt $($date_cmd --date "+2 hours" +'%s') ]]; then
+       echo "refreshing sso session" >&2
+       aws sso login --sso-session "$sso_session"
+      fi
     fi
+  }
+  if [[ -f "${AWS_CONFIG_FILE:-$HOME/.aws/config}" ]]; then
+    for p in $(cat ${AWS_CONFIG_FILE:-~/.aws/config} | grep -E '^[[:space:]]*\[profile' | awk '{print substr($2, 1, length($2)-1)}'); do
+      [[ "$p" == "default" ]] && continue
+      eval "awsp-$p(){ _aws-set-profile \"$p\" }"
+    done
   fi
-}
-for p in $(cat ${AWS_CONFIG_FILE:-~/.aws/config} | grep -E '^[[:space:]]*\[profile' | awk '{print substr($2, 1, length($2)-1)}'); do
-  [[ "$p" == "default" ]] && continue
-  eval "awsp-$p(){ _aws-set-profile \"$p\" }"
-done
+fi
 # === End AWS Profile Aliases ===
 
 # SSH aliases
