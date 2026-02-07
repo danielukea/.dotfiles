@@ -34,8 +34,10 @@ Each directory is a Stow package that mirrors `$HOME`:
 - `packages.apt` - apt package list (Ubuntu/Debian)
 - `claude/` - Claude Code configuration (`.claude/` settings, agents, commands, templates)
 - `kitty/` - Terminal emulator config (`.config/kitty/`)
+- `launchd/` - macOS LaunchAgents for background tasks (`Library/LaunchAgents/`)
 - `mise/` - Tool version manager config (`.config/mise/`)
 - `nvim/` - LazyVim-based Neovim config (`.config/nvim/`)
+- `scripts/` - Utility scripts used by launchd and other automation (not stowed, used in-place)
 - `tmux/` - Tmux config (`.tmux.conf`)
 - `zsh/` - Zsh shell config (`.zshrc`, oh-my-zsh as submodule)
 
@@ -51,6 +53,24 @@ Uses `mise` (not asdf) for runtime version management. Global tools are defined 
 
 ### Tmux Keybindings
 Prefix is `C-s` (not `C-b`). Vim-style pane navigation: `h/j/k/l`. Split with `|` and `-`.
+
+### Auto-Sync
+Dotfiles automatically sync from GitHub every 5 minutes via a macOS launchd agent. When changes are detected, it pulls and re-runs `./link.sh link` to apply new symlinks.
+
+**Components:**
+- `launchd/Library/LaunchAgents/com.dotfiles.sync.plist` - Scheduler (runs every 5 min)
+- `scripts/dotfiles-sync.sh` - Sync script (fetch, compare, pull, re-link)
+
+**Commands:**
+```bash
+launchctl list | grep dotfiles       # Check if agent is running
+launchctl start com.dotfiles.sync    # Manually trigger sync
+tail -f ~/Library/Logs/dotfiles-sync.log  # View sync logs
+```
+
+**Notes:**
+- Uses `git pull --ff-only` to avoid merge conflicts (fails safely if local uncommitted changes exist)
+- Agent is loaded automatically by `./install.sh`
 
 ## Known Issues
 
