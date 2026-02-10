@@ -32,6 +32,9 @@ return {
       ["<C-x>"] = { "actions.select", opts = { horizontal = true }, desc = "Open in split" },
       ["<C-t>"] = { "actions.select", opts = { tab = true }, desc = "Open in new tab" },
 
+      -- Disable default oil mappings that conflict with window navigation
+      ["<C-h>"] = false,
+
       -- Copy path to clipboard (Y like LazyVim neo-tree)
       ["Y"] = { "actions.copy_entry_path", desc = "Copy path" },
 
