@@ -36,3 +36,6 @@ w-overmind-dev() {
 refresh_devcontainer() {
  devcontainer up --workspace-folder . --remove-existing-container
 }
+
+# Claude with Wealthbox plugin (local development)
+alias claude-wb='claude --plugin-dir ~/Workspace/wealthbox-claude-plugin/plugins/wealthbox'
