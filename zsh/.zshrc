@@ -135,6 +135,9 @@ fi
 # Wealthbox development aliases
 [[ -f ~/.wealthbox_aliases.zsh ]] && source ~/.wealthbox_aliases.zsh
 
+# Local secrets (not in dotfiles repo)
+[[ -f ~/.secrets ]] && source ~/.secrets
+
 # === AWS Profile Aliases ===
 # Requires: jq, awscli, coreutils (for gdate on macOS)
 if command -v aws &>/dev/null && command -v jq &>/dev/null; then
@@ -173,3 +176,7 @@ fi
 
 # SSH aliases
 alias prod='ssh -t production "TERM=xterm-256color tmux attach || tmux new"'
+
+# Sandbox completion
+fpath=(/Users/lukedanielson/Workspace/wealthbox-sandbox/completions $fpath)
+autoload -Uz compinit && compinit
