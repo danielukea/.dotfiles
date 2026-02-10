@@ -8,13 +8,89 @@ allowed-tools: Read, Grep, Glob, Edit, Write, Task, Bash, WebFetch, AskUserQuest
 
 Full-cycle development workflow: ticket → context → plan → TDD → QA → done.
 
-## When to Use This Skill
+**CRITICAL**: This skill enforces TDD and QA. You MUST NOT skip these phases.
 
-- User says "develop this feature", "work on this ticket", "implement this"
-- User provides a Linear issue ID (e.g., `AIE-123`)
-- User provides a Basecamp todo URL
-- User provides a Trello card URL
-- User wants to implement a feature end-to-end with proper planning and TDD
+## Workflow Overview
+
+```
+Phase 1: Requirements    → USER APPROVAL GATE 1
+Phase 2: Planning        → RAILS-ARCHITECT REVIEW → USER APPROVAL GATE 2
+Phase 3: TDD Development → Tests written BEFORE code
+Phase 4: QA Validation   → RAILS-ARCHITECT CODE REVIEW → USER APPROVAL GATE 3
+Phase 5: Complete        → PR created
+
+         ┌─────────────────────────────────────┐
+         │   PHASE 3 ←→ PHASE 4 LOOP          │
+         │   (repeat until QA + Review pass)   │
+         └─────────────────────────────────────┘
+```
+
+**IMPORTANT**: Phases 3 and 4 form a loop. If QA fails or code review finds issues, return to Phase 3 to fix, then re-run Phase 4. This loop continues until ALL checks pass.
+
+---
+
+## Phase 0: Check for Existing Context (ALWAYS RUN FIRST)
+
+Before starting any discovery work, check if context already exists from a previous session.
+
+### 0.1 Check for `.develop-feature/` directory
+
+```bash
+ls -la .develop-feature/ 2>/dev/null || echo "No existing context"
+```
+
+### 0.2 If context exists, identify ticket files
+
+Look for files matching the ticket ID pattern:
+- `[ticket-id]-context.md` - Requirements and technical context
+- `[ticket-id]-pr-*.md` - PR plans
+- `[ticket-id]-architect-review.md` - Architecture review
+- `[ticket-id]-qa.md` - QA checklist
+- `[ticket-id]-code-review.md` - Code review results
+
+### 0.3 Determine current phase
+
+Read existing files to determine where work left off:
+
+| Files Present | Current Phase |
+|---------------|---------------|
+| None | Start Phase 1 |
+| `*-context.md` only | Phase 1 complete, start Phase 2 |
+| `*-context.md` + `*-pr-*.md` | Phase 2 in progress |
+| `*-pr-*.md` + `*-architect-review.md` | Phase 2 complete, start Phase 3 |
+| Implementation code exists | Phase 3 in progress or complete |
+| `*-qa.md` exists | Phase 4 in progress |
+| `*-code-review.md` with approval | Phase 4 complete, ready for Phase 5 |
+
+### 0.4 Present resume option to user
+
+If existing context found, summarize and ask:
+
+```
+## Existing Context Found
+
+I found previous work for this ticket:
+- Context: [summary of requirements]
+- Phase: [current phase]
+- Progress: [what's done vs remaining]
+
+Options:
+1. **Resume** - Continue from where we left off
+2. **Start Fresh** - Re-gather context (existing files will be updated)
+
+Which would you like?
+```
+
+### 0.5 Resume workflow
+
+If user chooses to resume:
+- Read all existing context files
+- Skip to the appropriate phase
+- Continue from the next incomplete step
+
+If user chooses to start fresh:
+- Proceed with Phase 1 as normal
+- Existing files will be updated with new information
 
 ---
 
@@ -157,7 +233,7 @@ For each PR, save `.develop-feature/[ticket-id]-pr-[N].md`:
 - [ ] [file/component]: [what changes]
 - [ ] [file/component]: [what changes]
 
-## Tests
+## Tests (MUST be written BEFORE implementation)
 - [ ] [test description]
 - [ ] [test description]
 
@@ -176,75 +252,169 @@ Review against:
 
 **Simplify if possible** - can PRs be combined? Any YAGNI?
 
-**USER APPROVAL GATE 2**: "Here's the implementation plan broken into [N] PRs. Ready to start development?"
+### 2.5 Rails Architect Plan Review (MANDATORY)
+
+**BEFORE presenting plan to user**, spawn the **rails-architect agent** to review:
+
+```
+Task tool with subagent_type=rails-architect
+
+Prompt: "Review this implementation plan for [feature name].
+
+Context file: .develop-feature/[ticket-id]-context.md
+PR plans: .develop-feature/[ticket-id]-pr-*.md
+
+Evaluate:
+1. Does the architecture follow Rails conventions and codebase patterns?
+2. Are the PRs properly decomposed (single responsibility)?
+3. Are there any missing considerations (database indexes, N+1 queries, etc.)?
+4. Is the test coverage plan adequate?
+5. Any concerns about the approach?
+
+Provide specific feedback and recommendations."
+```
+
+**Address all rails-architect feedback** before proceeding. Update PR plans if needed.
+
+Save architect review to `.develop-feature/[ticket-id]-architect-review.md`:
+```markdown
+# Architect Review: [Ticket ID]
+
+## Reviewer
+rails-architect agent
+
+## Feedback
+[Summary of feedback]
+
+## Recommendations
+- [Recommendation 1]
+- [Recommendation 2]
+
+## Changes Made
+- [How feedback was addressed]
+
+## Approval
+✅ Plan approved by rails-architect
+```
+
+**USER APPROVAL GATE 2**: "Here's the implementation plan broken into [N] PRs. The rails-architect has reviewed and approved the approach. Ready to start development?"
 
 ---
 
-## Phase 3: Development (TDD)
+## Phase 3: TDD Development
 
-Work through each PR plan using Red-Green-Refactor.
+**MANDATORY**: You MUST follow Red-Green-Refactor for EVERY change. Writing implementation code before tests is NOT allowed.
 
-### 3.1 For each change in the PR:
+### 3.1 TDD Cycle (REQUIRED for each feature/change)
 
-**Red - Write failing test first**:
+For EACH item in the PR plan, follow this EXACT sequence:
+
+#### Step 1: RED - Write failing test FIRST
+
 ```bash
-# RSpec (check for DevContainer vs Docker)
-bundle exec rspec spec/path_spec.rb
-# or via docker-runner
+# Create the test file BEFORE any implementation
+# Write tests that describe the expected behavior
+```
+
+**RSpec example**:
+```ruby
+# spec/controllers/example_controller_spec.rb
+describe ExampleController do
+  describe "POST #action" do
+    it "creates a record" do
+      expect { post :action, params: valid_params }
+        .to change(Model, :count).by(1)
+    end
+  end
+end
+```
+
+**Jest example**:
+```typescript
+// spec/javascript/components/Example.test.tsx
+describe('<Example />', () => {
+  it('renders the button', () => {
+    render(<Example />);
+    expect(screen.getByRole('button')).toBeInTheDocument();
+  });
+});
+```
+
+#### Step 2: RUN the test - verify it FAILS
+
+```bash
+# RSpec
 bin/docker/docker-runner bundle exec rspec spec/path_spec.rb
 
 # Jest
-yarn test path/to/test
+bin/docker/docker-runner yarn jest spec/javascript/path.test.tsx
 ```
 
-**Green - Implement minimum code to pass**:
-Write just enough code to make the test pass.
+**STOP**: The test MUST fail before proceeding. If it passes, your test isn't testing new behavior.
 
-**Refactor - Clean up**:
+#### Step 3: GREEN - Write MINIMUM code to pass
+
+Implement ONLY enough code to make the failing test pass. No more.
+
+#### Step 4: RUN the test - verify it PASSES
+
+```bash
+# Same commands as Step 2
+```
+
+**STOP**: The test MUST pass before proceeding. If it fails, fix the implementation.
+
+#### Step 5: REFACTOR - Clean up
+
 ```bash
 # Ruby
-bundle exec rubocop -a [file]
+bin/docker/docker-runner bundle exec rubocop -a [file]
 
 # JavaScript/TypeScript
-yarn lint --fix
+bin/docker/docker-runner yarn eslint [file] --fix
 ```
 
-### 3.2 Validate with E2E tools
+#### Step 6: REPEAT for next test case
 
-**UI changes** - Use Playwright MCP:
-```
-mcp__plugin_wealthbox_playwright__browser_navigate - Go to feature
-mcp__plugin_wealthbox_playwright__browser_click - Test interactions
-mcp__plugin_wealthbox_playwright__browser_take_screenshot - Capture result
-```
+Continue until all behavior for this change is tested.
 
-**Data changes** - Use database queries:
-```
-mcp__plugin_wealthbox_db__execute_sql_crm_test - Verify data state
-mcp__plugin_wealthbox_db__search_objects_crm_test - Find records
-```
+### 3.2 TDD Checklist (verify after each change)
 
-### 3.3 Track progress
+Before moving to next item in PR plan:
+- [ ] Test was written BEFORE implementation
+- [ ] Test failed initially (RED)
+- [ ] Implementation made test pass (GREEN)
+- [ ] Code is clean and linted (REFACTOR)
+- [ ] No untested code paths
 
-Update PR plan files as items complete:
+### 3.3 Track progress in PR plan
+
+Update `.develop-feature/[ticket-id]-pr-[N].md` as you go:
+
 ```markdown
 ## Changes
-- [x] [file/component]: [what changes] ✅
+- [x] [file/component]: [what changes] ✅ (TDD: RED→GREEN→REFACTOR)
 - [ ] [file/component]: [what changes]
+
+## Tests
+- [x] [test description] ✅ PASSING
+- [ ] [test description]
 ```
 
-### 3.4 Complete PR
+### 3.4 Complete PR development
 
 When all items done:
 1. Run full test suite for affected areas
 2. Run linters on all changed files
-3. Create commit with clear message
+3. Verify all tests pass
 4. Update PR plan status to COMPLETE
-5. Move to next PR
+5. **DO NOT create PR yet** - proceed to Phase 4 QA
 
 ---
 
 ## Phase 4: QA Validation
+
+**MANDATORY**: You MUST complete QA before creating a PR. This phase cannot be skipped.
 
 ### 4.1 Create QA checklist
 
@@ -253,14 +423,18 @@ Save `.develop-feature/[ticket-id]-qa.md`:
 ```markdown
 # QA: [Ticket ID]
 
-## Acceptance Criteria
-- [ ] [Criterion 1]: [How to verify]
-- [ ] [Criterion 2]: [How to verify]
+## Acceptance Criteria Validation
+| Criterion | How to Verify | Status |
+|-----------|---------------|--------|
+| [Criterion 1] | [Steps] | ⏳ |
+| [Criterion 2] | [Steps] | ⏳ |
 
 ## Functional Tests
-- [ ] Happy path: [steps]
-- [ ] Edge case 1: [steps]
-- [ ] Error handling: [steps]
+| Test Case | Steps | Expected | Status |
+|-----------|-------|----------|--------|
+| Happy path | [steps] | [expected] | ⏳ |
+| Edge case 1 | [steps] | [expected] | ⏳ |
+| Error handling | [steps] | [expected] | ⏳ |
 
 ## Visual/UI (if applicable)
 - [ ] Matches Figma design
@@ -268,47 +442,187 @@ Save `.develop-feature/[ticket-id]-qa.md`:
 - [ ] Accessibility
 
 ## Code Quality
-- [ ] All tests pass
-- [ ] Rubocop clean
-- [ ] ESLint clean
-- [ ] Brakeman clean (security)
+- [ ] All RSpec tests pass
+- [ ] All Jest tests pass
+- [ ] Rubocop clean (no offenses)
+- [ ] ESLint clean (no errors)
+- [ ] Brakeman clean (no security issues)
 ```
 
-### 4.2 Execute QA
+### 4.2 Execute QA - Automated Checks
 
-For each item:
-1. Perform the validation
-2. Mark PASS ✅ or FAIL ❌
-3. If FAIL, document the specific issue
+Run these commands and record results:
 
-Use tools:
-- **Playwright MCP** for UI/E2E validation
-- **Database queries** for data validation
-- **Test suite** for regression testing
+```bash
+# Run all affected RSpec tests
+bin/docker/docker-runner bundle exec rspec [spec files]
 
-### 4.3 Evaluate results
+# Run all affected Jest tests
+bin/docker/docker-runner yarn jest [test files]
 
-**QA PASSED** if:
-- All acceptance criteria validated ✅
-- No critical bugs
-- Code quality meets standards
+# Rubocop on changed files
+bin/docker/docker-runner bundle exec rubocop [changed files]
 
-**NEEDS WORK** if:
-- Any acceptance criteria not met
-- Bugs found needing fixes
-- Code quality issues
+# ESLint on changed files
+bin/docker/docker-runner yarn eslint [changed files]
 
-If needs work → Return to Phase 3, fix issues, re-run QA.
+# Brakeman security scan
+bin/docker/docker-runner bundle exec brakeman -q
+```
 
-**USER APPROVAL GATE 3**: "QA complete. [PASSED/N issues found]. Ready to create PR?"
+### 4.3 Execute QA - Manual/E2E Validation
+
+Use Playwright MCP for UI validation:
+
+```
+mcp__plugin_wealthbox_playwright__browser_navigate - Navigate to feature
+mcp__plugin_wealthbox_playwright__browser_click - Test interactions
+mcp__plugin_wealthbox_playwright__browser_take_screenshot - Capture results
+mcp__plugin_wealthbox_playwright__browser_snapshot - Get page state
+```
+
+Use database queries to verify data:
+
+```
+mcp__plugin_wealthbox_db__execute_sql_crm - Verify data state
+mcp__plugin_wealthbox_db__search_objects_crm - Find records
+```
+
+### 4.4 Update QA checklist with results
+
+For each item, mark:
+- ✅ PASS - Working as expected
+- ❌ FAIL - Not working, needs fix
+- ⚠️ PARTIAL - Partially working, minor issues
+
+### 4.5 Evaluate QA results
+
+**QA PASSED** requires ALL of:
+- [ ] All acceptance criteria validated ✅
+- [ ] All functional tests pass ✅
+- [ ] All automated tests pass ✅
+- [ ] All linters clean ✅
+- [ ] No security issues ✅
+
+**IF ANY FAILURES** (Dev→QA Loop):
+```
+┌─────────────────────────────────────────────────────┐
+│  QA FAILED → Fix in Phase 3 → Re-run Phase 4       │
+│  (Loop continues until ALL checks pass)            │
+└─────────────────────────────────────────────────────┘
+```
+
+1. Document the failures in QA checklist with specific details
+2. **Return to Phase 3** to fix each issue using TDD:
+   - Write/update test that catches the failure
+   - Implement the fix
+   - Verify test passes
+3. **Re-run ALL of Phase 4** from the beginning (4.1-4.5)
+4. **Repeat this loop** until all checks pass
+
+**DO NOT proceed to 4.6 (Code Review) until QA passes.**
+
+### 4.6 Rails Architect Code Review (MANDATORY)
+
+**AFTER QA passes but BEFORE creating PR**, spawn the **rails-architect agent** to review the actual code:
+
+```
+Task tool with subagent_type=rails-architect
+
+Prompt: "Review the implementation for [feature name].
+
+Changed files: [list all modified/created files]
+Test files: [list all test files]
+
+Review for:
+1. Code quality and Rails best practices
+2. Proper use of concerns, services, and abstractions
+3. Database query efficiency (N+1, missing indexes)
+4. Security considerations
+5. Test coverage adequacy
+6. Any code smells or technical debt
+
+Provide specific feedback with file:line references for any issues."
+```
+
+**Address all rails-architect feedback** before proceeding. Fix any issues identified.
+
+Save code review to `.develop-feature/[ticket-id]-code-review.md`:
+```markdown
+# Code Review: [Ticket ID]
+
+## Reviewer
+rails-architect agent
+
+## Files Reviewed
+- [file1]
+- [file2]
+
+## Issues Found
+| File | Line | Issue | Severity | Status |
+|------|------|-------|----------|--------|
+| [file] | [line] | [issue] | [High/Med/Low] | ⏳ |
+
+## Recommendations
+- [Recommendation 1]
+- [Recommendation 2]
+
+## Changes Made
+- [How feedback was addressed]
+
+## Approval
+✅ Code approved by rails-architect
+```
+
+**IF CODE REVIEW FINDS ISSUES** (Dev→Review Loop):
+```
+┌─────────────────────────────────────────────────────┐
+│  Review Failed → Fix in Phase 3 → Re-run 4.6       │
+│  (Loop continues until architect approves)         │
+└─────────────────────────────────────────────────────┘
+```
+
+1. Document the issues in code review file
+2. **Return to Phase 3** to fix each issue using TDD
+3. **Re-run QA checks** (4.2-4.5) to ensure fixes don't break anything
+4. **Re-run Code Review** (4.6)
+5. **Repeat this loop** until rails-architect approves
+
+**ALL issues must be resolved** before proceeding to user approval.
+
+**USER APPROVAL GATE 3**: Present QA and code review results to user:
+```
+## QA & Code Review Complete
+
+### QA Results Summary
+- Acceptance Criteria: X/X passed ✅
+- Functional Tests: X/X passed ✅
+- Automated Tests: All passing ✅
+- Code Quality Checks: Clean ✅
+
+### Rails Architect Code Review
+- Issues Found: X (all resolved ✅)
+- Recommendations: Addressed ✅
+- Approval: ✅ Code approved
+
+Ready to create PR?
+```
 
 ---
 
 ## Phase 5: Complete
 
-When QA passes:
+**ONLY proceed here after QA PASSED in Phase 4.**
 
-### 5.1 Create PR(s)
+### 5.1 Final verification
+
+```bash
+# One final test run
+bin/docker/docker-runner bundle exec rspec [all affected specs]
+bin/docker/docker-runner yarn jest [all affected tests]
+```
+
+### 5.2 Create PR
 
 ```bash
 gh pr create --title "[Ticket ID] [Description]" --body "$(cat <<'EOF'
@@ -318,48 +632,79 @@ gh pr create --title "[Ticket ID] [Description]" --body "$(cat <<'EOF'
 ## Ticket
 [Link to Linear/Basecamp/Trello]
 
+## Changes
+- [Key change 1]
+- [Key change 2]
+
 ## Test Plan
 - [How to verify]
+
+## QA Results
+- All acceptance criteria validated ✅
+- All tests passing ✅
+- Linters clean ✅
 
 🤖 Generated with Claude Code
 EOF
 )"
 ```
 
-### 5.2 Link back to ticket
+### 5.3 Link back to ticket
 
-Update the original ticket with PR link(s).
+Update the original ticket with PR link.
 
-### 5.3 Summary output
+### 5.4 Summary output
 
 ```markdown
 ## Feature Complete: [Ticket ID]
 
-- PRs: [links]
-- Tests added: [count]
-- Files changed: [count]
-- QA: PASSED ✅
+### PRs Created
+- [PR link]
+
+### Test Coverage
+- RSpec: [X] new tests
+- Jest: [X] new tests
+
+### Files Changed
+- [count] files modified
+- [count] files created
+
+### QA Status
+✅ All acceptance criteria validated
+✅ All tests passing
+✅ Code quality checks passed
 ```
 
 ---
 
-## Quality Checklist
+## Enforcement Rules
 
-Before marking complete:
-- [ ] All acceptance criteria from ticket satisfied
-- [ ] Tests written for new functionality
-- [ ] Linters pass (rubocop, eslint)
-- [ ] No security issues (brakeman)
-- [ ] PR description links to ticket
-- [ ] Context files in `.develop-feature/` updated
+### NEVER skip these steps:
 
----
+1. **Phase 1**: Requirements must be documented and approved
+2. **Phase 2**: Plan must be reviewed by rails-architect and approved by user
+3. **Phase 3**: Tests MUST be written BEFORE implementation (TDD)
+4. **Phase 4**: QA MUST pass AND rails-architect MUST approve code
+5. **Phase 5**: PR only after Phase 4 fully passes
 
-## Anti-Patterns to Avoid
+### MANDATORY Loops:
 
-1. **Skipping requirements discovery** - Always understand before coding
-2. **Monolithic PRs** - Break into small, focused changes
-3. **Tests after implementation** - Write tests first (TDD)
-4. **Ignoring existing patterns** - Follow codebase conventions
-5. **Over-engineering** - Minimum viable, no YAGNI
-6. **Skipping QA** - Always validate before PR
+- **Dev→QA Loop**: If QA fails, return to Phase 3, fix, re-run Phase 4. Repeat until pass.
+- **Dev→Review Loop**: If code review fails, return to Phase 3, fix, re-run 4.2-4.6. Repeat until pass.
+- **NEVER proceed to Phase 5** until both QA and code review pass.
+
+### If user says "skip tests", "skip QA", or "skip code review":
+
+Respond: "The develop-feature workflow requires TDD, QA validation, and rails-architect code review. These ensure code quality and prevent regressions. I can proceed with a faster approach if you prefer, but it won't follow this skill's methodology. Would you like to continue with full TDD+QA+Review, or switch to a simpler implementation approach?"
+
+### Anti-Patterns to REJECT:
+
+1. ❌ Writing implementation before tests
+2. ❌ Skipping the RED phase (test must fail first)
+3. ❌ Creating PR before QA validation
+4. ❌ Marking QA as "passed" without actually running checks
+5. ❌ Ignoring failing tests or linter errors
+6. ❌ Skipping rails-architect plan review
+7. ❌ Skipping rails-architect code review
+8. ❌ Proceeding after QA/review failure without fixing and re-running
+9. ❌ Creating PR with unresolved code review issues
