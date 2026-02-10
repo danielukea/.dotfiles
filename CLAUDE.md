@@ -47,6 +47,7 @@ The `claude/` package contains:
 - `.claude/agents/` - Custom agent definitions (code-architect, design-system-expert, rails-pattern-expert, etc.)
 - `.claude/commands/` - Slash commands (take-notes, remember-note, vibe-this)
 - `.claude/templates/` - Spec templates for bugs, features, refactors
+- `.claude/docs/` - Reference documentation (MAKING_AN_AGENT, MAKING_A_SKILL, MEMORIES, etc.)
 
 ### Tool Management
 Uses `mise` (not asdf) for runtime version management. Global tools are defined in `mise/.config/mise/config.toml`.
