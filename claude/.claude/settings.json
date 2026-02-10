@@ -3,6 +3,25 @@
     "type": "command",
     "command": "input=$(cat); current_dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); model_name=$(echo \"$input\" | jq -r '.model.display_name'); printf \"➜  $(basename \"$current_dir\") \"; if git -C \"$current_dir\" rev-parse --git-dir >/dev/null 2>&1; then branch=$(git -C \"$current_dir\" branch --show-current 2>/dev/null || echo 'detached'); status=''; if ! git -C \"$current_dir\" diff-index --quiet HEAD -- 2>/dev/null; then status=' ✗'; fi; printf \"git:($branch)$status \"; fi; printf \"[$model_name]\""
   },
+  "permissions": {
+    "deny": [
+      "mcp__basecamp__basecamp_create_project",
+      "mcp__basecamp__basecamp_update_project",
+      "mcp__basecamp__basecamp_trash_project",
+      "mcp__basecamp__basecamp_create_todolist",
+      "mcp__basecamp__basecamp_complete_todo",
+      "mcp__basecamp__basecamp_uncomplete_todo",
+      "mcp__basecamp__basecamp_create_message",
+      "mcp__basecamp__basecamp_update_message",
+      "mcp__basecamp__basecamp_create_comment",
+      "mcp__basecamp__basecamp_update_comment",
+      "mcp__basecamp__basecamp_create_schedule_entry",
+      "mcp__basecamp__basecamp_update_schedule_entry",
+      "mcp__basecamp__basecamp_create_document",
+      "mcp__basecamp__basecamp_update_document"
+    ]
+  },
+  "model": "opus",
   "enabledPlugins": {
     "frontend-design@claude-code-plugins": true,
     "frontend-design@claude-plugins-official": true,
@@ -13,6 +32,16 @@
     "context7@claude-plugins-official": true,
     "ralph-loop@claude-plugins-official": true,
     "wealthbox@wealthbox": true,
-    "playwright@claude-plugins-official": true
-  }
+    "playwright@claude-plugins-official": true,
+    "figma@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "wealthbox": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/lukedanielson/Workspace/wealthbox-claude-plugin"
+      }
+    }
+  },
+  "alwaysThinkingEnabled": true
 }
