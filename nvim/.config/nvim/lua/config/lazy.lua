@@ -32,9 +32,8 @@ require("lazy").setup({
   },
   install = { colorscheme = { "everforest", "habamax" } },
   checker = {
-    enabled = true, -- check for plugin updates periodically
-    notify = false, -- notify on update
-  }, -- automatically check for plugin updates
+    enabled = false, -- disabled to prevent accidental updates that break things
+  },
   performance = {
     rtp = {
       -- disable some rtp plugins
