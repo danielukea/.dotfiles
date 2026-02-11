@@ -1,13 +1,30 @@
 # Wealthbox Development Container Aliases
 # Shortcuts for common Wealthbox development container commands
 
-# Wealthbox shell - interactive shell in container
+# Wealthbox shell - interactive shell in container (works in crm-web and sandbox directories)
 wsh() {
-    if [[ ! -f "bin/docker/interactive.sh" ]]; then
-        echo "❌ Error: Must be in the CRM web project directory (~/Workspace/crm-web)"
+    # Find project root by walking up to Gemfile
+    local dir="$PWD"
+    while [[ -n "$dir" && ! -f "$dir/Gemfile" ]]; do
+        dir="${dir%/*}"
+    done
+
+    if [[ -z "$dir" ]]; then
+        echo "Error: Not in a CRM project directory (no Gemfile found)"
         return 1
     fi
-    bin/docker/interactive.sh "$@"
+
+    # Check if we're in a sandbox
+    local sandbox_root="$HOME/Workspace/wealthbox-sandbox"
+    if [[ "$dir" == "$sandbox_root"/sandbox-* ]]; then
+        local sandbox_name="${dir#$sandbox_root/sandbox-}"
+        "$sandbox_root/sandbox" shell "$sandbox_name" "$@"
+    elif [[ -f "$dir/bin/docker/interactive.sh" ]]; then
+        (cd "$dir" && bin/docker/interactive.sh "$@")
+    else
+        echo "Error: Not in a CRM project directory"
+        return 1
+    fi
 }
 
 # Wealthbox vim - nvim in devcontainer
@@ -19,13 +36,29 @@ wvim() {
     devcontainer exec --workspace-folder . nvim "$@"
 }
 
-# Wealthbox rails console - rails console in container
+# Wealthbox rails console - rails console in container (works in crm-web and sandbox directories)
 wrc() {
-    if [[ ! -f "bin/docker/interactive.sh" ]]; then
-        echo "❌ Error: Must be in the CRM web project directory (~/Workspace/crm-web)"
+    # Find project root by walking up to Gemfile
+    local dir="$PWD"
+    while [[ -n "$dir" && ! -f "$dir/Gemfile" ]]; do
+        dir="${dir%/*}"
+    done
+
+    if [[ -z "$dir" ]]; then
+        echo "Error: Not in a CRM project directory (no Gemfile found)"
         return 1
     fi
-    bin/docker/interactive.sh rails c "$@"
+
+    local sandbox_root="$HOME/Workspace/wealthbox-sandbox"
+    if [[ "$dir" == "$sandbox_root"/sandbox-* ]]; then
+        local sandbox_name="${dir#$sandbox_root/sandbox-}"
+        "$sandbox_root/sandbox" shell "$sandbox_name" rails c "$@"
+    elif [[ -f "$dir/bin/docker/interactive.sh" ]]; then
+        (cd "$dir" && bin/docker/interactive.sh rails c "$@")
+    else
+        echo "Error: Not in a CRM project directory"
+        return 1
+    fi
 }
 
 w-overmind-dev() {
