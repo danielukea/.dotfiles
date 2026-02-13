@@ -1,0 +1,283 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ralph — Headless Claude loop that implements a plan file step by step.
+#
+# Each iteration spawns a fresh `claude -p` process that:
+#   1. Reads the plan file to find the next incomplete step
+#   2. Implements it
+#   3. Runs tests and linters
+#   4. Marks the step done in the plan file
+#
+# Progress is checkpointed via git commits on a ralph/<plan-name> branch.
+
+# ── Defaults ──────────────────────────────────────────────────────────────────
+MAX_ITERATIONS=20
+MODEL="opus"
+DRY_RUN=false
+WITH_BROWSER=false
+WITH_FIGMA=false
+
+# ── Usage ─────────────────────────────────────────────────────────────────────
+usage() {
+  cat <<EOF
+Usage: ralph <plan-file> [OPTIONS]
+
+Headless Claude loop — implements a plan file one step at a time.
+
+Options:
+  --max-iterations <N>   Stop after N iterations (default: $MAX_ITERATIONS)
+  --model <model>        Claude model to use (default: $MODEL)
+  --with-browser         Enable visual QA via agent-browser CLI
+  --with-figma           Include Figma tools for design verification
+  --dry-run              Show the prompt without executing
+  -h, --help             Show this help message
+
+Examples:
+  ralph .local/feature.md
+  ralph CLEANUP.md --max-iterations 5
+  ralph docs/plan.md --model sonnet --dry-run
+  ralph .local/ui-fix.md --with-browser
+  ralph .local/ui-fix.md --with-browser --with-figma
+EOF
+  exit 0
+}
+
+# ── Parse args ────────────────────────────────────────────────────────────────
+PLAN_FILE=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --max-iterations)
+      MAX_ITERATIONS="$2"
+      shift 2
+      ;;
+    --model)
+      MODEL="$2"
+      shift 2
+      ;;
+    --with-browser)
+      WITH_BROWSER=true
+      shift
+      ;;
+    --with-figma)
+      WITH_FIGMA=true
+      shift
+      ;;
+    --dry-run)
+      DRY_RUN=true
+      shift
+      ;;
+    -h|--help)
+      usage
+      ;;
+    -*)
+      echo "Error: Unknown option $1" >&2
+      usage
+      ;;
+    *)
+      if [[ -z "$PLAN_FILE" ]]; then
+        PLAN_FILE="$1"
+      else
+        echo "Error: Unexpected argument $1" >&2
+        usage
+      fi
+      shift
+      ;;
+  esac
+done
+
+if [[ -z "$PLAN_FILE" ]]; then
+  echo "Error: Plan file is required" >&2
+  usage
+fi
+
+# ── Resolve plan file to absolute path ────────────────────────────────────────
+if [[ ! "$PLAN_FILE" = /* ]]; then
+  PLAN_FILE="$(cd "$(dirname "$PLAN_FILE")" && pwd)/$(basename "$PLAN_FILE")"
+fi
+
+if [[ ! -f "$PLAN_FILE" ]]; then
+  echo "Error: Plan file not found: $PLAN_FILE" >&2
+  exit 1
+fi
+
+# ── Derive branch name ───────────────────────────────────────────────────────
+plan_basename="$(basename "$PLAN_FILE" .md)"
+BRANCH_NAME="ralph/${plan_basename}"
+
+# ── Count remaining steps ─────────────────────────────────────────────────────
+count_remaining() {
+  local count
+  count=$(grep -cE '^\s*- \[ \]' "$PLAN_FILE" 2>/dev/null) || true
+  echo "${count:-0}"
+}
+
+remaining=$(count_remaining)
+if [[ "$remaining" -eq 0 ]]; then
+  echo "No incomplete steps found in $PLAN_FILE — nothing to do."
+  exit 0
+fi
+
+echo "ralph: Found $remaining incomplete step(s) in $(basename "$PLAN_FILE")"
+
+# ── Build allowed tools ───────────────────────────────────────────────────────
+ALLOWED_TOOLS="Bash Read Edit Write Grep Glob Task WebFetch"
+
+# --with-browser uses agent-browser CLI via Bash — no extra tool permissions needed
+
+if [[ "$WITH_FIGMA" = true ]]; then
+  ALLOWED_TOOLS="$ALLOWED_TOOLS mcp__figma__get_screenshot mcp__figma__get_design_context mcp__figma__get_metadata mcp__figma__get_variable_defs"
+fi
+
+# ── Build prompt ──────────────────────────────────────────────────────────────
+build_prompt() {
+  cat <<PROMPT
+You are implementing a plan step by step. Read the plan file and find the next
+incomplete step (marked with \`- [ ]\` or unchecked checkbox).
+
+Plan file: $PLAN_FILE
+
+For the next incomplete step:
+1. Read the relevant code files to understand what needs to change
+2. Write a failing test first that captures the expected behavior
+3. Run the test to confirm it fails: bin/docker/docker-runner bundle exec rspec <spec file>
+4. Implement the minimum code to make the test pass
+5. Run tests again to confirm they pass
+6. Run linter: bin/docker/docker-runner bundle exec rubocop -a <changed files>
+7. If tests/lint pass: mark the step as done in the plan file (change \`- [ ]\` to \`- [x]\`)
+8. If tests/lint fail: try to fix the issue. If you cannot fix it after a reasonable attempt, leave the step unmarked and stop.
+
+Rules:
+- Implement ONE step only, then stop
+- Do not modify steps you aren't working on
+- Do not add abstractions beyond what the plan specifies
+- Reference actual file paths from the codebase
+- Always write the test BEFORE the implementation — red, green, refactor
+- Only use git for reading: status, diff, log, show. Ralph handles all commits and branch management.
+PROMPT
+
+  if [[ "$WITH_FIGMA" = true ]]; then
+    cat <<FIGMA
+
+Before implementing UI changes, check the Figma design:
+1. Use the Figma tools to get a screenshot and design context for the relevant component
+2. Note spacing, colors, typography, and layout from the design
+3. Implement to match the Figma spec — use design tokens where available
+FIGMA
+  fi
+
+  if [[ "$WITH_BROWSER" = true ]]; then
+    cat <<BROWSER
+
+After implementing the change, visually verify using agent-browser CLI via Bash:
+- \`agent-browser open <url>\` — navigate to a page
+- \`agent-browser snapshot -i -c\` — get interactive elements (use refs like @e1, @e2)
+- \`agent-browser click @e1\` — click an element by ref
+- \`agent-browser fill @e3 "text"\` — fill a form field
+- \`agent-browser screenshot <path>\` — take a screenshot
+- \`agent-browser wait <selector|ms>\` — wait for element or time
+
+Steps:
+1. Open the relevant page (http://localhost:3000/...)
+2. Take a screenshot to confirm the UI looks correct
+3. If the UI looks wrong, fix the issue before marking the step done
+4. If a page doesn't load or an element isn't found, screenshot what's there, note the issue, and move on
+BROWSER
+  fi
+
+  if [[ "$WITH_FIGMA" = true && "$WITH_BROWSER" = true ]]; then
+    cat <<COMPARE
+
+Compare your implementation against the Figma design:
+1. Take a Figma screenshot of the component
+2. Take a browser screenshot with \`agent-browser screenshot figma-compare.png\`
+3. If they don't match, fix the discrepancies before marking the step done
+COMPARE
+  fi
+}
+
+PROMPT="$(build_prompt)"
+
+# ── Dry run ───────────────────────────────────────────────────────────────────
+if [[ "$DRY_RUN" = true ]]; then
+  echo ""
+  echo "── Dry Run ──────────────────────────────────────────────"
+  echo "Plan file:      $PLAN_FILE"
+  echo "Branch:         $BRANCH_NAME"
+  echo "Model:          $MODEL"
+  echo "Max iterations: $MAX_ITERATIONS"
+  echo "Remaining:      $remaining step(s)"
+  echo "Allowed tools:  $ALLOWED_TOOLS"
+  echo "Browser mode:   $WITH_BROWSER"
+  echo "Figma mode:     $WITH_FIGMA"
+  echo ""
+  echo "── Prompt ───────────────────────────────────────────────"
+  echo "$PROMPT"
+  echo "────────────────────────────────────────────────────────"
+  exit 0
+fi
+
+# ── Create checkpoint branch ──────────────────────────────────────────────────
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
+if [[ "$current_branch" != "$BRANCH_NAME" ]]; then
+  echo "ralph: Creating branch $BRANCH_NAME from $current_branch"
+  git checkout -b "$BRANCH_NAME" 2>/dev/null || git checkout "$BRANCH_NAME"
+fi
+
+# ── Main loop ─────────────────────────────────────────────────────────────────
+iteration=0
+steps_completed=0
+
+trap 'echo ""; echo "ralph: Interrupted after $iteration iteration(s), $steps_completed step(s) completed on branch $BRANCH_NAME"; exit 130' INT
+
+while [[ $iteration -lt $MAX_ITERATIONS ]]; do
+  remaining=$(count_remaining)
+  if [[ "$remaining" -eq 0 ]]; then
+    echo "ralph: All steps complete!"
+    break
+  fi
+
+  iteration=$((iteration + 1))
+  echo ""
+  echo "══════════════════════════════════════════════════════════"
+  echo " ralph: Iteration $iteration/$MAX_ITERATIONS — $remaining step(s) remaining"
+  echo "══════════════════════════════════════════════════════════"
+
+  # Run Claude (prompt via stdin to avoid positional arg parsing issues)
+  if echo "$PROMPT" | claude -p \
+    --model "$MODEL" \
+    --allowedTools "$ALLOWED_TOOLS"; then
+    echo "ralph: Claude exited successfully"
+  else
+    echo "ralph: Claude exited with error (code $?) — continuing to next iteration"
+  fi
+
+  # Checkpoint: commit if there are changes
+  if [[ -n "$(git status --porcelain)" ]]; then
+    git add -A
+    git commit -m "ralph: iteration $iteration" --no-verify
+    new_remaining=$(count_remaining)
+    completed_this_iter=$((remaining - new_remaining))
+    if [[ $completed_this_iter -gt 0 ]]; then
+      steps_completed=$((steps_completed + completed_this_iter))
+      echo "ralph: Committed — $completed_this_iter step(s) done this iteration"
+    else
+      echo "ralph: Committed — changes made but step not yet marked complete"
+    fi
+  else
+    echo "ralph: No changes to commit"
+  fi
+done
+
+# ── Summary ───────────────────────────────────────────────────────────────────
+echo ""
+echo "══════════════════════════════════════════════════════════"
+echo " ralph: Summary"
+echo "══════════════════════════════════════════════════════════"
+echo "  Iterations:      $iteration"
+echo "  Steps completed: $steps_completed"
+echo "  Remaining:       $(count_remaining)"
+echo "  Branch:          $BRANCH_NAME"
+echo ""
+echo "Review with: git log --oneline $current_branch..$BRANCH_NAME"

@@ -103,8 +103,8 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Add local bin to PATH
-export PATH="$HOME/.local/bin:$PATH"
+# Add local bin and Claude scripts to PATH
+export PATH="$HOME/.claude/scripts:$HOME/.local/bin:$PATH"
 
 # Homebrew setup (Linux)
 if [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]]; then
