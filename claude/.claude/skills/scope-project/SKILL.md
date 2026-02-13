@@ -52,6 +52,30 @@ Parse and classify all provided inputs:
 
 ---
 
+## Phase 1B: Triage Existing Work
+
+**CRITICAL**: Before drafting any new TODOs, check what already exists.
+
+If a Basecamp todo list is linked:
+
+1. **Fetch all existing TODOs** from the list
+2. **Check the codebase** for each TODO — is it already implemented?
+3. **Present a triage table** to the user:
+
+| # | Basecamp TODO | Verdict |
+|---|---------------|---------|
+| 1 | [Title] | **NEEDS WORK** — [reason] |
+| 2 | [Title] | **ALREADY DONE** — [what exists in code] |
+| 3 | [Title] | **SKIP** — [why it's unnecessary] |
+| 4 | [Title] | **SEPARATE PR** — [being handled elsewhere] |
+
+4. **Ask the user** how to handle already-done items (mark complete, consolidate, replace)
+5. Only draft new/rewritten TODOs for items that actually need work
+
+This prevents creating duplicate work and respects existing context.
+
+---
+
 ## Phase 2: External Context Gathering
 
 Fetch from all linked sources **in parallel**:
@@ -184,6 +208,23 @@ Compile requirements from all context sources into categories:
 
 ### Map to Acceptance Criteria
 Each requirement becomes testable acceptance criteria.
+
+**IMPORTANT: Write acceptance criteria as observable behaviors, NOT implementation details.**
+
+These TODOs are for humans. Write what a QA person can observe and verify.
+
+**Wrong** (implementation-focused):
+- "Use `sourceTypes` prop to populate dropdown"
+- "Initialize wizard with `formKey` pattern to reset state"
+- "Use `useFieldArray` to manage relationship entries"
+
+**Right** (behavior-focused):
+- "Clicking 'Add Relationship' opens a multi-step wizard modal titled 'Add Relationship'"
+- "Subtitle reads 'Select an Object'"
+- "'Next' is disabled until a type is selected"
+- "Going back to this step preserves the previous selection"
+
+Keep implementation details in a separate **Technical Resources** section.
 
 ### Ask Clarifying Questions
 
@@ -319,35 +360,43 @@ Break work into independent, deployable slices.
    - Each slice should be reviewable/mergeable alone
    - No slice should require another unmerged slice
 
+### Consolidation Pass
+
+After drafting TODOs, **proactively ask**: "Can any of these be combined? Are there steps that pragmatically belong together?"
+
+Prefer fewer, meatier TODOs over many granular ones. Group steps that:
+- Share a component or data flow
+- Would be awkward to review/test independently
+- Would create unnecessary merge conflicts if done in parallel
+
+Example: 7 wizard step TODOs → 3 consolidated TODOs (shell+step1, middle steps, final step+submission).
+
 ### Slice Template
 
 ```markdown
-## Slice N: [Descriptive Name]
+## TODO N: [Descriptive Name]
 
-**User Value:** [What the user can do after this slice is deployed]
+**Description**
+[What and why — 2-3 sentences]
 
-**Assumption:** [When/condition this slice applies]
+**Prerequisite:** [What must be done first, if any]
 
-**Scope:**
-- [ ] [Specific deliverable 1]
-- [ ] [Specific deliverable 2]
+**Figma**
+- [Link to relevant design frames]
 
-**Out of Scope:**
-- [Feature X] → Slice M
-
-**Technical Components:**
-- Backend: `path/to/files.rb`
-- Frontend: `path/to/components/`
-- Tests: `spec/path/`
-
-**Dependencies:**
-- Requires: [Slice X] (if any)
-- Blocks: [Slice Y] (if any)
-
-**Acceptance Criteria:**
-- [ ] [Observable behavior 1]
+**Acceptance Criteria**
+- [ ] [Observable behavior 1 — what a QA person can verify]
 - [ ] [Observable behavior 2]
+
+**Technical Resources**
+- [File paths, patterns, implementation hints — for developers]
+
+**Out of Scope**
+- [Feature X] → TODO M
+- [Feature Y] → separate PR
 ```
+
+**IMPORTANT: Every TODO MUST have an Out of Scope section** listing items explicitly excluded, with a pointer to which TODO or PR covers them. This prevents scope creep and makes boundaries clear for developers.
 
 ### Validate with project-planner Agent
 Invoke `project-planner` to review slice decomposition for:
@@ -426,14 +475,21 @@ Use vertical orientation (TD) by default. Focus on user actions and business out
 - [ ] ADRs reviewed if present
 - [ ] Similar features identified as reference
 
-### Vertical Slices
-- [ ] Each slice delivers independent user value
+### Existing Work Triage
+- [ ] Existing Basecamp TODOs fetched and reviewed
+- [ ] Each existing TODO checked against codebase for completion
+- [ ] Triage table presented to user
+- [ ] Already-done items identified and marked
+
+### TODOs / Vertical Slices
+- [ ] Each TODO delivers independent user value
 - [ ] No circular dependencies
-- [ ] Walking skeleton is Slice 1
-- [ ] Edge cases in later slices
-- [ ] Clear acceptance criteria per slice
+- [ ] Consolidation pass completed — no unnecessarily granular TODOs
+- [ ] Acceptance criteria are observable behaviors (not implementation details)
+- [ ] Every TODO has an Out of Scope section with pointers
+- [ ] Technical details in Technical Resources, not in acceptance criteria
 - [ ] File paths reference actual code
-- [ ] Complexity estimates realistic
+- [ ] Pragmatic skip decisions documented (unnecessary work identified)
 
 ---
 
@@ -444,9 +500,12 @@ Use vertical orientation (TD) by default. Focus on user actions and business out
 3. **Scope creep** - Each slice as small as possible while delivering value
 4. **Assuming context** - Verify by reading code
 5. **Skipping current state** - Always understand what exists first
-6. **Vague acceptance criteria** - Must be observable and testable
-7. **Missing out-of-scope** - Every slice needs explicit boundaries
-8. **Monolithic flowcharts** - Create focused diagrams
+6. **Implementation-focused acceptance criteria** - Write observable behaviors, not code patterns. "Clicking X does Y", not "Use hook Z"
+7. **Missing out-of-scope** - Every TODO needs explicit boundaries pointing to responsible TODOs
+8. **Too many granular TODOs** - Consolidate aggressively. Fewer meatier TODOs > many tiny ones
+9. **Ignoring existing work** - Always triage existing Basecamp TODOs before drafting new ones
+10. **Unnecessary TODOs** - If a future change makes a TODO irrelevant, skip it. If something is mostly automatic, fold it into an acceptance criterion instead of a separate TODO
+11. **Monolithic flowcharts** - Create focused diagrams
 
 ---
 
