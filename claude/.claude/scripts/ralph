@@ -5,9 +5,10 @@ set -euo pipefail
 #
 # Each iteration spawns a fresh `claude -p` process that:
 #   1. Reads the plan file to find the next incomplete step
-#   2. Implements it
-#   3. Runs tests and linters
-#   4. Marks the step done in the plan file
+#   2. Understands the desired outcome
+#   3. Implements it
+#   4. Verifies (per the injected prompt, or using judgment)
+#   5. Marks the step done in the plan file
 #
 # Progress is checkpointed via git commits on a ralph/<plan-name> branch.
 
@@ -15,8 +16,8 @@ set -euo pipefail
 MAX_ITERATIONS=20
 MODEL="opus"
 DRY_RUN=false
-WITH_BROWSER=false
-WITH_FIGMA=false
+PROMPT_FILE=""
+PROMPT_ONLY=false
 
 # ── Usage ─────────────────────────────────────────────────────────────────────
 usage() {
@@ -28,8 +29,8 @@ Headless Claude loop — implements a plan file one step at a time.
 Options:
   --max-iterations <N>   Stop after N iterations (default: $MAX_ITERATIONS)
   --model <model>        Claude model to use (default: $MODEL)
-  --with-browser         Enable visual QA via agent-browser CLI
-  --with-figma           Include Figma tools for design verification
+  --prompt <file>        Project prompt to append after base prompt (e.g. workflow, verification)
+  --prompt-only          Use --prompt file as the ENTIRE prompt (skip base prompt)
   --dry-run              Show the prompt without executing
   -h, --help             Show this help message
 
@@ -37,8 +38,8 @@ Examples:
   ralph .local/feature.md
   ralph CLEANUP.md --max-iterations 5
   ralph docs/plan.md --model sonnet --dry-run
-  ralph .local/ui-fix.md --with-browser
-  ralph .local/ui-fix.md --with-browser --with-figma
+  ralph .local/feature.md --prompt ~/.claude/prompts/wealthbox-tdd.md
+  ralph .local/custom.md --prompt-only --prompt my-workflow.md --dry-run
 EOF
   exit 0
 }
@@ -56,12 +57,12 @@ while [[ $# -gt 0 ]]; do
       MODEL="$2"
       shift 2
       ;;
-    --with-browser)
-      WITH_BROWSER=true
-      shift
+    --prompt)
+      PROMPT_FILE="$2"
+      shift 2
       ;;
-    --with-figma)
-      WITH_FIGMA=true
+    --prompt-only)
+      PROMPT_ONLY=true
       shift
       ;;
     --dry-run)
@@ -92,6 +93,12 @@ if [[ -z "$PLAN_FILE" ]]; then
   usage
 fi
 
+# Validate --prompt-only requires --prompt
+if [[ "$PROMPT_ONLY" = true && -z "$PROMPT_FILE" ]]; then
+  echo "Error: --prompt-only requires --prompt <file>" >&2
+  exit 1
+fi
+
 # ── Resolve plan file to absolute path ────────────────────────────────────────
 if [[ ! "$PLAN_FILE" = /* ]]; then
   PLAN_FILE="$(cd "$(dirname "$PLAN_FILE")" && pwd)/$(basename "$PLAN_FILE")"
@@ -100,6 +107,17 @@ fi
 if [[ ! -f "$PLAN_FILE" ]]; then
   echo "Error: Plan file not found: $PLAN_FILE" >&2
   exit 1
+fi
+
+# ── Resolve prompt file to absolute path ─────────────────────────────────────
+if [[ -n "$PROMPT_FILE" ]]; then
+  if [[ ! "$PROMPT_FILE" = /* ]]; then
+    PROMPT_FILE="$(cd "$(dirname "$PROMPT_FILE")" && pwd)/$(basename "$PROMPT_FILE")"
+  fi
+  if [[ ! -f "$PROMPT_FILE" ]]; then
+    echo "Error: Prompt file not found: $PROMPT_FILE" >&2
+    exit 1
+  fi
 fi
 
 # ── Derive branch name ───────────────────────────────────────────────────────
@@ -122,78 +140,73 @@ fi
 echo "ralph: Found $remaining incomplete step(s) in $(basename "$PLAN_FILE")"
 
 # ── Build allowed tools ───────────────────────────────────────────────────────
-ALLOWED_TOOLS="Bash Read Edit Write Grep Glob Task WebFetch"
-
-# --with-browser uses agent-browser CLI via Bash — no extra tool permissions needed
-
-if [[ "$WITH_FIGMA" = true ]]; then
-  ALLOWED_TOOLS="$ALLOWED_TOOLS mcp__figma__get_screenshot mcp__figma__get_design_context mcp__figma__get_metadata mcp__figma__get_variable_defs"
-fi
+# Always include Figma tools — the agent will only use them when relevant
+ALLOWED_TOOLS="Bash Read Edit Write Grep Glob Task WebFetch mcp__figma__get_screenshot mcp__figma__get_design_context mcp__figma__get_metadata mcp__figma__get_variable_defs"
 
 # ── Build prompt ──────────────────────────────────────────────────────────────
 build_prompt() {
-  cat <<PROMPT
-You are implementing a plan step by step. Read the plan file and find the next
-incomplete step (marked with \`- [ ]\` or unchecked checkbox).
+  if [[ "$PROMPT_ONLY" = true ]]; then
+    # --prompt-only: use the prompt file as the entire prompt, just prepend plan file ref
+    echo "Plan file: $PLAN_FILE"
+    echo ""
+    cat "$PROMPT_FILE"
+  else
+    # Base prompt — generic and outcome-driven
+    cat <<PROMPT
+You are implementing a plan step by step. Each step describes an OUTCOME —
+what should be true when you're done — not exact implementation instructions.
 
 Plan file: $PLAN_FILE
 
-For the next incomplete step:
-1. Read the relevant code files to understand what needs to change
-2. Write a failing test first that captures the expected behavior
-3. Run the test to confirm it fails: bin/docker/docker-runner bundle exec rspec <spec file>
-4. Implement the minimum code to make the test pass
-5. Run tests again to confirm they pass
-6. Run linter: bin/docker/docker-runner bundle exec rubocop -a <changed files>
-7. If tests/lint pass: mark the step as done in the plan file (change \`- [ ]\` to \`- [x]\`)
-8. If tests/lint fail: try to fix the issue. If you cannot fix it after a reasonable attempt, leave the step unmarked and stop.
+For the next incomplete step (marked \`- [ ]\`):
+
+PHASE 1 — UNDERSTAND (before writing any code):
+1. Read the step carefully. Understand the desired outcome.
+2. Read the plan's Context section for test/lint commands and project info.
+3. If the plan has an Architecture section, read it. Follow its constraints
+   and patterns — they ensure consistency across iterations.
+4. Explore the codebase — find relevant files, existing patterns, and
+   conventions. Understand what already exists before deciding what to build.
+5. Think through your approach. Consider alternatives. Pick the simplest
+   path that achieves the outcome.
+
+PHASE 2 — IMPLEMENT:
+6. Write the code to achieve the outcome.
+7. If the injected prompt below defines a verification protocol, follow it.
+   If not, use your judgment based on the plan's Context section — run
+   whatever tests and linters are listed there.
+
+PHASE 3 — VERIFY AND EXIT:
+8. If verification PASSES: mark the step done (\`- [ ]\` → \`- [x]\`) and stop.
+9. If verification FAILS: do NOT mark the step done. Leave it as \`- [ ]\` and
+   stop immediately. Do not retry or loop — ralph will start a fresh iteration
+   with clean context, which often succeeds where retrying in the same context
+   fails.
 
 Rules:
-- Implement ONE step only, then stop
-- Do not modify steps you aren't working on
-- Do not add abstractions beyond what the plan specifies
-- Reference actual file paths from the codebase
-- Always write the test BEFORE the implementation — red, green, refactor
-- Only use git for reading: status, diff, log, show. Ralph handles all commits and branch management.
+- Achieve ONE outcome only, then stop.
+- Do not modify other steps.
+- Do not over-engineer — implement the simplest thing that satisfies the outcome.
+- Do not rush to code. Understanding the codebase first leads to better solutions.
+- NEVER retry in a loop. One attempt at implementation, one verification run.
+  If it fails, stop. Ralph will retry with a fresh context on the next iteration.
+- Only use git for reading (status, diff, log, show). Ralph handles all commits.
+
+Tools available:
+- agent-browser CLI (via Bash) for visual QA when UI changes are involved:
+  \`agent-browser open <url>\`, \`agent-browser snapshot -i -c\`, \`agent-browser click @e1\`,
+  \`agent-browser fill @e3 "text"\`, \`agent-browser screenshot <path>\`, \`agent-browser wait <selector|ms>\`
+- Figma MCP tools for checking designs when UI work references Figma.
+Use these tools when the step involves UI work. Skip them for backend-only changes.
 PROMPT
 
-  if [[ "$WITH_FIGMA" = true ]]; then
-    cat <<FIGMA
-
-Before implementing UI changes, check the Figma design:
-1. Use the Figma tools to get a screenshot and design context for the relevant component
-2. Note spacing, colors, typography, and layout from the design
-3. Implement to match the Figma spec — use design tokens where available
-FIGMA
-  fi
-
-  if [[ "$WITH_BROWSER" = true ]]; then
-    cat <<BROWSER
-
-After implementing the change, visually verify using agent-browser CLI via Bash:
-- \`agent-browser open <url>\` — navigate to a page
-- \`agent-browser snapshot -i -c\` — get interactive elements (use refs like @e1, @e2)
-- \`agent-browser click @e1\` — click an element by ref
-- \`agent-browser fill @e3 "text"\` — fill a form field
-- \`agent-browser screenshot <path>\` — take a screenshot
-- \`agent-browser wait <selector|ms>\` — wait for element or time
-
-Steps:
-1. Open the relevant page (http://localhost:3000/...)
-2. Take a screenshot to confirm the UI looks correct
-3. If the UI looks wrong, fix the issue before marking the step done
-4. If a page doesn't load or an element isn't found, screenshot what's there, note the issue, and move on
-BROWSER
-  fi
-
-  if [[ "$WITH_FIGMA" = true && "$WITH_BROWSER" = true ]]; then
-    cat <<COMPARE
-
-Compare your implementation against the Figma design:
-1. Take a Figma screenshot of the component
-2. Take a browser screenshot with \`agent-browser screenshot figma-compare.png\`
-3. If they don't match, fix the discrepancies before marking the step done
-COMPARE
+    # Append project prompt if provided
+    if [[ -n "$PROMPT_FILE" ]]; then
+      echo ""
+      echo "── Project Prompt ──────────────────────────────────────────"
+      echo ""
+      cat "$PROMPT_FILE"
+    fi
   fi
 }
 
@@ -209,8 +222,8 @@ if [[ "$DRY_RUN" = true ]]; then
   echo "Max iterations: $MAX_ITERATIONS"
   echo "Remaining:      $remaining step(s)"
   echo "Allowed tools:  $ALLOWED_TOOLS"
-  echo "Browser mode:   $WITH_BROWSER"
-  echo "Figma mode:     $WITH_FIGMA"
+  echo "Prompt file:    ${PROMPT_FILE:-<none>}"
+  echo "Prompt only:    $PROMPT_ONLY"
   echo ""
   echo "── Prompt ───────────────────────────────────────────────"
   echo "$PROMPT"
