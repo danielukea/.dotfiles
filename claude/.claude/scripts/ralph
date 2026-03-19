@@ -26,20 +26,76 @@ Usage: ralph <plan-file> [OPTIONS]
 
 Headless Claude loop — implements a plan file one step at a time.
 
+Each iteration spawns a fresh claude -p with a clean context window. It reads
+the plan, finds the next unchecked step, implements it, verifies, and marks it
+done. Ralph commits after each iteration on a ralph/<plan-name> branch.
+
 Options:
   --max-iterations <N>   Stop after N iterations (default: $MAX_ITERATIONS)
   --model <model>        Claude model to use (default: $MODEL)
-  --prompt <file>        Project prompt to append after base prompt (e.g. workflow, verification)
-  --prompt-only          Use --prompt file as the ENTIRE prompt (skip base prompt)
+  --prompt <file>        Project prompt to append after base prompt
+  --prompt-only          Use --prompt file as the ENTIRE prompt (skip base)
   --dry-run              Show the prompt without executing
   -h, --help             Show this help message
 
+Writing Plans:
+  Steps are OUTCOMES — what should be true when done — not implementation
+  instructions. Claude decides how to implement. The plan provides context.
+
+  Good steps:
+    - [ ] Users can be looked up by email address.
+    - [ ] The API returns paginated results for /api/contacts.
+    - [ ] The CLI accepts a --verbose flag that enables debug logging.
+
+  Bad steps (too prescriptive):
+    - [ ] Create app/services/user_lookup.rb with a find_by_email method.
+    - [ ] Add pagination to ContactsController#index using kaminari.
+
+  Plan structure:
+
+    # Feature Name
+    Brief context about what we're building and why.
+
+    ## Context
+    - **Tests**: bin/rspec spec/
+    - **Lint**: rubocop -a
+    - **Reference files**: path/to/similar/pattern.rb
+
+    ## Architecture (optional, for bigger features)
+    - Constraints and patterns that every iteration should follow
+    - Where things live, naming conventions, error handling approach
+
+    ## Steps
+    - [ ] First outcome.
+    - [ ] Second outcome.
+
+  The Context section tells Claude what commands to run. The Architecture
+  section keeps independent iterations aligned on bigger features. Steps
+  are pure outcomes — verification comes from the --prompt file.
+
+Project Prompts (--prompt):
+  Inject project-specific workflow after the base prompt. The base prompt
+  is generic (understand → implement → verify). The prompt file adds
+  project-specific verification: TDD protocol, lint commands, visual QA.
+
+  Available prompts in ~/.claude/prompts/:
+    wealthbox-tdd.md       TDD red-green-refactor + rubocop
+    prototype-visual.md    TDD + browser screenshots + DX review
+
+  Use --prompt-only to replace the base prompt entirely with your own.
+
 Examples:
-  ralph .local/feature.md
-  ralph CLEANUP.md --max-iterations 5
-  ralph docs/plan.md --model sonnet --dry-run
-  ralph .local/feature.md --prompt ~/.claude/prompts/wealthbox-tdd.md
-  ralph .local/custom.md --prompt-only --prompt my-workflow.md --dry-run
+  ralph plan.md                                            # Generic, uses plan's Context for verification
+  ralph plan.md --prompt ~/.claude/prompts/wealthbox-tdd.md  # Wealthbox TDD workflow
+  ralph plan.md --max-iterations 3 --dry-run               # Preview with 3-iteration cap
+  ralph plan.md --prompt-only --prompt custom.md           # Fully custom prompt
+
+Tips:
+  - Always --dry-run first to verify the prompt looks right
+  - Use --max-iterations 3 when testing a new plan
+  - Use /ralph-plan to convert a design doc into an outcome-driven plan
+  - Ctrl-C cleanly exits with a summary
+  - Review the branch before merging: git log --oneline main..ralph/<name>
 EOF
   exit 0
 }
