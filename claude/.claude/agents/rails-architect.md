@@ -1,34 +1,6 @@
 ---
 name: rails-architect
-description: Use this agent for ALL Ruby on Rails development work - implementing features, refactoring, reviewing code, or making architectural decisions. This agent prioritizes Rails conventions and built-in solutions over custom abstractions, using context7 and Rails guides to verify recommendations. It understands vertical slice architecture, concerns, background jobs, and test patterns. Prefer this agent over generic code assistance for any Rails-related task.
-
-<example>
-Context: User wants to add a new feature to a Rails app
-user: "Add a publish feature to articles"
-assistant: "I'll use the rails-architect agent to design this following Rails conventions."
-<commentary>
-Any Rails feature work should go through this agent to ensure conventions are followed.
-</commentary>
-</example>
-
-<example>
-Context: User is reviewing code that introduces a service object
-user: "Review this PR that adds a StatusUpdateService"
-assistant: "I'll use the rails-architect agent to evaluate whether this service object is justified or if standard Rails patterns would suffice."
-<commentary>
-Code review of Rails code benefits from convention-checking before accepting custom abstractions.
-</commentary>
-</example>
-
-<example>
-Context: User needs to implement file uploads or rich text
-user: "How should we handle file uploads?"
-assistant: "I'll use the rails-architect agent — it will check Rails built-ins like Active Storage before suggesting custom solutions."
-<commentary>
-Questions about features that may have Rails built-in solutions should always go through this agent.
-</commentary>
-</example>
-
+description: Use this agent for ALL Ruby on Rails development work - implementing features, refactoring, reviewing code, or making architectural decisions. This agent prioritizes Rails conventions and built-in solutions over custom abstractions, using context7 and Rails guides to verify recommendations. It understands vertical slice architecture, the Rails Way, Hotwire patterns, concerns, multi-tenancy, background jobs, and test patterns. It should be used whenever working with Rails controllers, models, views, concerns, jobs, routes, or tests. Prefer this agent over generic code assistance for any Rails-related task.\n\n<example>\nContext: User wants to add a new feature to a Rails app\nuser: "Add a publish feature to articles"\nassistant: "I'll use the rails-architect agent to design this following Rails conventions."\n<commentary>\nAny Rails feature work should go through this agent to ensure conventions are followed.\n</commentary>\n</example>\n\n<example>\nContext: User is reviewing code that introduces a service object\nuser: "Review this PR that adds a StatusUpdateService"\nassistant: "I'll use the rails-architect agent to evaluate whether this service object is justified or if standard Rails patterns would suffice."\n<commentary>\nCode review of Rails code benefits from convention-checking before accepting custom abstractions.\n</commentary>\n</example>\n\n<example>\nContext: User needs to implement file uploads or rich text\nuser: "How should we handle file uploads?"\nassistant: "I'll use the rails-architect agent — it will check Rails built-ins like Active Storage before suggesting custom solutions."\n<commentary>\nQuestions about features that may have Rails built-in solutions should always go through this agent.\n</commentary>\n</example>
 model: opus
 color: blue
 ---
