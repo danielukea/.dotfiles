@@ -1,0 +1,366 @@
+#!/usr/bin/env bash
+# _wt_help — Help text for every wt command
+# Source this file: source "$(dirname "$0")/_wt_help"
+#
+# Each function prints a man-page-style help block using heredocs.
+# Single-quoted 'EOF' prevents variable expansion so the text is literal.
+
+help/main() {
+  cat <<'EOF'
+USAGE
+    wt <command> [options]
+
+DESCRIPTION
+    Terminal-native worktree and agent orchestration system.
+    Manages git worktrees, tmux sessions, Claude agents, and
+    development services from a single CLI.
+
+WORKTREE COMMANDS
+    new        Create a new worktree with a tmux session
+    rm         Destroy a worktree and clean up resources
+    ls         List all tracked worktrees
+    switch     Attach to a worktree's tmux session
+    shell      Open a new shell window in a worktree session
+
+AGENT COMMANDS
+    agent      Launch, manage, or kill Claude agents in a worktree
+    agents     List running agents across all worktrees
+
+SERVICE COMMANDS
+    up         Start development services (delegates to bin/wealthbox)
+    down       Stop development services (delegates to bin/wealthbox)
+    status     Show service status (delegates to bin/wealthbox)
+
+DASHBOARD
+    dash       Launch the interactive TUI dashboard
+
+GLOBAL OPTIONS
+    -h, --help     Show help for a command (wt <command> --help)
+    --version      Print version information
+
+ENVIRONMENT
+    WT_ROOT            Base directory for worktrees (default: ~/Workspace)
+    WT_STATE_FILE      Path to state JSON (default: ~/.local/share/wt/state.json)
+    WT_DEFAULT_REPO    Default repository name when --repo is omitted
+
+EXAMPLES
+    wt new auth-refactor                 Create worktree from current branch
+    wt new auth-refactor -b main         Create worktree branching from main
+    wt agent auth-refactor               Launch interactive Claude agent
+    wt agent auth-refactor --ralph plan.md   Run headless agent with a plan
+    wt ls --json | jq '.[] | .name'      List worktree names as JSON
+    wt dash                              Open the TUI dashboard
+
+FILES
+    ~/.local/share/wt/state.json    Worktree and agent state
+    ~/.dotfiles/wt/bin/             CLI scripts
+    ~/.dotfiles/wt/dashboard/       TUI dashboard (Go)
+
+SEE ALSO
+    wt new --help, wt agent --help, wt dash --help
+EOF
+}
+
+help/new() {
+  cat <<'EOF'
+USAGE
+    wt new <name> [options]
+
+DESCRIPTION
+    Create a new git worktree with an associated tmux session.
+    The worktree is checked out into WT_ROOT/<repo>-<name> and
+    a tmux session is created for isolated development.
+
+OPTIONS
+    -b, --base <branch>    Base branch to create the worktree from (default: current branch)
+    -r, --repo <name>      Repository to create the worktree in (default: WT_DEFAULT_REPO)
+    --no-attach            Create the session but do not attach to it
+    --no-editor            Skip opening the editor in the new session
+
+WHAT HAPPENS
+    1. Creates a git worktree at WT_ROOT/<repo>-<name>
+    2. Checks out a new branch named <name> from the base branch
+    3. Creates a tmux session named <name>
+    4. Registers the worktree in the state file
+    5. Attaches to the tmux session (unless --no-attach)
+
+EXAMPLES
+    wt new auth-refactor                     Branch from current HEAD
+    wt new auth-refactor -b main             Branch from main
+    wt new auth-refactor -r crm-web          Explicit repo
+    wt new auth-refactor --no-attach         Create without attaching
+
+SEE ALSO
+    wt rm --help, wt ls --help, wt switch --help
+EOF
+}
+
+help/rm() {
+  cat <<'EOF'
+USAGE
+    wt rm <name> [options]
+
+DESCRIPTION
+    Destroy a worktree, its tmux session, and all running agents.
+    By default, also deletes the associated git branch.
+
+OPTIONS
+    -f, --force            Force removal even if the worktree has uncommitted changes
+    --keep-branch          Do not delete the git branch after removing the worktree
+
+WHAT HAPPENS
+    1. Kills all agents running in the worktree
+    2. Destroys the tmux session
+    3. Removes the git worktree directory
+    4. Deletes the git branch (unless --keep-branch)
+    5. Removes the worktree from the state file
+
+EXAMPLES
+    wt rm auth-refactor                  Clean removal
+    wt rm auth-refactor -f               Force removal with uncommitted changes
+    wt rm auth-refactor --keep-branch    Remove worktree but keep the branch
+
+SEE ALSO
+    wt new --help, wt ls --help
+EOF
+}
+
+help/ls() {
+  cat <<'EOF'
+USAGE
+    wt ls [options]
+
+DESCRIPTION
+    List all tracked worktrees with their status, agents, and metadata.
+
+OPTIONS
+    --json    Output as JSON instead of a formatted table
+
+OUTPUT COLUMNS
+    NAME       Worktree name (matches tmux session name)
+    REPO       Repository the worktree belongs to
+    BRANCH     Git branch checked out in the worktree
+    AGENTS     Number of running agents
+    CREATED    When the worktree was created
+
+JSON OUTPUT SHAPE
+    [
+      {
+        "name": "auth-refactor",
+        "repo": "crm-web",
+        "path": "/Users/.../crm-web-auth-refactor",
+        "branch": "auth-refactor",
+        "base_branch": "main",
+        "session": "auth-refactor",
+        "created_at": "2026-03-26T12:00:00Z",
+        "agents": {}
+      }
+    ]
+
+EXAMPLES
+    wt ls                              Table output
+    wt ls --json                       JSON output
+    wt ls --json | jq '.[].name'       Extract names
+
+SEE ALSO
+    wt new --help, wt agents --help
+EOF
+}
+
+help/switch() {
+  cat <<'EOF'
+USAGE
+    wt switch [name]
+
+DESCRIPTION
+    Attach to a worktree's tmux session. If no name is given,
+    an interactive fzf picker is shown with all available sessions.
+
+EXAMPLES
+    wt switch auth-refactor    Attach to the auth-refactor session
+    wt switch                  Pick from available sessions with fzf
+
+SEE ALSO
+    wt new --help, wt shell --help
+EOF
+}
+
+help/shell() {
+  cat <<'EOF'
+USAGE
+    wt shell [name]
+
+DESCRIPTION
+    Open a new shell window inside a worktree's tmux session.
+    If no name is given, uses the current worktree context or
+    shows an fzf picker.
+
+EXAMPLES
+    wt shell auth-refactor    New window in auth-refactor session
+    wt shell                  New window in current/picked session
+
+SEE ALSO
+    wt switch --help, wt new --help
+EOF
+}
+
+help/agent() {
+  cat <<'EOF'
+USAGE
+    wt agent <name> [options] [-- <claude-args>]
+    wt agent <name> --ralph <plan-file> [-- <claude-args>]
+    wt agent <name> --kill [agent-name]
+
+DESCRIPTION
+    Launch, manage, or kill Claude agents inside a worktree's
+    tmux session. Agents run in dedicated tmux windows and are
+    tracked in the state file.
+
+SUBCOMMANDS
+    (default)          Launch an interactive Claude agent
+    --ralph <plan>     Launch a headless ralph agent with a plan file
+    --kill [agent]     Kill a specific agent, or all agents if no name given
+
+OPTIONS
+    --ralph <plan-file>    Run in headless mode using ralph with the given plan
+    --kill [agent-name]    Kill the named agent (or all agents in the worktree)
+    -- <claude-args>       Arguments passed through to claude or ralph
+
+WHAT HAPPENS (interactive)
+    1. Creates a new tmux window named "agent-<n>" in the worktree session
+    2. Launches claude in the worktree directory
+    3. Registers the agent in the state file with type "interactive"
+    4. Passes any trailing arguments after -- to claude
+
+WHAT HAPPENS (ralph)
+    1. Creates a new tmux window named "ralph-<n>" in the worktree session
+    2. Launches ralph with the plan file in the worktree directory
+    3. Registers the agent in the state file with type "ralph" and the plan path
+    4. Passes any trailing arguments after -- to ralph
+
+EXAMPLES
+    wt agent auth-refactor                          Interactive agent
+    wt agent auth-refactor -- -p "fix the tests"    Interactive with prompt
+    wt agent auth-refactor --ralph plan.md           Headless ralph agent
+    wt agent auth-refactor --kill                    Kill all agents
+    wt agent auth-refactor --kill ralph-1            Kill specific agent
+
+SEE ALSO
+    wt agents --help, wt new --help
+EOF
+}
+
+help/agents() {
+  cat <<'EOF'
+USAGE
+    wt agents [options]
+
+DESCRIPTION
+    List all running agents across worktrees. By default, only
+    shows agents in worktrees that have at least one active agent.
+
+OPTIONS
+    --json         Output as JSON instead of a formatted table
+    -a, --all      Show all worktrees, even those with no agents
+
+OUTPUT COLUMNS
+    WORKTREE    Worktree the agent belongs to
+    AGENT       Agent name (e.g., agent-1, ralph-1)
+    TYPE        Agent type (interactive or ralph)
+    PID         Process ID
+    STARTED     When the agent was launched
+
+JSON OUTPUT SHAPE
+    [
+      {
+        "worktree": "auth-refactor",
+        "agent": "agent-1",
+        "type": "interactive",
+        "pid": 12345,
+        "tmux_window": "agent-1",
+        "started_at": "2026-03-26T12:00:00Z"
+      }
+    ]
+
+EXAMPLES
+    wt agents                              Table of active agents
+    wt agents --json                       JSON output
+    wt agents -a                           Include worktrees with no agents
+    wt agents --json | jq '.[].pid'        Extract PIDs
+
+SEE ALSO
+    wt agent --help, wt ls --help
+EOF
+}
+
+help/up() {
+  cat <<'EOF'
+USAGE
+    wt up
+
+DESCRIPTION
+    Start development services. Delegates to bin/wealthbox up.
+    See bin/wealthbox for full service documentation.
+
+SEE ALSO
+    wt down --help, wt status --help
+EOF
+}
+
+help/down() {
+  cat <<'EOF'
+USAGE
+    wt down
+
+DESCRIPTION
+    Stop development services. Delegates to bin/wealthbox down.
+    See bin/wealthbox for full service documentation.
+
+SEE ALSO
+    wt up --help, wt status --help
+EOF
+}
+
+help/status() {
+  cat <<'EOF'
+USAGE
+    wt status
+
+DESCRIPTION
+    Show the status of development services. Delegates to
+    bin/wealthbox status. See bin/wealthbox for full
+    service documentation.
+
+SEE ALSO
+    wt up --help, wt down --help
+EOF
+}
+
+help/dash() {
+  cat <<'EOF'
+USAGE
+    wt dash
+
+DESCRIPTION
+    Launch the interactive TUI dashboard. Provides a real-time
+    overview of worktrees, agents, and services with keyboard
+    navigation.
+
+KEYBINDINGS
+    j / k       Move selection down / up
+    Tab         Cycle between panels
+    Enter       Attach to selected worktree or agent
+    a           Launch a new agent in the selected worktree
+    n           Create a new worktree
+    d           Delete the selected worktree (with confirmation)
+    s           Toggle service start/stop
+    q           Quit the dashboard
+    ?           Show keybinding help overlay
+
+EXAMPLES
+    wt dash    Launch the dashboard
+
+SEE ALSO
+    wt ls --help, wt agents --help, wt switch --help
+EOF
+}
