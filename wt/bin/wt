@@ -130,19 +130,634 @@ pid_memory_mb() {
   fi
 }
 
-# --- command stubs (replaced by later tasks) --------------------------------
+# --- commands ---------------------------------------------------------------
 
-cmd_new()     { echo "wt new: not yet implemented"; }
-cmd_rm()      { echo "wt rm: not yet implemented"; }
-cmd_ls()      { echo "wt ls: not yet implemented"; }
-cmd_switch()  { echo "wt switch: not yet implemented"; }
-cmd_shell()   { echo "wt shell: not yet implemented"; }
-cmd_agent()   { echo "wt agent: not yet implemented"; }
-cmd_agents()  { echo "wt agents: not yet implemented"; }
-cmd_up()      { echo "wt up: not yet implemented"; }
-cmd_down()    { echo "wt down: not yet implemented"; }
-cmd_status()  { echo "wt status: not yet implemented"; }
-cmd_dash()    { echo "wt dash: not yet implemented"; }
+cmd_new() {
+  local base="main" repo="$WT_DEFAULT_REPO" attach=true editor=true name=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help)     help/new; return 0 ;;
+      -b|--base)     base="$2"; shift 2 ;;
+      -r|--repo)     repo="$2"; shift 2 ;;
+      --no-attach)   attach=false; shift ;;
+      --no-editor)   editor=false; shift ;;
+      -*)            echo "Error: Unknown option '$1'" >&2; return 1 ;;
+      *)             name="$1"; shift ;;
+    esac
+  done
+
+  if [[ -z "$name" ]]; then
+    echo "Error: Name is required. Usage: wt new <name>" >&2
+    return 1
+  fi
+
+  local main_repo
+  main_repo="$(repo_root "$repo")"
+  if [[ ! -d "$main_repo/.git" ]]; then
+    echo "Error: Main repo directory not found: $main_repo" >&2
+    return 1
+  fi
+
+  if [[ "$(state/worktree_exists "$name")" == "true" ]]; then
+    echo "Error: Worktree '$name' already exists." >&2
+    return 1
+  fi
+
+  local wt_path="$WT_ROOT/$repo/$name"
+  local branch="$name"
+  local session="wt:${repo}:${name}"
+
+  mkdir -p "$(dirname "$wt_path")"
+  echo "Creating worktree at $wt_path (branch: $branch from $base)..."
+  git -C "$main_repo" worktree add -b "$branch" "$wt_path" "$base"
+
+  if $editor; then
+    tmux new-session -d -s "$session" -c "$wt_path" "nvim"
+  else
+    tmux new-session -d -s "$session" -c "$wt_path"
+  fi
+
+  state/add_worktree "$name" "$repo" "$wt_path" "$branch" "$base" "$session"
+  echo "Worktree '$name' created."
+
+  if $attach; then
+    if [[ -n "${TMUX:-}" ]]; then
+      tmux switch-client -t "$session"
+    else
+      tmux attach-session -t "$session"
+    fi
+  fi
+}
+
+cmd_rm() {
+  local force=false keep_branch=false name=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help)       help/rm; return 0 ;;
+      -f|--force)      force=true; shift ;;
+      --keep-branch)   keep_branch=true; shift ;;
+      -*)              echo "Error: Unknown option '$1'" >&2; return 1 ;;
+      *)               name="$1"; shift ;;
+    esac
+  done
+
+  if [[ -z "$name" ]]; then
+    echo "Error: Name is required. Usage: wt rm <name>" >&2
+    return 1
+  fi
+
+  if [[ "$(state/worktree_exists "$name")" != "true" ]]; then
+    echo "Error: Worktree '$name' not found in state." >&2
+    return 1
+  fi
+
+  local wt_path repo branch session
+  wt_path="$(state/get_worktree_field "$name" "path")"
+  repo="$(state/get_worktree_field "$name" "repo")"
+  branch="$(state/get_worktree_field "$name" "branch")"
+  session="$(state/get_worktree_field "$name" "session")"
+  local main_repo
+  main_repo="$(repo_root "$repo")"
+
+  # 1. Kill all agents
+  local agent_name
+  while IFS= read -r agent_name; do
+    [[ -z "$agent_name" ]] && continue
+    local agent_pid
+    agent_pid="$(state/read --arg wt "$name" --arg agent "$agent_name" \
+      '.worktrees[$wt].agents[$agent].pid')"
+    if [[ -n "$agent_pid" && "$agent_pid" != "null" ]] && pid_alive "$agent_pid"; then
+      kill "$agent_pid" 2>/dev/null || true
+      local waited=0
+      while pid_alive "$agent_pid" && (( waited < 5 )); do
+        sleep 1
+        (( waited++ ))
+      done
+      if pid_alive "$agent_pid"; then
+        kill -9 "$agent_pid" 2>/dev/null || true
+      fi
+    fi
+  done < <(state/list_agents "$name" 2>/dev/null || true)
+
+  # 2. Kill tmux session
+  tmux kill-session -t "$session" 2>/dev/null || true
+
+  # 3. Stop services if applicable
+  if [[ -d "$wt_path" && -x "$wt_path/bin/wealthbox" ]]; then
+    (cd "$wt_path" && bin/wealthbox down 2>/dev/null || true)
+  fi
+
+  # 4. Remove git worktree
+  if $force; then
+    git -C "$main_repo" worktree remove --force "$wt_path" 2>/dev/null || {
+      rm -rf "$wt_path"
+      git -C "$main_repo" worktree prune 2>/dev/null || true
+    }
+  else
+    git -C "$main_repo" worktree remove "$wt_path" 2>/dev/null || {
+      rm -rf "$wt_path"
+      git -C "$main_repo" worktree prune 2>/dev/null || true
+    }
+  fi
+
+  # 5. Delete branch (only with --force, unless --keep-branch)
+  if $force && ! $keep_branch; then
+    git -C "$main_repo" branch -D "$branch" 2>/dev/null || true
+  elif ! $keep_branch; then
+    git -C "$main_repo" branch -d "$branch" 2>/dev/null || true
+  fi
+
+  # 6. Remove from state
+  state/remove_worktree "$name"
+  echo "Worktree '$name' removed."
+}
+
+cmd_ls() {
+  local json=false
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help)   help/ls; return 0 ;;
+      --json)      json=true; shift ;;
+      -*)          echo "Error: Unknown option '$1'" >&2; return 1 ;;
+      *)           shift ;;
+    esac
+  done
+
+  local names=()
+  while IFS= read -r n; do
+    [[ -z "$n" ]] && continue
+    names+=("$n")
+  done < <(state/list_worktrees 2>/dev/null || true)
+
+  if [[ ${#names[@]} -eq 0 ]]; then
+    if $json; then
+      echo "[]"
+    else
+      echo "No worktrees."
+    fi
+    return 0
+  fi
+
+  if $json; then
+    local json_out="["
+    local first=true
+    for n in "${names[@]}"; do
+      local wt_json
+      wt_json="$(state/get_worktree "$n")"
+      local wt_path
+      wt_path="$(echo "$wt_json" | jq -r '.path')"
+      local dirty ahead behind agent_count
+      dirty="$(git_status_short "$wt_path" 2>/dev/null || echo "unknown")"
+      local ab
+      ab="$(git_ahead_behind "$wt_path" 2>/dev/null || echo "0 0")"
+      ahead="$(echo "$ab" | awk '{print $1}')"
+      behind="$(echo "$ab" | awk '{print $2}')"
+      agent_count="$(echo "$wt_json" | jq '[.agents // {} | keys[]] | length')"
+
+      local entry
+      entry="$(echo "$wt_json" | jq \
+        --arg name "$n" \
+        --arg dirty "$dirty" \
+        --argjson ahead "${ahead:-0}" \
+        --argjson behind "${behind:-0}" \
+        --argjson agent_count "${agent_count:-0}" \
+        '{name: $name, repo: .repo, path: .path, branch: .branch, base_branch: .base_branch, session: .session, created_at: .created_at, dirty: ($dirty == "dirty"), ahead: $ahead, behind: $behind, agent_count: $agent_count, agents: (.agents // {})}')"
+
+      if $first; then
+        first=false
+      else
+        json_out+=","
+      fi
+      json_out+="$entry"
+    done
+    json_out+="]"
+    echo "$json_out" | jq .
+  else
+    printf "%-20s %-12s %-20s %-8s %s\n" "NAME" "REPO" "BRANCH" "AGENTS" "STATUS"
+    printf "%-20s %-12s %-20s %-8s %s\n" "----" "----" "------" "------" "------"
+    for n in "${names[@]}"; do
+      local wt_json
+      wt_json="$(state/get_worktree "$n")"
+      local repo branch wt_path
+      repo="$(echo "$wt_json" | jq -r '.repo')"
+      branch="$(echo "$wt_json" | jq -r '.branch')"
+      wt_path="$(echo "$wt_json" | jq -r '.path')"
+      local agent_count
+      agent_count="$(echo "$wt_json" | jq '[.agents // {} | keys[]] | length')"
+      local dirty
+      dirty="$(git_status_short "$wt_path" 2>/dev/null || echo "?")"
+      local ab ahead behind status_str
+      ab="$(git_ahead_behind "$wt_path" 2>/dev/null || echo "0 0")"
+      ahead="$(echo "$ab" | awk '{print $1}')"
+      behind="$(echo "$ab" | awk '{print $2}')"
+      status_str="$dirty"
+      if [[ "${ahead:-0}" -gt 0 || "${behind:-0}" -gt 0 ]]; then
+        status_str+=" +${ahead:-0}/-${behind:-0}"
+      fi
+      printf "%-20s %-12s %-20s %-8s %s\n" "$n" "$repo" "$branch" "$agent_count" "$status_str"
+    done
+  fi
+}
+
+cmd_switch() {
+  local name=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help) help/switch; return 0 ;;
+      -*)        echo "Error: Unknown option '$1'" >&2; return 1 ;;
+      *)         name="$1"; shift ;;
+    esac
+  done
+
+  # If no name, use fzf picker
+  if [[ -z "$name" ]]; then
+    if ! command -v fzf &>/dev/null; then
+      echo "Error: fzf is required for interactive selection. Install it or provide a name." >&2
+      return 1
+    fi
+    name="$(state/list_worktrees 2>/dev/null | fzf --prompt="Switch to worktree: " || true)"
+    if [[ -z "$name" ]]; then
+      echo "No worktree selected." >&2
+      return 1
+    fi
+  fi
+
+  if [[ "$(state/worktree_exists "$name")" != "true" ]]; then
+    echo "Error: Worktree '$name' not found." >&2
+    return 1
+  fi
+
+  local session wt_path
+  session="$(state/get_worktree_field "$name" "session")"
+  wt_path="$(state/get_worktree_field "$name" "path")"
+
+  # Recreate session if it doesn't exist
+  if ! tmux has-session -t "$session" 2>/dev/null; then
+    tmux new-session -d -s "$session" -c "$wt_path"
+  fi
+
+  if [[ -n "${TMUX:-}" ]]; then
+    tmux switch-client -t "$session"
+  else
+    tmux attach-session -t "$session"
+  fi
+}
+
+cmd_shell() {
+  local name=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help) help/shell; return 0 ;;
+      -*)        echo "Error: Unknown option '$1'" >&2; return 1 ;;
+      *)         name="$1"; shift ;;
+    esac
+  done
+
+  if [[ -z "$name" ]]; then
+    require_worktree
+    name="$WT_CURRENT_NAME"
+  fi
+
+  if [[ "$(state/worktree_exists "$name")" != "true" ]]; then
+    echo "Error: Worktree '$name' not found." >&2
+    return 1
+  fi
+
+  local session wt_path
+  session="$(state/get_worktree_field "$name" "session")"
+  wt_path="$(state/get_worktree_field "$name" "path")"
+
+  tmux new-window -t "$session" -n "shell" -c "$wt_path"
+}
+
+cmd_agent() {
+  # Handle help first
+  if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    help/agent
+    return 0
+  fi
+
+  # Handle kill subcommand
+  if [[ "${1:-}" == "kill" ]]; then
+    shift
+    cmd_agent_kill "$@"
+    return $?
+  fi
+
+  local ralph_plan="" name="" claude_args=()
+  local parsing_args=true
+
+  while [[ $# -gt 0 ]] && $parsing_args; do
+    case "$1" in
+      -h|--help)       help/agent; return 0 ;;
+      --ralph)         ralph_plan="$2"; shift 2 ;;
+      --)              shift; claude_args=("$@"); break ;;
+      -*)              echo "Error: Unknown option '$1'" >&2; return 1 ;;
+      *)
+        if [[ -z "$name" ]]; then
+          name="$1"; shift
+        else
+          echo "Error: Unexpected argument '$1'" >&2; return 1
+        fi
+        ;;
+    esac
+  done
+
+  require_worktree
+  local wt_name="$WT_CURRENT_NAME"
+  local wt_path session repo
+  wt_path="$(state/get_worktree_field "$wt_name" "path")"
+  session="$(state/get_worktree_field "$wt_name" "session")"
+
+  # Auto-generate agent name if not provided
+  if [[ -z "$name" ]]; then
+    local prefix
+    if [[ -n "$ralph_plan" ]]; then
+      prefix="ralph"
+    else
+      prefix="agent"
+    fi
+    local idx=1
+    while [[ "$(state/agent_exists "$wt_name" "${prefix}-${idx}")" == "true" ]]; do
+      (( idx++ ))
+    done
+    name="${prefix}-${idx}"
+  fi
+
+  if [[ "$(state/agent_exists "$wt_name" "$name")" == "true" ]]; then
+    echo "Error: Agent '$name' already exists in worktree '$wt_name'." >&2
+    return 1
+  fi
+
+  local agent_type cmd
+
+  if [[ -n "$ralph_plan" ]]; then
+    agent_type="ralph"
+    # Resolve plan file path
+    local plan_file="$ralph_plan"
+    if [[ "$plan_file" != /* ]]; then
+      plan_file="$wt_path/$plan_file"
+    fi
+    if [[ ! -f "$plan_file" ]]; then
+      echo "Error: Plan file not found: $plan_file" >&2
+      return 1
+    fi
+    local args_str=""
+    if [[ ${#claude_args[@]} -gt 0 ]]; then
+      args_str=" ${claude_args[*]}"
+    fi
+    cmd="ralph '${plan_file}'${args_str}; echo '[exited - press Enter to close]'; read"
+  else
+    agent_type="interactive"
+    local args_str=""
+    if [[ ${#claude_args[@]} -gt 0 ]]; then
+      args_str=" ${claude_args[*]}"
+    fi
+    cmd="claude${args_str}; echo '[exited - press Enter to close]'; read"
+  fi
+
+  tmux new-window -t "$session" -n "$name" -c "$wt_path" "$cmd"
+  sleep 1
+
+  local pane_pid
+  pane_pid="$(tmux list-panes -t "${session}:${name}" -F '#{pane_pid}' 2>/dev/null | head -1)"
+
+  if [[ -z "$pane_pid" ]]; then
+    echo "Warning: Could not determine agent PID." >&2
+    pane_pid="0"
+  fi
+
+  if [[ -n "$ralph_plan" ]]; then
+    local plan_file="$ralph_plan"
+    if [[ "$plan_file" != /* ]]; then
+      plan_file="$wt_path/$plan_file"
+    fi
+    state/add_agent "$wt_name" "$name" "$agent_type" "$pane_pid" "$name" "$plan_file"
+  else
+    state/add_agent "$wt_name" "$name" "$agent_type" "$pane_pid" "$name"
+  fi
+
+  echo "Agent '$name' ($agent_type) launched in worktree '$wt_name' (PID: $pane_pid)."
+}
+
+cmd_agent_kill() {
+  local agent_name=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help) help/agent; return 0 ;;
+      -*)        echo "Error: Unknown option '$1'" >&2; return 1 ;;
+      *)         agent_name="$1"; shift ;;
+    esac
+  done
+
+  require_worktree
+  local wt_name="$WT_CURRENT_NAME"
+  local session
+  session="$(state/get_worktree_field "$wt_name" "session")"
+
+  if [[ -z "$agent_name" ]]; then
+    # Kill all agents
+    local a
+    while IFS= read -r a; do
+      [[ -z "$a" ]] && continue
+      _kill_single_agent "$wt_name" "$a" "$session"
+    done < <(state/list_agents "$wt_name" 2>/dev/null || true)
+    echo "All agents killed in worktree '$wt_name'."
+  else
+    if [[ "$(state/agent_exists "$wt_name" "$agent_name")" != "true" ]]; then
+      echo "Error: Agent '$agent_name' not found in worktree '$wt_name'." >&2
+      return 1
+    fi
+    _kill_single_agent "$wt_name" "$agent_name" "$session"
+    echo "Agent '$agent_name' killed."
+  fi
+}
+
+_kill_single_agent() {
+  local wt_name="$1" agent_name="$2" session="$3"
+  local agent_pid tmux_window
+  agent_pid="$(state/read --arg wt "$wt_name" --arg agent "$agent_name" \
+    '.worktrees[$wt].agents[$agent].pid')"
+  tmux_window="$(state/read --arg wt "$wt_name" --arg agent "$agent_name" \
+    '.worktrees[$wt].agents[$agent].tmux_window')"
+
+  if [[ -n "$agent_pid" && "$agent_pid" != "null" && "$agent_pid" != "0" ]] && pid_alive "$agent_pid"; then
+    kill "$agent_pid" 2>/dev/null || true
+    local waited=0
+    while pid_alive "$agent_pid" && (( waited < 5 )); do
+      sleep 1
+      (( waited++ ))
+    done
+    if pid_alive "$agent_pid"; then
+      kill -9 "$agent_pid" 2>/dev/null || true
+    fi
+  fi
+
+  tmux kill-window -t "${session}:${tmux_window}" 2>/dev/null || true
+  state/remove_agent "$wt_name" "$agent_name"
+}
+
+cmd_agents() {
+  local json=false show_all=false
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help)    help/agents; return 0 ;;
+      --json)       json=true; shift ;;
+      -a|--all)     show_all=true; shift ;;
+      -*)           echo "Error: Unknown option '$1'" >&2; return 1 ;;
+      *)            shift ;;
+    esac
+  done
+
+  local wt_names=()
+  if $show_all; then
+    while IFS= read -r n; do
+      [[ -z "$n" ]] && continue
+      wt_names+=("$n")
+    done < <(state/list_worktrees 2>/dev/null || true)
+  else
+    if detect_worktree; then
+      wt_names=("$WT_CURRENT_NAME")
+    else
+      # Show all worktrees that have agents
+      while IFS= read -r n; do
+        [[ -z "$n" ]] && continue
+        wt_names+=("$n")
+      done < <(state/list_worktrees 2>/dev/null || true)
+    fi
+  fi
+
+  local entries=()
+  for wt_name in "${wt_names[@]}"; do
+    local agent_name
+    while IFS= read -r agent_name; do
+      [[ -z "$agent_name" ]] && continue
+      local agent_json
+      agent_json="$(state/get_agent "$wt_name" "$agent_name")"
+      local pid type started_at tmux_window plan_file
+      pid="$(echo "$agent_json" | jq -r '.pid')"
+      type="$(echo "$agent_json" | jq -r '.type')"
+      started_at="$(echo "$agent_json" | jq -r '.started_at')"
+      tmux_window="$(echo "$agent_json" | jq -r '.tmux_window')"
+      plan_file="$(echo "$agent_json" | jq -r '.plan_file // ""')"
+
+      local alive="dead" uptime_str="-" mem="0"
+      if [[ -n "$pid" && "$pid" != "null" && "$pid" != "0" ]] && pid_alive "$pid"; then
+        alive="running"
+        local secs
+        secs="$(seconds_since "$started_at" 2>/dev/null || echo "0")"
+        uptime_str="$(format_uptime "$secs")"
+        mem="$(pid_memory_mb "$pid")"
+      fi
+
+      entries+=("${wt_name}|${agent_name}|${type}|${uptime_str}|${pid}|${mem}|${alive}")
+    done < <(state/list_agents "$wt_name" 2>/dev/null || true)
+  done
+
+  if [[ ${#entries[@]} -eq 0 ]]; then
+    if $json; then
+      echo "[]"
+    else
+      echo "No agents running."
+    fi
+    return 0
+  fi
+
+  if $json; then
+    local json_out="["
+    local first=true
+    for entry in "${entries[@]}"; do
+      IFS='|' read -r wt_name agent_name type uptime_str pid mem alive <<< "$entry"
+      local agent_json
+      agent_json="$(state/get_agent "$wt_name" "$agent_name")"
+      local obj
+      obj="$(echo "$agent_json" | jq \
+        --arg wt "$wt_name" \
+        --arg name "$agent_name" \
+        --arg alive "$alive" \
+        --argjson mem "${mem:-0}" \
+        --arg uptime "$uptime_str" \
+        '{worktree: $wt, agent: $name, type: .type, pid: .pid, tmux_window: .tmux_window, started_at: .started_at, plan_file: (.plan_file // null), status: $alive, memory_mb: $mem, uptime: $uptime}')"
+      if $first; then
+        first=false
+      else
+        json_out+=","
+      fi
+      json_out+="$obj"
+    done
+    json_out+="]"
+    echo "$json_out" | jq .
+  else
+    printf "%-16s %-16s %-12s %-10s %-8s %-8s %s\n" "NAME" "WORKTREE" "TYPE" "UPTIME" "PID" "MEMORY" "STATUS"
+    printf "%-16s %-16s %-12s %-10s %-8s %-8s %s\n" "----" "--------" "----" "------" "---" "------" "------"
+    for entry in "${entries[@]}"; do
+      IFS='|' read -r wt_name agent_name type uptime_str pid mem alive <<< "$entry"
+      printf "%-16s %-16s %-12s %-10s %-8s %-6sMB %s\n" "$agent_name" "$wt_name" "$type" "$uptime_str" "$pid" "$mem" "$alive"
+    done
+  fi
+}
+
+cmd_up() {
+  if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    help/up
+    return 0
+  fi
+  require_worktree
+  local wt_path
+  wt_path="$(state/get_worktree_field "$WT_CURRENT_NAME" "path")"
+  (cd "$wt_path" && bin/wealthbox up "$@")
+}
+
+cmd_down() {
+  if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    help/down
+    return 0
+  fi
+  require_worktree
+  local wt_path
+  wt_path="$(state/get_worktree_field "$WT_CURRENT_NAME" "path")"
+  (cd "$wt_path" && bin/wealthbox down "$@")
+}
+
+cmd_status() {
+  local json=false
+  if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    help/status
+    return 0
+  fi
+  if [[ "${1:-}" == "--json" ]]; then
+    json=true
+    shift
+  fi
+  require_worktree
+  local wt_path
+  wt_path="$(state/get_worktree_field "$WT_CURRENT_NAME" "path")"
+  if $json; then
+    (cd "$wt_path" && bin/wealthbox status --json "$@")
+  else
+    (cd "$wt_path" && bin/wealthbox status "$@")
+  fi
+}
+
+cmd_dash() {
+  if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    help/dash
+    return 0
+  fi
+  if ! command -v wt-dash &>/dev/null; then
+    echo "Error: wt-dash binary not found in PATH." >&2
+    echo "Build it with: cd ~/.dotfiles/wt/dashboard && go build -o wt-dash" >&2
+    return 1
+  fi
+  exec wt-dash
+}
 
 # --- init and dispatch ------------------------------------------------------
 
