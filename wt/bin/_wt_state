@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+# _wt_state — State management helpers for the wt CLI
+# Source this file: source "$(dirname "$0")/_wt_state"
+#
+# All state lives in a single JSON file at ~/.local/share/wt/state.json
+# Mutations are atomic (temp file + mv) and use jq for all JSON ops.
+
+_WT_STATE_DIR="${HOME}/.local/share/wt"
+_WT_STATE_FILE="${_WT_STATE_DIR}/state.json"
+
+# --- helpers ----------------------------------------------------------------
+
+_wt_timestamp() {
+  date -u +"%Y-%m-%dT%H:%M:%SZ"
+}
+
+# --- public API -------------------------------------------------------------
+
+state/init() {
+  mkdir -p "$_WT_STATE_DIR"
+  if [[ ! -f "$_WT_STATE_FILE" ]]; then
+    echo '{"worktrees":{}}' | jq . > "$_WT_STATE_FILE"
+  fi
+}
+
+state/read() {
+  # Usage: state/read [--arg key val ...] [query]
+  # Last argument is the jq query; all preceding arguments are passed to jq.
+  if [[ $# -eq 0 ]]; then
+    jq -r '.' "$_WT_STATE_FILE"
+  else
+    local args=("${@:1:$#-1}")
+    local query="${!#}"
+    jq -r "${args[@]}" "$query" "$_WT_STATE_FILE"
+  fi
+}
+
+state/write() {
+  # Usage: state/write [--arg key val ...] filter
+  # Last argument is the jq filter; all preceding arguments are passed to jq.
+  local args=("${@:1:$#-1}")
+  local filter="${!#}"
+  local tmp
+  tmp="$(mktemp "${_WT_STATE_DIR}/state.XXXXXX.json")"
+  if jq "${args[@]}" "$filter" "$_WT_STATE_FILE" > "$tmp"; then
+    mv "$tmp" "$_WT_STATE_FILE"
+  else
+    rm -f "$tmp"
+    echo "state/write: jq filter failed" >&2
+    return 1
+  fi
+}
+
+state/add_worktree() {
+  local name="$1" repo="$2" path="$3" branch="$4" base_branch="$5" session="$6"
+  local ts
+  ts="$(_wt_timestamp)"
+  state/write \
+    --arg name "$name" \
+    --arg repo "$repo" \
+    --arg path "$path" \
+    --arg branch "$branch" \
+    --arg base_branch "$base_branch" \
+    --arg session "$session" \
+    --arg ts "$ts" \
+    '.worktrees[$name] = {
+      repo: $repo,
+      path: $path,
+      branch: $branch,
+      base_branch: $base_branch,
+      session: $session,
+      created_at: $ts,
+      agents: {}
+    }'
+}
+
+state/remove_worktree() {
+  local name="$1"
+  state/write --arg name "$name" 'del(.worktrees[$name])'
+}
+
+state/add_agent() {
+  local wt_name="$1" agent_name="$2" type="$3" pid="$4" tmux_window="$5" plan_file="${6:-}"
+  local ts
+  ts="$(_wt_timestamp)"
+  local filter='.worktrees[$wt].agents[$agent] = {
+    pid: ($pid | tonumber),
+    type: $type,
+    tmux_window: $tmux_window,
+    started_at: $ts
+  }'
+  if [[ -n "$plan_file" ]]; then
+    filter='.worktrees[$wt].agents[$agent] = {
+      pid: ($pid | tonumber),
+      type: $type,
+      tmux_window: $tmux_window,
+      plan_file: $plan_file,
+      started_at: $ts
+    }'
+    state/write \
+      --arg wt "$wt_name" \
+      --arg agent "$agent_name" \
+      --arg type "$type" \
+      --arg pid "$pid" \
+      --arg tmux_window "$tmux_window" \
+      --arg plan_file "$plan_file" \
+      --arg ts "$ts" \
+      "$filter"
+  else
+    state/write \
+      --arg wt "$wt_name" \
+      --arg agent "$agent_name" \
+      --arg type "$type" \
+      --arg pid "$pid" \
+      --arg tmux_window "$tmux_window" \
+      --arg ts "$ts" \
+      "$filter"
+  fi
+}
+
+state/remove_agent() {
+  local wt_name="$1" agent_name="$2"
+  state/write --arg wt "$wt_name" --arg agent "$agent_name" \
+    'del(.worktrees[$wt].agents[$agent])'
+}
+
+state/list_worktrees() {
+  state/read '.worktrees | keys[]'
+}
+
+state/get_worktree() {
+  local name="$1"
+  state/read --arg name "$name" '.worktrees[$name]'
+}
+
+state/get_worktree_field() {
+  local name="$1" field="$2"
+  state/read --arg name "$name" ".worktrees[\$name].$field"
+}
+
+state/list_agents() {
+  local wt_name="$1"
+  state/read --arg wt "$wt_name" '.worktrees[$wt].agents | keys[]'
+}
+
+state/get_agent() {
+  local wt_name="$1" agent_name="$2"
+  state/read --arg wt "$wt_name" --arg agent "$agent_name" \
+    '.worktrees[$wt].agents[$agent]'
+}
+
+state/worktree_exists() {
+  local name="$1"
+  state/read --arg name "$name" '.worktrees | has($name)'
+}
+
+state/agent_exists() {
+  local wt_name="$1" agent_name="$2"
+  state/read --arg wt "$wt_name" --arg agent "$agent_name" \
+    '.worktrees[$wt].agents | has($agent)'
+}
