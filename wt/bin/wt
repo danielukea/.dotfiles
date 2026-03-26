@@ -1,0 +1,172 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/_wt_state"
+source "$SCRIPT_DIR/_wt_help"
+
+# --- defaults ---------------------------------------------------------------
+
+WT_ROOT="${WT_ROOT:-$HOME/Worktrees}"
+WT_DEFAULT_REPO="${WT_DEFAULT_REPO:-crm-web}"
+
+# --- repo helpers -----------------------------------------------------------
+
+repo_root() {
+  local repo="$1"
+  case "$repo" in
+    crm-web)    echo "$HOME/Workspace/crm-web" ;;
+    helium-ui)  echo "$HOME/Workspace/helium-ui" ;;
+    *)          echo "$HOME/Workspace/$repo" ;;
+  esac
+}
+
+# --- context detection ------------------------------------------------------
+
+detect_worktree() {
+  # Try tmux session name first (pattern: wt:<repo>:<name>)
+  if command -v tmux &>/dev/null && [[ -n "${TMUX:-}" ]]; then
+    local session
+    session="$(tmux display-message -p '#S' 2>/dev/null || true)"
+    if [[ "$session" =~ ^wt:([^:]+):(.+)$ ]]; then
+      WT_CURRENT_REPO="${BASH_REMATCH[1]}"
+      WT_CURRENT_NAME="${BASH_REMATCH[2]}"
+      return 0
+    fi
+  fi
+
+  # Fall back to checking if cwd is inside a managed worktree
+  local cwd
+  cwd="$(pwd)"
+  local name
+  while IFS= read -r name; do
+    [[ -z "$name" ]] && continue
+    local wt_path
+    wt_path="$(state/get_worktree_field "$name" "path")"
+    if [[ "$cwd" == "$wt_path" || "$cwd" == "$wt_path"/* ]]; then
+      WT_CURRENT_REPO="$(state/get_worktree_field "$name" "repo")"
+      WT_CURRENT_NAME="$name"
+      return 0
+    fi
+  done < <(state/list_worktrees 2>/dev/null || true)
+
+  return 1
+}
+
+require_worktree() {
+  if ! detect_worktree; then
+    echo "Error: Not inside a managed worktree." >&2
+    echo "Run 'wt ls' to see available worktrees, or 'wt new' to create one." >&2
+    exit 1
+  fi
+}
+
+# --- git helpers ------------------------------------------------------------
+
+git_status_short() {
+  local path="$1"
+  if [[ -z "$(git -C "$path" status --porcelain 2>/dev/null)" ]]; then
+    echo "clean"
+  else
+    echo "dirty"
+  fi
+}
+
+git_ahead_behind() {
+  local path="$1"
+  local counts
+  counts="$(git -C "$path" rev-list --left-right --count HEAD...@{upstream} 2>/dev/null || echo "0 0")"
+  echo "$counts"
+}
+
+# --- uptime formatting ------------------------------------------------------
+
+format_uptime() {
+  local seconds="$1"
+  local days=$((seconds / 86400))
+  local hours=$(( (seconds % 86400) / 3600 ))
+  local minutes=$(( (seconds % 3600) / 60 ))
+
+  if (( days > 0 )); then
+    if (( hours > 0 )); then
+      echo "${days}d ${hours}h"
+    else
+      echo "${days}d"
+    fi
+  elif (( hours > 0 )); then
+    if (( minutes > 0 )); then
+      echo "${hours}h ${minutes}m"
+    else
+      echo "${hours}h"
+    fi
+  else
+    echo "${minutes}m"
+  fi
+}
+
+seconds_since() {
+  local iso_date="$1"
+  local then_epoch now_epoch
+  then_epoch="$(gdate -d "$iso_date" +%s)"
+  now_epoch="$(gdate +%s)"
+  echo $(( now_epoch - then_epoch ))
+}
+
+# --- process helpers --------------------------------------------------------
+
+pid_alive() {
+  local pid="$1"
+  kill -0 "$pid" 2>/dev/null
+}
+
+pid_memory_mb() {
+  local pid="$1"
+  local rss
+  rss="$(ps -o rss= -p "$pid" 2>/dev/null | tr -d ' ')"
+  if [[ -n "$rss" ]]; then
+    echo $(( rss / 1024 ))
+  else
+    echo "0"
+  fi
+}
+
+# --- command stubs (replaced by later tasks) --------------------------------
+
+cmd_new()     { echo "wt new: not yet implemented"; }
+cmd_rm()      { echo "wt rm: not yet implemented"; }
+cmd_ls()      { echo "wt ls: not yet implemented"; }
+cmd_switch()  { echo "wt switch: not yet implemented"; }
+cmd_shell()   { echo "wt shell: not yet implemented"; }
+cmd_agent()   { echo "wt agent: not yet implemented"; }
+cmd_agents()  { echo "wt agents: not yet implemented"; }
+cmd_up()      { echo "wt up: not yet implemented"; }
+cmd_down()    { echo "wt down: not yet implemented"; }
+cmd_status()  { echo "wt status: not yet implemented"; }
+cmd_dash()    { echo "wt dash: not yet implemented"; }
+
+# --- init and dispatch ------------------------------------------------------
+
+state/init
+
+case "${1:-}" in
+  new)          shift; cmd_new "$@" ;;
+  rm|remove)    shift; cmd_rm "$@" ;;
+  ls|list)      shift; cmd_ls "$@" ;;
+  switch)       shift; cmd_switch "$@" ;;
+  shell)        shift; cmd_shell "$@" ;;
+  agent)        shift; cmd_agent "$@" ;;
+  agents)       shift; cmd_agents "$@" ;;
+  up)           shift; cmd_up "$@" ;;
+  down)         shift; cmd_down "$@" ;;
+  status)       shift; cmd_status "$@" ;;
+  dash)         shift; cmd_dash "$@" ;;
+  -h|--help|help|"")
+    help/main
+    exit 0
+    ;;
+  *)
+    echo "Error: Unknown command '$1'" >&2
+    echo "Run 'wt --help' for usage." >&2
+    exit 1
+    ;;
+esac
