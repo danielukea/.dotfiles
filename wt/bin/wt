@@ -24,11 +24,11 @@ repo_root() {
 # --- context detection ------------------------------------------------------
 
 detect_worktree() {
-  # Try tmux session name first (pattern: wt:<repo>:<name>)
+  # Try tmux session name first (pattern: wt_<repo>_<name>)
   if command -v tmux &>/dev/null && [[ -n "${TMUX:-}" ]]; then
     local session
     session="$(tmux display-message -p '#S' 2>/dev/null || true)"
-    if [[ "$session" =~ ^wt:([^:]+):(.+)$ ]]; then
+    if [[ "$session" =~ ^wt_([^_]+)_(.+)$ ]]; then
       WT_CURRENT_REPO="${BASH_REMATCH[1]}"
       WT_CURRENT_NAME="${BASH_REMATCH[2]}"
       return 0
@@ -166,7 +166,7 @@ cmd_new() {
 
   local wt_path="$WT_ROOT/$repo/$name"
   local branch="$name"
-  local session="wt:${repo}:${name}"
+  local session="wt_${repo}_${name}"
 
   mkdir -p "$(dirname "$wt_path")"
   echo "Creating worktree at $wt_path (branch: $branch from $base)..."
@@ -838,14 +838,14 @@ derive_worktree_name() {
 
 adopt_worktree() {
   local name="$1" repo="$2" wt_path="$3" branch="$4" owner="$5"
-  local session="wt:${repo}:${name}"
+  local session="wt_${repo}_${name}"
 
   # Handle name collisions by appending suffix
   local base_name="$name"
   local suffix=1
   while [[ "$(state/worktree_exists "$name")" == "true" ]]; do
     name="${base_name}-${suffix}"
-    session="wt:${repo}:${name}"
+    session="wt_${repo}_${name}"
     (( suffix++ ))
   done
 
