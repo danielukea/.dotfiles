@@ -24,6 +24,7 @@ type Worktree struct {
 	Branch     string           `json:"branch"`
 	BaseBranch string           `json:"base_branch"`
 	Session    string           `json:"session"`
+	Owner      string           `json:"owner,omitempty"`
 	CreatedAt  time.Time        `json:"created_at"`
 	Agents     map[string]Agent `json:"agents"`
 }
