@@ -21,6 +21,7 @@ WORKTREE COMMANDS
     ls         List all tracked worktrees
     switch     Attach to a worktree's tmux session
     shell      Open a new shell window in a worktree session
+    scan [--repo <name>]  Discover and classify all git worktrees
 
 AGENT COMMANDS
     agent      Launch, manage, or kill Claude agents in a worktree
@@ -333,6 +334,41 @@ DESCRIPTION
 
 SEE ALSO
     wt up --help, wt down --help
+EOF
+}
+
+help/scan() {
+  cat <<'EOF'
+USAGE
+    wt scan [options]
+
+DESCRIPTION
+    Discover all git worktrees across known repositories and classify
+    them by owner. Shows which worktrees are managed by wt and which
+    were created by other tools (Conductor, Claude, sandbox, manual).
+
+OPTIONS
+    -r, --repo <name>    Scan only the specified repository
+    --json               Output as JSON instead of formatted table
+    --adopt-all          Adopt all unmanaged worktrees without prompting
+    -h, --help           Show this help
+
+OWNER CLASSIFICATION
+    wt           Path found in wt state.json
+    conductor    Path under ~/conductor/workspaces/
+    sandbox      Branch matches sandbox/*
+    claude       Path contains .claude/worktrees/
+    manual       Default — created manually via git worktree add
+
+EXAMPLES
+    wt scan                          Scan all known repos
+    wt scan --repo crm-web           Scan only crm-web
+    wt scan --json                   JSON output for scripting
+    wt scan --json | jq '.[].owner'  Extract owner classifications
+    wt scan --adopt-all              Adopt all unmanaged worktrees
+
+SEE ALSO
+    wt ls --help, wt new --help
 EOF
 }
 

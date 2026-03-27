@@ -759,6 +759,259 @@ cmd_dash() {
   exec wt-dash
 }
 
+# --- scan helpers -----------------------------------------------------------
+
+list_known_repos() {
+  # Deduplicated list from state.json + hardcoded defaults
+  local repos=()
+  local r
+  while IFS= read -r r; do
+    [[ -z "$r" ]] && continue
+    repos+=("$r")
+  done < <(state/read '[.worktrees[].repo] | unique[]' 2>/dev/null || true)
+
+  # Add hardcoded repos if not already present
+  for default_repo in crm-web helium-ui; do
+    local found=false
+    for r in "${repos[@]}"; do
+      if [[ "$r" == "$default_repo" ]]; then
+        found=true
+        break
+      fi
+    done
+    if ! $found; then
+      repos+=("$default_repo")
+    fi
+  done
+
+  printf '%s\n' "${repos[@]}"
+}
+
+classify_worktree_owner() {
+  local wt_path="$1" branch="$2"
+
+  # 1. Path in state.json → "wt"
+  local name
+  while IFS= read -r name; do
+    [[ -z "$name" ]] && continue
+    local managed_path
+    managed_path="$(state/get_worktree_field "$name" "path")"
+    if [[ "$wt_path" == "$managed_path" ]]; then
+      echo "wt"
+      return
+    fi
+  done < <(state/list_worktrees 2>/dev/null || true)
+
+  # 2. Path under ~/conductor/workspaces/ → "conductor"
+  if [[ "$wt_path" == "$HOME/conductor/workspaces/"* ]]; then
+    echo "conductor"
+    return
+  fi
+
+  # 3. Branch matches sandbox/* → "sandbox"
+  if [[ "$branch" == sandbox/* ]]; then
+    echo "sandbox"
+    return
+  fi
+
+  # 4. Path contains .claude/worktrees/ → "claude"
+  if [[ "$wt_path" == *".claude/worktrees/"* ]]; then
+    echo "claude"
+    return
+  fi
+
+  # 5. Default → "manual"
+  echo "manual"
+}
+
+is_main_worktree() {
+  local wt_path="$1" repo="$2"
+  local root
+  root="$(repo_root "$repo")"
+  [[ "$wt_path" == "$root" ]]
+}
+
+derive_worktree_name() {
+  local wt_path="$1"
+  basename "$wt_path"
+}
+
+adopt_worktree() {
+  local name="$1" repo="$2" wt_path="$3" branch="$4" owner="$5"
+  local session="wt:${repo}:${name}"
+
+  # Handle name collisions by appending suffix
+  local base_name="$name"
+  local suffix=1
+  while [[ "$(state/worktree_exists "$name")" == "true" ]]; do
+    name="${base_name}-${suffix}"
+    session="wt:${repo}:${name}"
+    (( suffix++ ))
+  done
+
+  # Create detached tmux session
+  tmux new-session -d -s "$session" -c "$wt_path" 2>/dev/null || true
+
+  # Register in state with owner
+  state/add_worktree "$name" "$repo" "$wt_path" "$branch" "" "$session" "$owner"
+  echo "Adopted '$name' (owner: $owner) → $wt_path"
+}
+
+cmd_scan() {
+  local repo_filter="" json=false adopt_all=false
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help)       help/scan; return 0 ;;
+      -r|--repo)       repo_filter="$2"; shift 2 ;;
+      --json)          json=true; shift ;;
+      --adopt-all)     adopt_all=true; shift ;;
+      -*)              echo "Error: Unknown option '$1'" >&2; return 1 ;;
+      *)               shift ;;
+    esac
+  done
+
+  local repos=()
+  if [[ -n "$repo_filter" ]]; then
+    repos=("$repo_filter")
+  else
+    while IFS= read -r r; do
+      [[ -z "$r" ]] && continue
+      repos+=("$r")
+    done < <(list_known_repos)
+  fi
+
+  # Collect all worktrees
+  local all_entries=()
+
+  for repo in "${repos[@]}"; do
+    local root
+    root="$(repo_root "$repo")"
+    if [[ ! -d "$root/.git" && ! -f "$root/.git" ]]; then
+      continue
+    fi
+
+    # Parse git worktree list --porcelain
+    local wt_path="" wt_branch="" in_block=false
+    while IFS= read -r line || [[ -n "$line" ]]; do
+      if [[ "$line" == "worktree "* ]]; then
+        # If we had a previous block, process it
+        if [[ -n "$wt_path" && -n "$wt_branch" ]]; then
+          if ! is_main_worktree "$wt_path" "$repo"; then
+            local owner
+            owner="$(classify_worktree_owner "$wt_path" "$wt_branch")"
+            local managed="false"
+            if [[ "$owner" == "wt" ]]; then
+              managed="true"
+            fi
+            local wt_name
+            wt_name="$(derive_worktree_name "$wt_path")"
+            all_entries+=("${wt_name}|${repo}|${wt_path}|${wt_branch}|${owner}|${managed}")
+          fi
+        fi
+        wt_path="${line#worktree }"
+        wt_branch=""
+        in_block=true
+      elif [[ "$line" == "branch refs/heads/"* ]]; then
+        wt_branch="${line#branch refs/heads/}"
+      elif [[ -z "$line" ]]; then
+        in_block=false
+      fi
+    done < <(git -C "$root" worktree list --porcelain 2>/dev/null)
+
+    # Process the last block
+    if [[ -n "$wt_path" && -n "$wt_branch" ]]; then
+      if ! is_main_worktree "$wt_path" "$repo"; then
+        local owner
+        owner="$(classify_worktree_owner "$wt_path" "$wt_branch")"
+        local managed="false"
+        if [[ "$owner" == "wt" ]]; then
+          managed="true"
+        fi
+        local wt_name
+        wt_name="$(derive_worktree_name "$wt_path")"
+        all_entries+=("${wt_name}|${repo}|${wt_path}|${wt_branch}|${owner}|${managed}")
+      fi
+    fi
+  done
+
+  if [[ ${#all_entries[@]} -eq 0 ]]; then
+    if $json; then
+      echo "[]"
+    else
+      echo "No worktrees found."
+    fi
+    return 0
+  fi
+
+  if $json; then
+    local json_out="["
+    local first=true
+    for entry in "${all_entries[@]}"; do
+      IFS='|' read -r wt_name repo wt_path wt_branch owner managed <<< "$entry"
+      local obj
+      obj="$(jq -n \
+        --arg name "$wt_name" \
+        --arg repo "$repo" \
+        --arg path "$wt_path" \
+        --arg branch "$wt_branch" \
+        --arg owner "$owner" \
+        --argjson managed "$managed" \
+        '{name: $name, repo: $repo, path: $path, branch: $branch, owner: $owner, managed: $managed}')"
+      if $first; then
+        first=false
+      else
+        json_out+=","
+      fi
+      json_out+="$obj"
+    done
+    json_out+="]"
+    echo "$json_out" | jq .
+    return 0
+  fi
+
+  # Interactive mode: group by owner with headers
+  local current_owner=""
+  # Sort entries by owner for grouping
+  local sorted_entries
+  sorted_entries="$(printf '%s\n' "${all_entries[@]}" | sort -t'|' -k5,5)"
+
+  local unmanaged_entries=()
+  while IFS= read -r entry; do
+    [[ -z "$entry" ]] && continue
+    IFS='|' read -r wt_name repo wt_path wt_branch owner managed <<< "$entry"
+
+    if [[ "$owner" != "$current_owner" ]]; then
+      current_owner="$owner"
+      echo ""
+      printf "  \033[1;36m%s\033[0m\n" "[$owner]"
+    fi
+
+    local status_icon
+    if [[ "$managed" == "true" ]]; then
+      status_icon="\033[32m✓\033[0m"
+    else
+      status_icon="\033[33m○\033[0m"
+      unmanaged_entries+=("$entry")
+    fi
+    printf "    %b %-24s %-12s %-30s %s\n" "$status_icon" "$wt_name" "$repo" "$wt_branch" "$wt_path"
+  done <<< "$sorted_entries"
+
+  echo ""
+
+  # Adoption prompt
+  if [[ ${#unmanaged_entries[@]} -gt 0 ]]; then
+    if $adopt_all; then
+      for entry in "${unmanaged_entries[@]}"; do
+        IFS='|' read -r wt_name repo wt_path wt_branch owner managed <<< "$entry"
+        adopt_worktree "$wt_name" "$repo" "$wt_path" "$wt_branch" "$owner"
+      done
+    else
+      echo "  ${#unmanaged_entries[@]} unmanaged worktree(s). Use --adopt-all or adopt individually."
+    fi
+  fi
+}
+
 # --- init and dispatch ------------------------------------------------------
 
 state/init
@@ -775,6 +1028,7 @@ case "${1:-}" in
   down)         shift; cmd_down "$@" ;;
   status)       shift; cmd_status "$@" ;;
   dash)         shift; cmd_dash "$@" ;;
+  scan)         shift; cmd_scan "$@" ;;
   -h|--help|help|"")
     help/main
     exit 0
