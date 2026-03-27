@@ -65,6 +65,15 @@ func NewModel(reader *state.Reader) Model {
 // Messages
 type tickMsg time.Time
 type stateUpdatedMsg struct{}
+type gitPolledMsg struct {
+	name    string
+	status  gitpkg.Status
+	commits []gitpkg.Commit
+}
+type servicesPolledMsg struct {
+	name     string
+	services *services.Status
+}
 
 func tickCmd() tea.Cmd {
 	return tea.Tick(2*time.Second, func(t time.Time) tea.Msg {
@@ -104,26 +113,44 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.selected = len(m.names) - 1
 		}
 
-		// Poll agent status inline
+		// Poll agent status inline (fast — just kill -0 and ps)
 		m.pollAgents()
 
-		// Poll git every 5 ticks (10 seconds)
+		var cmds []tea.Cmd
+		cmds = append(cmds, tickCmd())
+
+		// Poll git every 5 ticks (10 seconds) — async
 		if m.tickCount%5 == 0 {
-			m.pollGit()
+			cmds = append(cmds, m.pollGitAsync()...)
 		}
 
-		// Poll services every 15 ticks (30 seconds)
+		// Poll services every 15 ticks (30 seconds) — async
 		if m.tickCount%15 == 0 {
-			m.pollServices()
+			cmds = append(cmds, m.pollServicesAsync()...)
 		}
 
-		return m, tickCmd()
+		return m, tea.Batch(cmds...)
 
 	case stateUpdatedMsg:
+		// Initial load — just update names, don't block on polling
 		m.names = m.reader.WorktreeNames()
 		m.pollAgents()
-		m.pollGit()
-		m.pollServices()
+		// Kick off async git poll so data appears quickly
+		return m, tea.Batch(m.pollGitAsync()...)
+
+	case gitPolledMsg:
+		if m.live[msg.name] == nil {
+			m.live[msg.name] = &WorktreeLive{Agents: make(map[string]AgentLive)}
+		}
+		m.live[msg.name].GitStatus = msg.status
+		m.live[msg.name].Commits = msg.commits
+		return m, nil
+
+	case servicesPolledMsg:
+		if m.live[msg.name] == nil {
+			m.live[msg.name] = &WorktreeLive{Agents: make(map[string]AgentLive)}
+		}
+		m.live[msg.name].Services = msg.services
 		return m, nil
 	}
 
@@ -211,25 +238,35 @@ func (m *Model) pollAgents() {
 	}
 }
 
-func (m *Model) pollGit() {
+func (m *Model) pollGitAsync() []tea.Cmd {
 	s := m.reader.Get()
+	var cmds []tea.Cmd
 	for name, wt := range s.Worktrees {
-		if m.live[name] == nil {
-			m.live[name] = &WorktreeLive{Agents: make(map[string]AgentLive)}
-		}
-		m.live[name].GitStatus = gitpkg.GetStatus(wt.Path)
-		m.live[name].Commits = gitpkg.RecentCommits(wt.Path, 5)
+		n, p := name, wt.Path
+		cmds = append(cmds, func() tea.Msg {
+			return gitPolledMsg{
+				name:    n,
+				status:  gitpkg.GetStatus(p),
+				commits: gitpkg.RecentCommits(p, 5),
+			}
+		})
 	}
+	return cmds
 }
 
-func (m *Model) pollServices() {
+func (m *Model) pollServicesAsync() []tea.Cmd {
 	s := m.reader.Get()
+	var cmds []tea.Cmd
 	for name, wt := range s.Worktrees {
-		if m.live[name] == nil {
-			m.live[name] = &WorktreeLive{Agents: make(map[string]AgentLive)}
-		}
-		m.live[name].Services = services.GetStatus(wt.Path)
+		n, p := name, wt.Path
+		cmds = append(cmds, func() tea.Msg {
+			return servicesPolledMsg{
+				name:     n,
+				services: services.GetStatus(p),
+			}
+		})
 	}
+	return cmds
 }
 
 // SwitchTo returns the session to switch to after quitting, if any.
