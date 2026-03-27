@@ -30,9 +30,11 @@ require("lazy").setup({
     version = false, -- always use the latest git commit
     -- version = "*", -- try installing the latest stable version for plugins that support semver
   },
-  install = { colorscheme = { "everforest", "habamax" } },
+  install = { colorscheme = { "cyberdream", "habamax" } },
   checker = {
-    enabled = false, -- disabled to prevent accidental updates that break things
+    enabled = true, -- check for updates (does NOT auto-update)
+    notify = true, -- show notification when updates are available
+    frequency = 86400, -- check once per day (in seconds)
   },
   performance = {
     rtp = {
