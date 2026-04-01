@@ -160,7 +160,7 @@ If two agents converge on the same approach, note that — convergence is a stro
 
 Ask the user which approach they prefer, or if they want to explore a different direction.
 
-Once decided, save the decision to `.local/[feature-name].md` in the repo root.
+Once decided, save the decision to `.local/design/[feature-name].md` in the repo root.
 
 ## Rules
 

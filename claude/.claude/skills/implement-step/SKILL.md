@@ -28,8 +28,8 @@ Execute the next incomplete step from a tracking document.
 1. **Read** the tracking document and identify the next incomplete step (or the specified one)
 2. **Explore** the relevant files to understand the change needed
 3. **Implement** the actual code changes — do NOT just write a plan or analysis
-4. **Run tests** — `bin/docker/docker-runner bundle exec rspec` for Ruby, `bin/docker/docker-runner yarn test` for JS (adjust paths to relevant specs)
-5. **Run linters** — `bin/docker/docker-runner bundle exec rubocop -a` on changed Ruby files, `bin/docker/docker-runner yarn tsc --noEmit` for TypeScript
+4. **Run tests** — `bin/wealthbox rspec` for Ruby, `bin/wealthbox exec yarn test` for JS (adjust paths to relevant specs)
+5. **Run linters** — `bin/wealthbox exec bundle exec rubocop -a` on changed Ruby files, `bin/wealthbox exec yarn tsc --noEmit` for TypeScript
 6. **Fix** any test failures or lint errors before proceeding
 7. **Update** the tracking document to mark the step as done
 8. **Summarize** what was changed and what the next step would be
