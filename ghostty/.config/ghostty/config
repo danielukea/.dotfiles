@@ -2,6 +2,7 @@ theme = warp-modern
 
 # Window chrome
 macos-titlebar-style = transparent
+macos-titlebar-proxy-icon = hidden
 window-padding-x = 12
 window-padding-y = 8
 window-padding-balance = true
