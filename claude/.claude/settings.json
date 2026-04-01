@@ -1,7 +1,6 @@
 {
-  "statusLine": {
-    "type": "command",
-    "command": "input=$(cat); current_dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); model_name=$(echo \"$input\" | jq -r '.model.display_name'); printf \"➜  $(basename \"$current_dir\") \"; if git -C \"$current_dir\" rev-parse --git-dir >/dev/null 2>&1; then branch=$(git -C \"$current_dir\" branch --show-current 2>/dev/null || echo 'detached'); status=''; if ! git -C \"$current_dir\" diff-index --quiet HEAD -- 2>/dev/null; then status=' ✗'; fi; printf \"git:($branch)$status \"; fi; printf \"[$model_name]\""
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "permissions": {
     "deny": [
@@ -19,29 +18,46 @@
       "mcp__basecamp__basecamp_update_schedule_entry",
       "mcp__basecamp__basecamp_create_document",
       "mcp__basecamp__basecamp_update_document"
+    ],
+    "defaultMode": "auto",
+    "additionalDirectories": [
+      "/Users/lukedanielson/Workspace/crm-web",
+      "/Users/lukedanielson/Workspace/partner-integration-prototype"
     ]
   },
-  "model": "opus",
+  "statusLine": {
+    "type": "command",
+    "command": "input=$(cat); current_dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); model_name=$(echo \"$input\" | jq -r '.model.display_name'); printf \"➜  $(basename \"$current_dir\") \"; if git -C \"$current_dir\" rev-parse --git-dir >/dev/null 2>&1; then branch=$(git -C \"$current_dir\" branch --show-current 2>/dev/null || echo 'detached'); status=''; if ! git -C \"$current_dir\" diff-index --quiet HEAD -- 2>/dev/null; then status=' ✗'; fi; printf \"git:($branch)$status \"; fi; printf \"[$model_name]\""
+  },
   "enabledPlugins": {
-    "frontend-design@claude-code-plugins": true,
     "frontend-design@claude-plugins-official": true,
     "github@claude-plugins-official": true,
     "commit-commands@claude-plugins-official": true,
     "feature-dev@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
     "context7@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": true,
-    "wealthbox@wealthbox": true,
     "playwright@claude-plugins-official": true,
-    "figma@claude-plugins-official": true
+    "skill-creator@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "plugin-dev@claude-plugins-official": true,
+    "wealthbox@wealthbox": true,
+    "wealthbox-code-review@wealthbox": true,
+    "wealthbox-development@wealthbox": true,
+    "wealthbox-qa@wealthbox": true,
+    "wealthbox-documentation@wealthbox": true,
+    "wealthbox-projects@wealthbox": true,
+    "ruby-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "wealthbox": {
       "source": {
-        "source": "directory",
-        "path": "/Users/lukedanielson/Workspace/wealthbox-claude-plugin"
-      }
+        "source": "git",
+        "url": "git@github.com:starburstlabs/wealthbox-claude-plugin.git"
+      },
+      "autoUpdate": true
     }
   },
-  "alwaysThinkingEnabled": true
+  "alwaysThinkingEnabled": true,
+  "skipAutoPermissionPrompt": true
 }
