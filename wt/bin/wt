@@ -449,13 +449,12 @@ cmd_agent() {
     return $?
   fi
 
-  local ralph_plan="" name="" claude_args=()
+  local name="" claude_args=()
   local parsing_args=true
 
   while [[ $# -gt 0 ]] && $parsing_args; do
     case "$1" in
       -h|--help)       help/agent; return 0 ;;
-      --ralph)         ralph_plan="$2"; shift 2 ;;
       --)              shift; claude_args=("$@"); break ;;
       -*)              echo "Error: Unknown option '$1'" >&2; return 1 ;;
       *)
@@ -476,17 +475,11 @@ cmd_agent() {
 
   # Auto-generate agent name if not provided
   if [[ -z "$name" ]]; then
-    local prefix
-    if [[ -n "$ralph_plan" ]]; then
-      prefix="ralph"
-    else
-      prefix="agent"
-    fi
     local idx=1
-    while [[ "$(state/agent_exists "$wt_name" "${prefix}-${idx}")" == "true" ]]; do
+    while [[ "$(state/agent_exists "$wt_name" "agent-${idx}")" == "true" ]]; do
       (( idx++ ))
     done
-    name="${prefix}-${idx}"
+    name="agent-${idx}"
   fi
 
   if [[ "$(state/agent_exists "$wt_name" "$name")" == "true" ]]; then
@@ -494,32 +487,12 @@ cmd_agent() {
     return 1
   fi
 
-  local agent_type cmd
-
-  if [[ -n "$ralph_plan" ]]; then
-    agent_type="ralph"
-    # Resolve plan file path
-    local plan_file="$ralph_plan"
-    if [[ "$plan_file" != /* ]]; then
-      plan_file="$wt_path/$plan_file"
-    fi
-    if [[ ! -f "$plan_file" ]]; then
-      echo "Error: Plan file not found: $plan_file" >&2
-      return 1
-    fi
-    local args_str=""
-    if [[ ${#claude_args[@]} -gt 0 ]]; then
-      args_str=" ${claude_args[*]}"
-    fi
-    cmd="ralph '${plan_file}'${args_str}; echo '[exited - press Enter to close]'; read"
-  else
-    agent_type="interactive"
-    local args_str=""
-    if [[ ${#claude_args[@]} -gt 0 ]]; then
-      args_str=" ${claude_args[*]}"
-    fi
-    cmd="claude${args_str}; echo '[exited - press Enter to close]'; read"
+  local agent_type="interactive"
+  local args_str=""
+  if [[ ${#claude_args[@]} -gt 0 ]]; then
+    args_str=" ${claude_args[*]}"
   fi
+  local cmd="claude${args_str}; echo '[exited - press Enter to close]'; read"
 
   tmux new-window -t "$session" -n "$name" -c "$wt_path" "$cmd"
   sleep 1
@@ -532,15 +505,7 @@ cmd_agent() {
     pane_pid="0"
   fi
 
-  if [[ -n "$ralph_plan" ]]; then
-    local plan_file="$ralph_plan"
-    if [[ "$plan_file" != /* ]]; then
-      plan_file="$wt_path/$plan_file"
-    fi
-    state/add_agent "$wt_name" "$name" "$agent_type" "$pane_pid" "$name" "$plan_file"
-  else
-    state/add_agent "$wt_name" "$name" "$agent_type" "$pane_pid" "$name"
-  fi
+  state/add_agent "$wt_name" "$name" "$agent_type" "$pane_pid" "$name"
 
   echo "Agent '$name' ($agent_type) launched in worktree '$wt_name' (PID: $pane_pid)."
 }

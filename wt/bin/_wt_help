@@ -48,7 +48,7 @@ EXAMPLES
     wt new auth-refactor                 Create worktree from current branch
     wt new auth-refactor -b main         Create worktree branching from main
     wt agent auth-refactor               Launch interactive Claude agent
-    wt agent auth-refactor --ralph plan.md   Run headless agent with a plan
+    wt agent auth-refactor -- -p "fix tests" Launch agent with prompt
     wt ls --json | jq '.[] | .name'      List worktree names as JSON
     wt dash                              Open the TUI dashboard
 
@@ -209,7 +209,6 @@ help/agent() {
   cat <<'EOF'
 USAGE
     wt agent <name> [options] [-- <claude-args>]
-    wt agent <name> --ralph <plan-file> [-- <claude-args>]
     wt agent <name> --kill [agent-name]
 
 DESCRIPTION
@@ -219,32 +218,23 @@ DESCRIPTION
 
 SUBCOMMANDS
     (default)          Launch an interactive Claude agent
-    --ralph <plan>     Launch a headless ralph agent with a plan file
     --kill [agent]     Kill a specific agent, or all agents if no name given
 
 OPTIONS
-    --ralph <plan-file>    Run in headless mode using ralph with the given plan
     --kill [agent-name]    Kill the named agent (or all agents in the worktree)
-    -- <claude-args>       Arguments passed through to claude or ralph
+    -- <claude-args>       Arguments passed through to claude
 
-WHAT HAPPENS (interactive)
+WHAT HAPPENS
     1. Creates a new tmux window named "agent-<n>" in the worktree session
     2. Launches claude in the worktree directory
     3. Registers the agent in the state file with type "interactive"
     4. Passes any trailing arguments after -- to claude
 
-WHAT HAPPENS (ralph)
-    1. Creates a new tmux window named "ralph-<n>" in the worktree session
-    2. Launches ralph with the plan file in the worktree directory
-    3. Registers the agent in the state file with type "ralph" and the plan path
-    4. Passes any trailing arguments after -- to ralph
-
 EXAMPLES
     wt agent auth-refactor                          Interactive agent
     wt agent auth-refactor -- -p "fix the tests"    Interactive with prompt
-    wt agent auth-refactor --ralph plan.md           Headless ralph agent
     wt agent auth-refactor --kill                    Kill all agents
-    wt agent auth-refactor --kill ralph-1            Kill specific agent
+    wt agent auth-refactor --kill agent-1            Kill specific agent
 
 SEE ALSO
     wt agents --help, wt new --help
@@ -266,8 +256,8 @@ OPTIONS
 
 OUTPUT COLUMNS
     WORKTREE    Worktree the agent belongs to
-    AGENT       Agent name (e.g., agent-1, ralph-1)
-    TYPE        Agent type (interactive or ralph)
+    AGENT       Agent name (e.g., agent-1, agent-2)
+    TYPE        Agent type (interactive)
     PID         Process ID
     STARTED     When the agent was launched
 
