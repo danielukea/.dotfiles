@@ -1,0 +1,14 @@
+{
+  "run_id": "crm-web-tech-debt-with_skill",
+  "expectations": [
+    {"text": "A report.md file was created in the outputs directory", "passed": true, "evidence": "report.md exists"},
+    {"text": "Report correctly identifies this as a Ruby on Rails application", "passed": true, "evidence": "'Rails 7.2, React + TypeScript (migrating from Angular)' with full scc breakdown"},
+    {"text": "Report contains findings from multiple distinct analysis dimensions", "passed": true, "evidence": "8 findings across Code Health (StinkScores), Reliability (swallowed errors), Security (SQL injection), Maintainability (lib dirs, Angular), State (callbacks), Architecture (routes)"},
+    {"text": "Report includes a 'what's working well' section", "passed": true, "evidence": "'What's Working Well' with 5 items: clear arch direction, feature-organized frontend, mature dev tooling, strong Composer architecture, active modernization"},
+    {"text": "Findings reference specific file paths and line numbers", "passed": true, "evidence": "StinkScore table with exact scores, '637 lines, 84 changes in 6 months', brakeman line refs, jscpd clone counts (158 JS/TS, 61 Ruby lib, 24 Composer)"},
+    {"text": "Report includes git churn or change frequency data", "passed": true, "evidence": "'84 changes in 6 months' for routes, '80 changes' for types.ts, skunk ChurnxCost values (108,685 for meetings_controller)"},
+    {"text": "Findings are ranked or prioritized with severity levels", "passed": true, "evidence": "Numbered 1-8 'ranked by impact', high/medium severity labels, Lower Priority section"},
+    {"text": "Report notes when multiple agents flagged the same area", "passed": true, "evidence": "'Flagged by: Complexity & Churn, Coupling, Structure' on god models, convergence noted throughout"},
+    {"text": "At least 3 findings include concrete improvement directions", "passed": true, "evidence": "All 8 findings have Direction fields with specific actions"}
+  ]
+}

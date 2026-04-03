@@ -1,0 +1,14 @@
+{
+  "run_id": "crm-web-tech-debt-without_skill",
+  "expectations": [
+    {"text": "A report.md file was created in the outputs directory", "passed": true, "evidence": "report.md exists"},
+    {"text": "Report correctly identifies this as a Ruby on Rails application", "passed": true, "evidence": "'Rails 7.2.3 / Ruby 3.4.8 / TypeScript + React / AngularJS (legacy)'"},
+    {"text": "Report contains findings from multiple distinct analysis dimensions", "passed": true, "evidence": "13 sections covering size, god objects, legacy frontend, deps, security, duplication, TODOs, stylesheets, routes, tests, churn, TypeScript, architecture patterns"},
+    {"text": "Report includes a 'what's working well' section", "passed": true, "evidence": "Section 13 'Architectural Patterns Assessment' has 'Positive Patterns' subsection with 7 items including queries layer, policies, presenters, Flipper"},
+    {"text": "Findings reference specific file paths and line numbers", "passed": true, "evidence": "Extensive: brakeman line refs, scc tables, god object tables with line counts, jscpd duplication stats"},
+    {"text": "Report includes git churn or change frequency data", "passed": true, "evidence": "Section 11 'Churn Hotspots' with full table: meeting.rb 214 changes, types.ts 209 changes, meetings_controller.rb 180 changes"},
+    {"text": "Findings are ranked or prioritized with severity levels", "passed": true, "evidence": "Priority recommendations table (P0-P4) at the end with clear groupings"},
+    {"text": "Report notes when multiple agents flagged the same area", "passed": false, "evidence": "No convergence signals — baseline has no multi-agent architecture"},
+    {"text": "At least 3 findings include concrete improvement directions", "passed": true, "evidence": "Every section ends with specific recommendations"}
+  ]
+}

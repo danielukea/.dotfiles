@@ -1,0 +1,12 @@
+{
+  "run_id": "partner-proto-shape-without_skill",
+  "expectations": [
+    {"text": "A report.md file was created in the outputs directory", "passed": true, "evidence": "report.md exists"},
+    {"text": "Report correctly identifies the project's tech stack", "passed": true, "evidence": "'Node.js/Express server', language table with 576 JS lines"},
+    {"text": "Report contains findings from multiple distinct analysis dimensions", "passed": false, "evidence": "Report is primarily descriptive — maps architecture and design decisions but doesn't identify problems or rate severity. Has 'What's Missing (by design)' section but no findings with impact/suggestion structure."},
+    {"text": "Report includes a 'what's working well' section", "passed": false, "evidence": "No structured positives section. Positive observations woven into prose but not separated."},
+    {"text": "Report gives a clear picture of major components and relationships", "passed": true, "evidence": "Excellent architecture section with single-file server breakdown, tool system docs, data layer, middleware, plugin manifest explanation"},
+    {"text": "Findings reference specific file paths as evidence", "passed": true, "evidence": "File counts and line numbers throughout, tool handler list, dependency count"},
+    {"text": "Report would help a new developer understand the codebase", "passed": true, "evidence": "Very strong onboarding document with architecture section, key design decisions, supporting artifacts list"}
+  ]
+}

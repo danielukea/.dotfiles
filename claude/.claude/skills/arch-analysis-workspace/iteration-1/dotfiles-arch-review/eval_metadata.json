@@ -1,0 +1,43 @@
+{
+  "eval_id": 0,
+  "eval_name": "dotfiles-arch-review",
+  "prompt": "Analyze this codebase for architectural improvements",
+  "assertions": [
+    {
+      "id": "report-exists",
+      "text": "A report.md file was created in the outputs directory",
+      "type": "file_exists",
+      "path": "report.md"
+    },
+    {
+      "id": "stack-detected",
+      "text": "Report correctly identifies this as a dotfiles/stow-based repo (not a typical application)",
+      "type": "content_check"
+    },
+    {
+      "id": "multi-lens",
+      "text": "Report contains findings from multiple distinct analysis dimensions (not just one angle)",
+      "type": "content_check"
+    },
+    {
+      "id": "whats-working",
+      "text": "Report includes a 'what's working well' section (not just problems)",
+      "type": "content_check"
+    },
+    {
+      "id": "evidence-based",
+      "text": "Findings reference specific file paths as evidence, not just vague claims",
+      "type": "content_check"
+    },
+    {
+      "id": "prioritized",
+      "text": "Findings are ranked or prioritized in some way (severity, impact, or numbered)",
+      "type": "content_check"
+    },
+    {
+      "id": "actionable",
+      "text": "At least 2 findings include a concrete suggestion or direction (not just 'improve this')",
+      "type": "content_check"
+    }
+  ]
+}

@@ -28,7 +28,7 @@ Optionally:
 
 ## Phase 2: Audit
 
-Dispatch 2-3 parallel subagents, each focused on a different audit dimension. Only dispatch agents that are relevant — if there's no spike, skip the spike agent.
+Dispatch 2-4 parallel subagents, each focused on a different audit dimension. Only dispatch agents that are relevant — if there's no spike, skip the spike agent.
 
 ### Agent 1: Roadmap Coverage
 
@@ -43,6 +43,10 @@ For each bullet in the roadmap milestone definition:
 
 For each draft issue:
 - Does it go beyond the milestone scope? → ⚠️ Over-scope — {what's extra}
+
+For items flagged as gaps, check if they're covered by issues in other milestones
+(earlier or later). A gap in M2 isn't a gap if M1 already handles it. Check
+draft_issues/ for other milestone directories and read their READMEs.
 
 Report as a checklist.
 ```
@@ -70,9 +74,37 @@ Check for:
 - Cross-cutting concerns (auth, feature flags, locking, logging) that multiple issues depend on but no single issue owns
 - Dependencies between issues that aren't reflected in the README dependency graph
 - Shared scaffolding that needs to exist before feature issues can start
+
+For each resource the issues create (models, admin pages, portal features),
+verify the full CRUD lifecycle is covered. If issues create a resource but don't
+provide ways to update, delete, or manage its lifecycle, flag the gap. Think about:
+- Can the resource be edited after creation?
+- Can it be deleted/archived/deactivated?
+- Are there domain-specific lifecycle operations missing (submit/withdraw, approve/revoke, etc.)?
 ```
 
 Run Agent 3 when the milestone involves new infrastructure, auth changes, cross-cutting concerns, or when the spec mentions shared systems. Skip it for milestones that are purely feature work on existing foundations.
+
+### Agent 4: Master Branch Overlap (recommended for most milestones)
+
+```
+Search the main branch of the codebase for existing code that overlaps with
+or could be reused by the drafted issues. Focus on:
+
+- Utilities, concerns, and service objects that issues might reinvent
+- Existing patterns (audit logging, retry, sanitization, circuit breaking) that issues should follow
+- Infrastructure that issues assume doesn't exist but actually does
+- Recent merges that may have brought relevant code from other branches
+
+For each finding, report:
+- What exists on master (file path, what it does)
+- Which draft issue(s) it affects
+- Whether the issue should be eliminated, reduced in scope, or updated to reference it
+
+Run git log for the last 3 months to find recent relevant merges.
+```
+
+This agent has high ROI — it frequently finds existing utilities that eliminate entire issues or reduce them to a few lines of wiring. Skip only if the milestone is greenfield with no relevant existing code.
 
 ## Phase 3: Report
 
@@ -92,12 +124,16 @@ Consolidate agent results into a single report:
 ❌ X not in any issue:
 - {component} — {whether the milestone needs it}
 
+### Master Branch Overlap (if applicable)
+- {utility/pattern} on master → affects issue #{filename} — {eliminate, reduce, or reference}
+
 ### Over-Scope
 ⚠️ N issues extend beyond the milestone:
 - {issue} — {what's extra}
 
-### Missing Dependencies
+### Missing Dependencies / CRUD Gaps
 - {any cross-cutting concerns not captured}
+- {any resources without full lifecycle coverage}
 
 ### Recommendations
 - {specific actions: new issues to create, issues to update, scope to trim}

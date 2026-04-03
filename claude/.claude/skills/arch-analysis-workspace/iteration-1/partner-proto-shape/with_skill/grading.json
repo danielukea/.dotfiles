@@ -1,0 +1,12 @@
+{
+  "run_id": "partner-proto-shape-with_skill",
+  "expectations": [
+    {"text": "A report.md file was created in the outputs directory", "passed": true, "evidence": "report.md exists at the expected path"},
+    {"text": "Report correctly identifies the project's tech stack", "passed": true, "evidence": "Stack table: 'JavaScript (ES Modules), Node.js, Express 5.2, express + dotenv (2 production deps)'"},
+    {"text": "Report contains findings from multiple distinct analysis dimensions", "passed": true, "evidence": "6 findings across Maintainability (server.js monolith, stale docs), Reliability (XSS, no error boundaries), State (memory cleanup, data loading)"},
+    {"text": "Report includes a 'what's working well' section", "passed": true, "evidence": "'What's Working Well' with 6 items: low coupling, clean separation, webhook contract, developer ergonomics, OAuth thoroughness, README quality"},
+    {"text": "Report gives a clear picture of major components and relationships", "passed": true, "evidence": "'Overall Shape Summary' section plus detailed evidence throughout about webhook routing, tool handler pattern, OAuth flow, and two-repo relationship"},
+    {"text": "Findings reference specific file paths as evidence", "passed": true, "evidence": "Line-level references: 'server.js lines 108, 112, 131, 135, 334-337', 'tools/index.js', 'server.js line 157'"},
+    {"text": "Report would help a new developer understand the codebase", "passed": true, "evidence": "Comprehensive structure overview, clear explanation of webhook contract, tool handler pattern, and how this repo relates to crm-web. The 'Overall Shape Summary' section is specifically written as an orientation."}
+  ]
+}

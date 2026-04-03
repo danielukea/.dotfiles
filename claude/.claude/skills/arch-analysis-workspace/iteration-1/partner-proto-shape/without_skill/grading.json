@@ -1,0 +1,12 @@
+{
+  "run_id": "partner-proto-shape-without_skill",
+  "expectations": [
+    {"text": "A report.md file was created in the outputs directory", "passed": true, "evidence": "report.md exists at the expected path"},
+    {"text": "Report correctly identifies the project's tech stack", "passed": true, "evidence": "'Runtime: Node.js (ES modules), Framework: Express 5, Dependencies: Only express and dotenv'"},
+    {"text": "Report contains findings from multiple distinct analysis dimensions", "passed": false, "evidence": "Report is primarily descriptive — it maps the architecture and design decisions but does not identify problems or improvements. No severity ratings, no findings structure. It reads as an overview, not an analysis."},
+    {"text": "Report includes a 'what's working well' section", "passed": false, "evidence": "No explicit section. Positive observations are woven throughout ('intentionally minimal', 'well-organized') but not structured."},
+    {"text": "Report gives a clear picture of major components and relationships", "passed": true, "evidence": "Excellent project structure diagram, single webhook endpoint explanation, tool handler pattern, security layer description, and relationship table showing crm-web + this repo"},
+    {"text": "Findings reference specific file paths as evidence", "passed": true, "evidence": "File paths throughout: 'server.js (~520 lines)', 'tools/index.js', 'data/contacts.json', 'seed.json'"},
+    {"text": "Report would help a new developer understand the codebase", "passed": true, "evidence": "Very strong newcomer orientation — project structure tree, architecture shape section, key design decisions, and maturity/status assessment. This is an excellent onboarding document."}
+  ]
+}

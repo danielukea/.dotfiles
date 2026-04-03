@@ -1,0 +1,12 @@
+{
+  "run_id": "dotfiles-arch-review-without_skill",
+  "expectations": [
+    {"text": "A report.md file was created in the outputs directory", "passed": true, "evidence": "report.md exists at the expected path"},
+    {"text": "Report correctly identifies this as a dotfiles/stow-based repo", "passed": true, "evidence": "Opening line: 'This is a well-structured GNU Stow-based dotfiles repository'"},
+    {"text": "Report contains findings from multiple distinct analysis dimensions", "passed": true, "evidence": "Findings cover safety (stow --adopt), infrastructure (launchd PATH), shell scripting (error handling, variables), architecture (wt bash vs Go), config management (kitty/ghostty), conventions (PATH duplication)"},
+    {"text": "Report includes a 'what's working well' section", "passed": false, "evidence": "No dedicated section for what's working well. The executive summary says 'The architecture is sound for its purpose' but no structured positives."},
+    {"text": "Findings reference specific file paths as evidence", "passed": true, "evidence": "All findings include file paths and line numbers, e.g., 'link.sh, line 45', 'zsh/.zshrc line 181'"},
+    {"text": "Findings are ranked or prioritized", "passed": true, "evidence": "Grouped into 'Critical Issues' and 'Structural Improvements' with a summary priority table (High/Medium/Low)"},
+    {"text": "At least 2 findings include concrete suggestions", "passed": true, "evidence": "Every finding has a 'Recommendation' section with code examples, e.g., explicit stow package list, PATH consolidation block"}
+  ]
+}
