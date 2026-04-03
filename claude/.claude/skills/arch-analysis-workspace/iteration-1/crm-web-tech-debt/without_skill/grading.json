@@ -1,0 +1,14 @@
+{
+  "run_id": "crm-web-tech-debt-without_skill",
+  "expectations": [
+    {"text": "A report.md file was created in the outputs directory", "passed": true, "evidence": "report.md exists at the expected path"},
+    {"text": "Report correctly identifies this as a Ruby on Rails application", "passed": true, "evidence": "'Stack: Rails 7.2 / Ruby 3.2.4 / React 18 / TypeScript / Angular (deprecated) / PostgreSQL'"},
+    {"text": "Report contains findings from multiple distinct analysis dimensions", "passed": true, "evidence": "10 categories: Angular migration, god objects, frontend paradigms, linting, serialization, raw SQL, test coverage, soft delete, ADR numbering, dependencies"},
+    {"text": "Report includes a 'what's working well' section", "passed": false, "evidence": "No 'what's working well' section. Executive summary notes 'strong conventions documented via CLAUDE.md, ADRs, and coding guidelines' but no structured positives section."},
+    {"text": "Findings reference specific file paths and line numbers", "passed": true, "evidence": "Specific counts and file references throughout: 'User model: 804 lines, 22+ concern includes', '197 Angular files', '1,676 rubocop disables'"},
+    {"text": "Report includes git churn or change frequency data", "passed": false, "evidence": "No git churn or change frequency data. Analysis is entirely static — file counts, dependency counts, and code pattern searches. No git log analysis."},
+    {"text": "Findings are ranked or prioritized with severity levels", "passed": true, "evidence": "Priority labels (HIGH, MEDIUM-HIGH, MEDIUM, LOW-MEDIUM, LOW) and summary table with Priority/Effort/Impact columns"},
+    {"text": "Report notes when multiple agents flagged the same area", "passed": false, "evidence": "No convergence signals — baseline has no multi-agent architecture, so no concept of convergence."},
+    {"text": "At least 3 findings include concrete improvement directions", "passed": true, "evidence": "Each section ends with a 'Recommendation' including specific actions: 'Remove Angular npm dependencies as components are migrated', 'Extract integration-specific behavior from User into dedicated service objects'"}
+  ]
+}

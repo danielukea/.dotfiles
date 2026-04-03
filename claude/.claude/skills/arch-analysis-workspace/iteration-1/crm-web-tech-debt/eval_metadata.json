@@ -1,0 +1,53 @@
+{
+  "eval_id": 1,
+  "eval_name": "crm-web-tech-debt",
+  "prompt": "tech debt audit",
+  "assertions": [
+    {
+      "id": "report-exists",
+      "text": "A report.md file was created in the outputs directory",
+      "type": "file_exists",
+      "path": "report.md"
+    },
+    {
+      "id": "stack-detected",
+      "text": "Report correctly identifies this as a Ruby on Rails application",
+      "type": "content_check"
+    },
+    {
+      "id": "multi-lens",
+      "text": "Report contains findings from multiple distinct analysis dimensions (coupling, complexity, errors, etc.)",
+      "type": "content_check"
+    },
+    {
+      "id": "whats-working",
+      "text": "Report includes a 'what's working well' section",
+      "type": "content_check"
+    },
+    {
+      "id": "evidence-based",
+      "text": "Findings reference specific file paths and line numbers as evidence",
+      "type": "content_check"
+    },
+    {
+      "id": "churn-data",
+      "text": "Report includes git churn or change frequency data (not just static analysis)",
+      "type": "content_check"
+    },
+    {
+      "id": "prioritized",
+      "text": "Findings are ranked or prioritized with severity levels",
+      "type": "content_check"
+    },
+    {
+      "id": "convergence",
+      "text": "Report notes when multiple agents flagged the same area (convergence signal)",
+      "type": "content_check"
+    },
+    {
+      "id": "actionable",
+      "text": "At least 3 findings include concrete improvement directions",
+      "type": "content_check"
+    }
+  ]
+}

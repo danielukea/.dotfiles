@@ -1,0 +1,12 @@
+{
+  "run_id": "dotfiles-arch-review-with_skill",
+  "expectations": [
+    {"text": "A report.md file was created in the outputs directory", "passed": true, "evidence": "report.md exists"},
+    {"text": "Report correctly identifies this as a dotfiles/stow-based repo", "passed": true, "evidence": "Stack section: 'GNU Stow for symlink management', lists all stow packages"},
+    {"text": "Report contains findings from multiple distinct analysis dimensions", "passed": true, "evidence": "Findings span Code Health (wt complexity 232), Reliability (error handling), Maintainability (hardcoded paths), Duplication (wsh/wrc), Architecture (model.go), Data Integrity (state locking)"},
+    {"text": "Report includes a 'what's working well' section", "passed": true, "evidence": "'What's Working Well' with 7 items including atomic state management, Go dashboard factoring, install.sh error handling"},
+    {"text": "Findings reference specific file paths as evidence", "passed": true, "evidence": "scc complexity scores (232, 102), jscpd clone locations (lines 141-145/149-153), specific line refs throughout"},
+    {"text": "Findings are ranked or prioritized", "passed": true, "evidence": "Numbered 1-6 'ranked by impact' with severity labels, Lower Priority section"},
+    {"text": "At least 2 findings include concrete suggestions", "passed": true, "evidence": "All findings have 'Direction' field: 'Split into per-command files', 'Extract shared _wb_project_exec() helper', 'Extract rendering into render.go'"}
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "run_id": "crm-web-tech-debt-with_skill",
+  "expectations": [
+    {"text": "A report.md file was created in the outputs directory", "passed": true, "evidence": "report.md exists at the expected path"},
+    {"text": "Report correctly identifies this as a Ruby on Rails application", "passed": true, "evidence": "Stack section: 'Ruby on Rails (Ruby 3.2.4) + React (TypeScript)' with detailed file counts"},
+    {"text": "Report contains findings from multiple distinct analysis dimensions", "passed": true, "evidence": "8 top findings spanning Architecture & Coupling, Code Health & Complexity, Reliability & Error Handling, Maintainability & Conventions, Data Integrity & State"},
+    {"text": "Report includes a 'what's working well' section", "passed": true, "evidence": "'What's Working Well' section with 6 items: test co-location, layered app directory, query objects, feature flag management, Composer module, React migration progress"},
+    {"text": "Findings reference specific file paths and line numbers", "passed": true, "evidence": "Extensive evidence: 'meetings_controller.rb: 637 lines, 65 changes in 6 months', 'Account model: 699 lines, 116 associations', 'routes.js.erb: 54 changes in 6 months'"},
+    {"text": "Report includes git churn or change frequency data", "passed": true, "evidence": "Multiple churn references: '65 changes in 6 months' for meetings controller, '68 changes' for meeting model, '77 times in 6 months' for routes, '44 changes' for feature_whitelist, full Metrics Summary table"},
+    {"text": "Findings are ranked or prioritized with severity levels", "passed": true, "evidence": "All findings labeled high/medium severity, numbered 1-8 'ranked by impact', with Lower Priority section"},
+    {"text": "Report notes when multiple agents flagged the same area", "passed": true, "evidence": "'Flagged by' field on every finding showing convergence, e.g., 'Coupling, Complexity & Churn, State & Data Flow' for god models, 'Complexity & Churn, Coupling, Structure & Conventions' for meetings"},
+    {"text": "At least 3 findings include concrete improvement directions", "passed": true, "evidence": "Every finding has a 'Direction' field: 'Extract bounded contexts... strangler fig approach', 'Extract meeting-specific logic into service objects', 'Introduce a shared HTTP client wrapper with default timeouts'"}
+  ]
+}

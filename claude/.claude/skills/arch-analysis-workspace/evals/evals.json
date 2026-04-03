@@ -1,0 +1,58 @@
+{
+  "skill_name": "arch-analysis",
+  "evals": [
+    {
+      "id": 0,
+      "name": "dotfiles-arch-review",
+      "prompt": "Analyze this codebase for architectural improvements",
+      "expected_output": "A structured report with findings across coupling, complexity, state, duplication, errors, and structure dimensions. Should detect stow-based architecture, identify any organizational issues, and note what's working well.",
+      "project_root": "/Users/lukedanielson/.dotfiles",
+      "files": [],
+      "assertions": [
+        {"id": "report-exists", "text": "A report.md file was created in the outputs directory"},
+        {"id": "stack-detected", "text": "Report correctly identifies this as a dotfiles/stow-based repo"},
+        {"id": "multi-lens", "text": "Report contains findings from multiple distinct analysis dimensions"},
+        {"id": "whats-working", "text": "Report includes a 'what's working well' section"},
+        {"id": "evidence-based", "text": "Findings reference specific file paths as evidence"},
+        {"id": "prioritized", "text": "Findings are ranked or prioritized"},
+        {"id": "actionable", "text": "At least 2 findings include concrete suggestions"}
+      ]
+    },
+    {
+      "id": 1,
+      "name": "crm-web-tech-debt",
+      "prompt": "tech debt audit",
+      "expected_output": "A comprehensive tech debt report for a Rails web app. Should detect Rails stack, use git history for churn analysis, find coupling issues in models/controllers, and produce prioritized findings with file paths and evidence.",
+      "project_root": "/Users/lukedanielson/Workspace/crm-web",
+      "files": [],
+      "assertions": [
+        {"id": "report-exists", "text": "A report.md file was created in the outputs directory"},
+        {"id": "stack-detected", "text": "Report correctly identifies this as a Ruby on Rails application"},
+        {"id": "multi-lens", "text": "Report contains findings from multiple distinct analysis dimensions"},
+        {"id": "whats-working", "text": "Report includes a 'what's working well' section"},
+        {"id": "evidence-based", "text": "Findings reference specific file paths and line numbers"},
+        {"id": "churn-data", "text": "Report includes git churn or change frequency data"},
+        {"id": "prioritized", "text": "Findings are ranked or prioritized with severity levels"},
+        {"id": "convergence", "text": "Report notes when multiple agents flagged the same area"},
+        {"id": "actionable", "text": "At least 3 findings include concrete improvement directions"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "partner-proto-shape",
+      "prompt": "what's the overall shape of this project?",
+      "expected_output": "An architectural overview of an unfamiliar codebase. Should detect the stack, map the major components, identify patterns in use, and give a clear picture of the system's structure without prior context.",
+      "project_root": "/Users/lukedanielson/Workspace/partner-integration-prototype",
+      "files": [],
+      "assertions": [
+        {"id": "report-exists", "text": "A report.md file was created in the outputs directory"},
+        {"id": "stack-detected", "text": "Report correctly identifies the project's tech stack"},
+        {"id": "multi-lens", "text": "Report contains findings from multiple distinct analysis dimensions"},
+        {"id": "whats-working", "text": "Report includes a 'what's working well' section"},
+        {"id": "structure-overview", "text": "Report gives a clear picture of major components and relationships"},
+        {"id": "evidence-based", "text": "Findings reference specific file paths as evidence"},
+        {"id": "newcomer-friendly", "text": "Report would help a new developer understand the codebase"}
+      ]
+    }
+  ]
+}

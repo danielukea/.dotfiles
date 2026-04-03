@@ -1,0 +1,86 @@
+{
+  "skill_name": "arch-analysis",
+  "iteration": 1,
+  "configurations": [
+    {
+      "name": "with_skill",
+      "evals": [
+        {
+          "eval_name": "dotfiles-arch-review",
+          "pass_rate": 1.0,
+          "passed": 7,
+          "total": 7,
+          "tokens": 61822,
+          "duration_seconds": 204.7
+        },
+        {
+          "eval_name": "crm-web-tech-debt",
+          "pass_rate": 1.0,
+          "passed": 9,
+          "total": 9,
+          "tokens": 56396,
+          "duration_seconds": 399.2
+        },
+        {
+          "eval_name": "partner-proto-shape",
+          "pass_rate": 1.0,
+          "passed": 7,
+          "total": 7,
+          "tokens": 59388,
+          "duration_seconds": 168.9
+        }
+      ],
+      "aggregate": {
+        "mean_pass_rate": 1.0,
+        "stddev_pass_rate": 0.0,
+        "mean_tokens": 59202,
+        "mean_duration_seconds": 257.6,
+        "total_assertions_passed": 23,
+        "total_assertions": 23
+      }
+    },
+    {
+      "name": "without_skill",
+      "evals": [
+        {
+          "eval_name": "dotfiles-arch-review",
+          "pass_rate": 0.857,
+          "passed": 6,
+          "total": 7,
+          "tokens": 42961,
+          "duration_seconds": 126.1
+        },
+        {
+          "eval_name": "crm-web-tech-debt",
+          "pass_rate": 0.667,
+          "passed": 6,
+          "total": 9,
+          "tokens": 55369,
+          "duration_seconds": 241.9
+        },
+        {
+          "eval_name": "partner-proto-shape",
+          "pass_rate": 0.571,
+          "passed": 4,
+          "total": 7,
+          "tokens": 51528,
+          "duration_seconds": 98.4
+        }
+      ],
+      "aggregate": {
+        "mean_pass_rate": 0.698,
+        "stddev_pass_rate": 0.117,
+        "mean_tokens": 49953,
+        "mean_duration_seconds": 155.5,
+        "total_assertions_passed": 16,
+        "total_assertions": 23
+      }
+    }
+  ],
+  "delta": {
+    "pass_rate_improvement": 0.302,
+    "token_overhead": 9249,
+    "duration_overhead_seconds": 102.1,
+    "assertions_gained": 7
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "eval_id": 2,
+  "eval_name": "partner-proto-shape",
+  "prompt": "what's the overall shape of this project?",
+  "assertions": [
+    {
+      "id": "report-exists",
+      "text": "A report.md file was created in the outputs directory",
+      "type": "file_exists",
+      "path": "report.md"
+    },
+    {
+      "id": "stack-detected",
+      "text": "Report correctly identifies the project's tech stack",
+      "type": "content_check"
+    },
+    {
+      "id": "multi-lens",
+      "text": "Report contains findings from multiple distinct analysis dimensions",
+      "type": "content_check"
+    },
+    {
+      "id": "whats-working",
+      "text": "Report includes a 'what's working well' section",
+      "type": "content_check"
+    },
+    {
+      "id": "structure-overview",
+      "text": "Report gives a clear picture of the project's major components and their relationships",
+      "type": "content_check"
+    },
+    {
+      "id": "evidence-based",
+      "text": "Findings reference specific file paths as evidence",
+      "type": "content_check"
+    },
+    {
+      "id": "newcomer-friendly",
+      "text": "Report would help a new developer understand the codebase without prior context",
+      "type": "content_check"
+    }
+  ]
+}

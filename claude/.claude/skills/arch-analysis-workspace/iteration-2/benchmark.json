@@ -1,0 +1,91 @@
+{
+  "skill_name": "arch-analysis",
+  "iteration": 2,
+  "configurations": [
+    {
+      "name": "with_skill",
+      "evals": [
+        {
+          "eval_name": "dotfiles-arch-review",
+          "pass_rate": 1.0,
+          "passed": 7,
+          "total": 7,
+          "tokens": 77062,
+          "duration_seconds": 201.9
+        },
+        {
+          "eval_name": "crm-web-tech-debt",
+          "pass_rate": 1.0,
+          "passed": 9,
+          "total": 9,
+          "tokens": 70962,
+          "duration_seconds": 533.0
+        },
+        {
+          "eval_name": "partner-proto-shape",
+          "pass_rate": 1.0,
+          "passed": 7,
+          "total": 7,
+          "tokens": 58155,
+          "duration_seconds": 161.8
+        }
+      ],
+      "aggregate": {
+        "mean_pass_rate": 1.0,
+        "stddev_pass_rate": 0.0,
+        "mean_tokens": 68726,
+        "mean_duration_seconds": 298.9,
+        "total_assertions_passed": 23,
+        "total_assertions": 23
+      }
+    },
+    {
+      "name": "without_skill",
+      "evals": [
+        {
+          "eval_name": "dotfiles-arch-review",
+          "pass_rate": 0.857,
+          "passed": 6,
+          "total": 7,
+          "tokens": 45393,
+          "duration_seconds": 168.6
+        },
+        {
+          "eval_name": "crm-web-tech-debt",
+          "pass_rate": 0.889,
+          "passed": 8,
+          "total": 9,
+          "tokens": 52949,
+          "duration_seconds": 366.8
+        },
+        {
+          "eval_name": "partner-proto-shape",
+          "pass_rate": 0.571,
+          "passed": 4,
+          "total": 7,
+          "tokens": 39977,
+          "duration_seconds": 80.3
+        }
+      ],
+      "aggregate": {
+        "mean_pass_rate": 0.772,
+        "stddev_pass_rate": 0.138,
+        "mean_tokens": 46106,
+        "mean_duration_seconds": 205.2,
+        "total_assertions_passed": 18,
+        "total_assertions": 23
+      }
+    }
+  ],
+  "delta": {
+    "pass_rate_improvement": 0.228,
+    "token_overhead": 22620,
+    "duration_overhead_seconds": 93.7,
+    "assertions_gained": 5
+  },
+  "comparison_to_iteration_1": {
+    "with_skill_pass_rate": {"iter1": 1.0, "iter2": 1.0, "change": 0},
+    "without_skill_pass_rate": {"iter1": 0.698, "iter2": 0.772, "change": 0.074},
+    "note": "Baseline improved with tools (0.698 -> 0.772) but skill still maintains 100%. The crm-web baseline gained churn data and 'what's working well' via tools, closing 2 of its 3 iter1 gaps. Partner-proto baseline still fails on multi-lens findings and structured positives."
+  }
+}

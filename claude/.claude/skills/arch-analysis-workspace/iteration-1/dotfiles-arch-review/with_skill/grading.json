@@ -1,0 +1,12 @@
+{
+  "run_id": "dotfiles-arch-review-with_skill",
+  "expectations": [
+    {"text": "A report.md file was created in the outputs directory", "passed": true, "evidence": "report.md exists at the expected path"},
+    {"text": "Report correctly identifies this as a dotfiles/stow-based repo", "passed": true, "evidence": "Stack section identifies 'GNU Stow, Bubbletea (Go TUI), LazyVim (Neovim), Oh My Zsh' and lists 12 top-level stow packages"},
+    {"text": "Report contains findings from multiple distinct analysis dimensions", "passed": true, "evidence": "Findings span Architecture & Coupling (model.go), Code Health (PATH duplication), Data Integrity (stow --adopt), Reliability (unquoted vars, discarded errors), Maintainability (hardcoded paths, comments)"},
+    {"text": "Report includes a 'what's working well' section", "passed": true, "evidence": "'What's Working Well' section with 7 bullet points covering stow layout, installer, auto-sync, Go architecture, thread safety, conditional activation, and CLAUDE.md"},
+    {"text": "Findings reference specific file paths as evidence", "passed": true, "evidence": "Every finding includes file:line references, e.g., 'link.sh:46', 'zsh/.zshrc:181', 'model.go:91'"},
+    {"text": "Findings are ranked or prioritized", "passed": true, "evidence": "Section titled 'Top Findings (ranked by impact)', numbered 1-7 with severity labels (high/medium) plus a 'Lower Priority' section"},
+    {"text": "At least 2 findings include concrete suggestions", "passed": true, "evidence": "Every finding has a 'Direction' field with specific suggestions, e.g., 'Replace --adopt with plain stow $folder -v', 'Split into model.go, keys.go, render.go, poll.go'"}
+  ]
+}

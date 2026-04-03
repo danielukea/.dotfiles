@@ -1,0 +1,12 @@
+{
+  "run_id": "partner-proto-shape-with_skill",
+  "expectations": [
+    {"text": "A report.md file was created in the outputs directory", "passed": true, "evidence": "report.md exists"},
+    {"text": "Report correctly identifies the project's tech stack", "passed": true, "evidence": "'Node.js (ES modules) + Express 5, 2 dependencies, 576 lines'"},
+    {"text": "Report contains findings from multiple distinct analysis dimensions", "passed": true, "evidence": "5 findings across Structure (monolith), Duplication (jscpd clones), Error Handling (zero try/catch), State (token eviction), Security (XSS)"},
+    {"text": "Report includes a 'what's working well' section", "passed": true, "evidence": "'What's Working Well' with 6 items: focused scope, clean separation, webhook contract, security defaults, README quality, testing affordances"},
+    {"text": "Report gives a clear picture of major components and relationships", "passed": true, "evidence": "Three-layer architecture described, tool system mapped, middleware explained, data layer documented"},
+    {"text": "Findings reference specific file paths as evidence", "passed": true, "evidence": "scc complexity (36 for server.js, 72%), jscpd clone clusters (3), ast-grep zero try/catch, specific line refs (server.js:105, :131, :338)"},
+    {"text": "Report would help a new developer understand the codebase", "passed": true, "evidence": "Full architecture overview with stack table, CLI tools used table, clear component descriptions"}
+  ]
+}

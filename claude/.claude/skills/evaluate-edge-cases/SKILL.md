@@ -1,6 +1,6 @@
 ---
 name: evaluate-edge-cases
-description: Evaluate draft issues for production edge cases that QA would catch — concurrency, auth lifecycle, validation gaps, error handling, race conditions, data integrity. Dispatches parallel agents by domain. Use when user says "find edge cases", "production risks", "what would QA catch", "evaluate for edge cases", "harden these issues", "what could go wrong", or after auditing issues to strengthen acceptance criteria before implementation.
+description: Evaluate draft issues for production edge cases that QA would catch — concurrency, auth lifecycle, validation gaps, credential security, race conditions, data integrity, and missing CRUD/lifecycle operations. Dispatches parallel agents by domain. Use when user says "find edge cases", "production risks", "what would QA catch", "evaluate for edge cases", "harden these issues", "what could go wrong", or after auditing issues to strengthen acceptance criteria before implementation.
 user-invokeable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Agent
 ---
@@ -63,7 +63,9 @@ For each issue, think about these categories and find specific, concrete scenari
 
 6. ERROR HANDLING — External service failures (timeouts, malformed responses, DNS failures). Partial failures in multi-step operations. Retry safety (idempotency).
 
-7. SECURITY — Sensitive data in logs or error messages. Cross-tenant data leakage. Credential exposure. Injection vectors.
+7. SECURITY — Sensitive data in logs or error messages. Cross-tenant data leakage. Credential exposure. Injection vectors (SQL, XSS, SSRF, prompt injection).
+
+8. MISSING CRUD / LIFECYCLE — For each resource these issues create, check the full lifecycle: create, read, update, delete/archive, and any domain-specific operations (activate/deactivate, submit/withdraw, approve/revoke, connect/disconnect). If an issue creates a resource but the set of issues doesn't cover managing it through its full lifecycle, flag the gap. This category catches missing operations that users will inevitably need — withdraw a submission, revoke an approval, discard a draft, roll back a deployment.
 
 For each edge case found, report:
 - Which issue it affects (by filename)
@@ -134,6 +136,9 @@ After all agents report, consolidate into a grouped report:
 #### Security (X findings)
 ...
 
+#### Missing CRUD / Lifecycle (X findings)
+...
+
 ### Recommendations
 For each unaddressed edge case, recommend one of:
 - **Add to acceptance criteria** — natural part of building the feature
@@ -144,9 +149,11 @@ For each unaddressed edge case, recommend one of:
 
 ## Phase 5: Triage with User
 
-Present the report and ask: "How do you want to handle these? I can update the issues based on your decisions."
+Present the report and triage by severity, batching where possible to avoid slow one-at-a-time walks:
 
-Walk through the findings by severity (blocking first). For each, the user decides: add to issue, new issue, defer, or dismiss.
+1. **Blocking items** — present individually with AskUserQuestion. These need decisions now.
+2. **High-severity items** — present as a group, ask which to apply.
+3. **Medium/low items** — summarize and offer: "I have N medium and M low findings. Want me to summarize them, apply the recommended ones, or skip?"
 
 Then for each accepted recommendation:
 - **Acceptance criteria / edge case**: Edit the issue's markdown file
