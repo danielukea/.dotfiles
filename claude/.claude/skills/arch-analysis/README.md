@@ -31,11 +31,11 @@ Dispatch 6 agents simultaneously, each with a focused lens:
 | Agent | Lens | Key Questions |
 |-------|------|---------------|
 | Coupling | Module dependencies | Who imports whom? Layer violations? Circular deps? |
-| State | Data flow & persistence | Load/save patterns? Race conditions? Consistency? |
-| UI/TUI | Rendering & event handling | Component decomposition? State machine clarity? I/O in handlers? |
-| Commands | CLI extensibility | Boilerplate? Ceremony to add new commands? Duplication? |
-| Churn | Git history patterns | High-change files? Bug-fix clusters? Shotgun surgery? |
-| Process | Error handling & external tools | Consistent wrappers? Silent failures? Safety gaps? |
+| Complexity & Churn | Hotspots | High-change files? Bug-fix clusters? Cyclomatic complexity? |
+| State & Data Flow | Persistence & consistency | Load/save patterns? Race conditions? Data integrity? |
+| Duplication & Patterns | Copy-paste & abstractions | Emerging patterns? Repeated logic? Missing abstractions? |
+| Error Handling | Resilience | Silent failures? Inconsistent error propagation? Resource leaks? |
+| Structure & Conventions | Organization | File layout? Naming drift? Dead code? Public API surface? |
 
 Each agent gets a structured prompt template that adapts to the project's tech stack (Rust/Rails/React/etc.) detected from `Cargo.toml`, `Gemfile`, `package.json`, etc.
 
@@ -59,15 +59,17 @@ If user says "plan it", invoke `writing-plans` for the selected improvements. Th
 ### Skill Structure
 
 ```
-skills/
-  arch-analysis.md          # Main skill (phases 1-3)
-  arch-analysis-prompts/
-    coupling.md             # Agent prompt template
-    state.md
-    ui.md
-    commands.md
-    churn.md
-    process.md
+skills/arch-analysis/
+  SKILL.md                     # Main skill (phases 0-4 + context7 references)
+  README.md                    # Design rationale (this file)
+  references/
+    coupling.md                # Circular deps, layer violations, import graphs
+    complexity-churn.md        # Hotspots where high complexity meets frequent changes
+    state.md                   # Persistence patterns, data consistency, race conditions
+    duplication.md             # Copy-paste code, emerging abstractions
+    errors.md                  # Silent failures, error propagation, resource leaks
+    structure.md               # File organization, naming drift, dead code
+    tools.md                   # Recommended CLI tools by lens and language
 ```
 
 ### Key Design Decisions
