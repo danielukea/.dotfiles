@@ -7,7 +7,7 @@ description: >
   get synthesized into a prioritized improvement report. Use this skill whenever
   the user says "analyze architecture", "find architectural improvements",
   "codebase analysis", "what should we refactor", "tech debt audit", "code health
-  check", "architectural review", or asks about structural problems, hotspots,
+  check", "architectural review", "we have a lot of tech debt", or asks about structural problems, hotspots,
   coupling issues, or code quality across the whole codebase. Also use when the
   user wants to understand the overall shape of an unfamiliar codebase before
   making changes. This is different from code-review (which examines a diff) —
@@ -156,7 +156,7 @@ After all agents return:
 **Flagged by**: {agent 1, agent 3} ← convergence signal
 **Evidence**: {file paths, metrics, tool output}
 **Impact**: {consequence of inaction}
-**Direction**: {concrete next step, not a full plan}
+**Direction**: {concrete next step, not a full plan — see Context7 References section for pattern lookups}
 
 ### 2. ...
 (top 5–8 findings)
@@ -186,7 +186,8 @@ team capacity, and upcoming work.
 
 If the user picks items and says "plan it":
 
-1. Invoke `writing-plans` for the selected improvements
+1. Invoke `writing-plans` for the selected improvements — use the Context7
+   References section to ground plan steps in established refactoring patterns
 2. After the plan is written, invoke `code-review` on the plan to catch
    convention violations early
 
@@ -200,3 +201,49 @@ Discovery and execution stay separate.
 - **No auto-refactor** — output is a report (and optionally a plan).
 - **Git history helps** — churn analysis needs commits. New repos benefit less.
 - **CLI tools are optional** — enrich but don't gate the analysis.
+
+---
+
+## Context7 References for Refactoring Strategies
+
+When generating the **Direction** for findings or building Phase 4 plans, use
+context7 to fetch current documentation on relevant refactoring patterns. This
+grounds suggestions in established techniques with code examples.
+
+### Available libraries
+
+| Library ID | Content | Use for |
+|------------|---------|---------|
+| `/websites/refactoring_guru` | Extensive refactoring techniques catalog + code smells | Tactical refactoring suggestions (Extract Method, Move Function, etc.) |
+| `/websites/refactoring_guru_design-patterns` | GoF design patterns with multi-language examples | Adapter, Facade, Strategy patterns for ACL, Strangler Fig, Branch by Abstraction |
+| `/websites/sourcemaking_refactoring` | Code smells + refactoring techniques with interactive examples | Alternative explanations when refactoring_guru results aren't sufficient |
+| `/websites/refactoring_guru_smells` | Code smell definitions and categories | Naming specific smells when citing evidence |
+| `/sairyss/domain-driven-hexagon` | DDD + Hexagonal Architecture patterns | Anti-Corruption Layer, bounded contexts, enforcing architectural boundaries |
+
+### When to query
+
+- **Coupling findings** → query design patterns (Adapter, Facade, Mediator) and
+  DDD hexagon (bounded contexts, ACL)
+- **Complexity findings** → query refactoring smells (Long Method, God Class,
+  Feature Envy) for naming, then techniques for resolution
+- **State & Data Flow findings** → query DDD hexagon for aggregate boundaries
+  and consistency patterns; query design patterns for Observer, Mediator
+- **Duplication findings** → query refactoring techniques (Extract Method,
+  Extract Class, Pull Up Method)
+- **Error Handling findings** → query refactoring techniques (Replace Error Code
+  with Exception, Replace Exception with Test) and design patterns (Strategy
+  for error recovery, Chain of Responsibility for error propagation)
+- **Structure findings** → query DDD hexagon for layer enforcement patterns
+
+### Not in context7 (reference from web/books)
+
+These strategic patterns aren't available as context7 libraries — cite them by
+name and link when relevant:
+
+- **Strangler Fig** — [martinfowler.com/bliki/StranglerFigApplication.html](https://martinfowler.com/bliki/StranglerFigApplication.html)
+- **Branch by Abstraction** — [martinfowler.com/bliki/BranchByAbstraction.html](https://martinfowler.com/bliki/BranchByAbstraction.html)
+- **Mikado Method** — [mikadomethod.info](https://mikadomethod.info/)
+- **Parallel Change (Expand-Contract)** — [martinfowler.com/bliki/ParallelChange.html](https://martinfowler.com/bliki/ParallelChange.html)
+- **Modular Monolith** — [shopify.engineering/deconstructing-monolith-designing-software-maximizes-developer-productivity](https://shopify.engineering/deconstructing-monolith-designing-software-maximizes-developer-productivity)
+- **Seam-based refactoring** — *Working Effectively with Legacy Code* (Feathers, 2004)
+- **Evolutionary Architecture** — *Building Evolutionary Architectures* (Ford, Parsons, Kua, 2nd ed. 2023)
