@@ -75,36 +75,14 @@ flag duplication unless:
 
 ## Stack-specific guidance
 
-### Ruby/Rails
-- Controller actions with repeated before_action + param handling + render
-- Model scopes that are slight variations of each other
-- Serializer/presenter patterns repeated per model
-- Migration patterns (adding column + backfill + index)
-
-### JavaScript/TypeScript
-- React components with near-identical structure but different data
-- API call wrappers that repeat auth headers, error handling, parsing
-- Form validation rules duplicated across forms
-- Similar Redux action/reducer/selector patterns per feature
-
-### Rust
-- `impl` blocks with boilerplate trait implementations
-- Error type conversions (From impls) that follow the same pattern
-- Builder patterns repeated across types
-
-### Python
-- Dataclass/pydantic models with overlapping fields
-- Flask/Django view functions with repeated auth + validation + response
-- Similar data pipeline steps across different ETL jobs
-
-### Go
-- Handler functions with repeated middleware-like logic
-- Struct methods that are copy-pasted across types
-- Repeated error wrapping patterns
+Load `references/stacks/{detected_stack}.md` for stack-specific patterns.
 
 ## Output format
 
-Follow the standard agent output format. Include:
+Follow the standard agent output schema in SKILL.md (≤ 800 words). Include:
 - Specific duplication clusters (which files, what's duplicated)
 - Quantitative data if jscpd was available (% duplication, clone count)
 - Named patterns that emerge from the duplication analysis
+
+Cite at least one applied pattern from the loaded stack adapter in your
+`### Adapter patterns applied` section.

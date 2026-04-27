@@ -20,6 +20,19 @@ module, a shared library depending on application code.
 - **Fan-out** (a module imports many others): God modules that know too much
 - **Fan-in** (many modules import one): Bottleneck modules where changes ripple
 
+### Cross-slice consumers (mandatory count)
+
+For the in-scope slice, you MUST report:
+- How many *external* slices import from the in-scope slice (and from which
+  paths — public barrel vs internal modules)
+- How many in-scope files dispatch to / import from each external slice
+
+Report this even when the in-scope-only coupling looks clean. A slice with
+zero internal cycles but 9 dispatch sites against another slice's actions
+is a CoT/CoA at across-slices locality (×8) finding, not a `same-module`
+finding. Locality is determined by where the *consumers* live, not where
+the imports are written.
+
 ### Missing boundaries
 Modules that should be separate but aren't — feature code mixed into shared
 libraries, business logic in presentation layers, infrastructure concerns
@@ -73,33 +86,11 @@ Use Grep and Glob to build a manual picture:
 
 ## Stack-specific guidance
 
-### Ruby/Rails
-- Look for models that reference too many other models (has_many chains)
-- Check for concerns that are included in 10+ classes (god concerns)
-- Controllers calling other controllers' private methods
-- Service objects that instantiate other service objects deeply
-
-### JavaScript/TypeScript
-- Barrel files (index.ts re-exports) that create hidden coupling
-- Components importing from deeply nested paths instead of public APIs
-- Shared state modules imported everywhere (global stores)
-
-### Rust
-- Crate boundaries: is `pub` used too liberally?
-- Feature flags creating conditional coupling
-- `use super::*` or `use crate::*` pulling in too much
-
-### Python
-- `__init__.py` files that import everything (lazy loading gone wrong)
-- Circular imports resolved by import-inside-function hacks
-- Mixed abstraction levels in the same package
-
-### Go
-- Internal packages leaking through interface gymnastics
-- Package-level init() functions creating hidden coupling
-- Importing from `cmd/` packages (application code) in library packages
+Load `references/stacks/{detected_stack}.md` for stack-specific patterns.
 
 ## Output format
 
-Follow the standard agent output format from the main skill.
-Focus on concrete evidence — file paths, import counts, specific cycles found.
+Follow the standard agent output schema in SKILL.md (≤ 800 words). Focus on
+concrete evidence — file paths, import counts, specific cycles found. Cite at
+least one applied pattern from the loaded stack adapter in your
+`### Adapter patterns applied` section.

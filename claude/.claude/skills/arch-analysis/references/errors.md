@@ -85,40 +85,14 @@ semgrep scan --config p/security-audit --json .   # Includes error handling
 
 ## Stack-specific guidance
 
-### Ruby/Rails
-- `rescue StandardError` (too broad) vs. specific exception classes
-- `rescue => e; nil` hiding failures behind nil returns
-- Missing `ensure` blocks for file/connection cleanup
-- `retry` without a counter (infinite retry loops)
-- Background jobs (Sidekiq/GoodJob) — do failed jobs have sensible retry config?
-
-### JavaScript/TypeScript
-- Unhandled promise rejections (missing `.catch()` or try/catch in async)
-- React error boundaries — are they in place? Do they cover the right scope?
-- Express/Koa error middleware — is there a catch-all? Does it log?
-- Callback-style error handling mixed with async/await
-
-### Rust
-- `unwrap()` in library code (should return Result)
-- `.expect("message")` with useless messages
-- `Box<dyn Error>` losing type information
-- Missing `?` propagation (manual match on every Result)
-
-### Python
-- Bare `except:` catching everything including KeyboardInterrupt
-- `except Exception as e: pass` (swallowed)
-- Context managers (`with`) not used for file/connection handling
-- Django/Flask returning 500 without helpful error context
-
-### Go
-- `_ = mayFail()` (discarded error)
-- Error wrapping without `%w` (losing error chain)
-- `defer` ordering issues (LIFO evaluation)
-- Goroutines that panic without recovery
+Load `references/stacks/{detected_stack}.md` for stack-specific patterns.
 
 ## Output format
 
-Follow the standard agent output format. Include:
+Follow the standard agent output schema in SKILL.md (≤ 800 words). Include:
 - Count of swallowed errors found (with file paths)
 - External service calls missing timeouts/retries
 - Inconsistency map (which modules use which error strategy)
+
+Cite at least one applied pattern from the loaded stack adapter in your
+`### Adapter patterns applied` section.

@@ -92,40 +92,16 @@ vulture src/ --min-confidence 80          # High-confidence dead code
 
 ## Stack-specific guidance
 
-### Ruby/Rails
-- `app/` directory conventions: models, controllers, services, jobs, mailers
-- Are service objects in `app/services/`? Or scattered?
-- Unused routes (`rake routes` output vs. actual controller actions)
-- Gems in Gemfile that aren't imported anywhere
-
-### JavaScript/TypeScript
-- Barrel files (index.ts) — do they help or just re-export everything?
-- Co-location: are component tests next to components, or in a separate tree?
-- `node_modules` patterns — are there multiple versions of the same dep?
-- TypeScript strict mode compliance
-
-### Rust
-- Workspace structure — are crate boundaries meaningful?
-- `pub` usage — is everything pub? Or are internal modules properly hidden?
-- `mod.rs` vs directory modules — consistent choice?
-
-### Python
-- Package structure — flat or nested? Consistent?
-- `__init__.py` — import everything or minimal?
-- Type hints usage — consistent or spotty?
-- Test file placement — mirror of source, or separate?
-
-### Go
-- `cmd/` vs `internal/` vs `pkg/` — proper separation?
-- Package naming — do packages have good, non-generic names?
-- Interface placement — defined by consumer or provider?
-- Generated code properly marked and separated?
+Load `references/stacks/{detected_stack}.md` for stack-specific patterns.
 
 ## Output format
 
-Follow the standard agent output format. Include:
+Follow the standard agent output schema in SKILL.md (≤ 800 words). Include:
 - Directory structure assessment (clear, confusing, or mixed)
 - Top 5 oversized files with line counts
 - Dead code candidates found
 - Naming inconsistencies cataloged
 - Convention violation patterns
+
+Cite at least one applied pattern from the loaded stack adapter in your
+`### Adapter patterns applied` section.
