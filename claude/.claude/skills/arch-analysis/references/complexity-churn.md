@@ -87,41 +87,25 @@ java -jar code-maat.jar -l /tmp/gitlog.txt -c git2 -a main-dev     # Ownership
 
 ## Hotspot scoring
 
-The most valuable output from this agent is the **hotspot list**: files ranked
-by `complexity * churn_frequency`. If scc and git data are both available,
-compute this explicitly. If not, use qualitative judgment from reading the files
-and git log.
+The richest hotspot signal is **ExtensibilityScore = complexity × (1 − coverage)
+× churn**, generalizing Skunk's StinkScore across stacks. See
+`references/hotspot-harness.md` for the per-stack recipe (which complexity
+tool, which coverage file, how to join). When coverage data is missing,
+report the score as `complexity × churn` and note the caveat. Never invent
+values.
 
 ## Stack-specific guidance
 
-### Ruby/Rails
-- Models with 500+ lines (ActiveRecord god objects)
-- Concerns that get modified every sprint
-- Migration files don't count as churn — exclude `db/migrate/`
-
-### JavaScript/TypeScript
-- Components with 300+ lines mixing logic and rendering
-- Utility files that accumulate unrelated functions
-- Config files (webpack, eslint) changing often signal tooling instability
-
-### Rust
-- Files with deep match nesting
-- `unsafe` blocks in frequently changed code
-- Generic-heavy modules that are hard to reason about
-
-### Python
-- Classes with 20+ methods
-- Files mixing I/O with business logic
-- Test files with high churn signal flaky or brittle tests
-
-### Go
-- Files with many `if err != nil` blocks obscuring the happy path
-- Package-level variables mutated by multiple functions
-- Handlers doing business logic instead of delegating
+Load `references/stacks/{detected_stack}.md` for stack-specific patterns
+(Skunk usage for Ruby; fta-cli + Jest coverage for TS; etc.).
 
 ## Output format
 
-Follow the standard agent output format. Include:
-- Top 10 hotspot files with complexity and churn data
+Follow the standard agent output schema in SKILL.md (≤ 800 words). Include:
+- Top 10 hotspot files with complexity, coverage, churn, and combined
+  ExtensibilityScore
 - Any temporal coupling pairs found
 - Shotgun surgery patterns (commits touching 5+ files regularly)
+
+Cite at least one applied pattern from the loaded stack adapter in your
+`### Adapter patterns applied` section.

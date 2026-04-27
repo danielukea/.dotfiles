@@ -63,14 +63,57 @@ skills/arch-analysis/
   SKILL.md                     # Main skill (phases 0-4 + context7 references)
   README.md                    # Design rationale (this file)
   references/
+    # Core concepts (the rubric)
+    connascence.md             # Page-Jones taxonomy — how findings get tagged and ranked
+    pragmatic-principles.md    # Pragmatic Programmer principles — shared severity vocabulary
+    vertical-slicing.md        # Lens AND technique — slice topology + dependency direction
+    hotspot-harness.md         # Generalized StinkScore (complexity × (1-coverage) × churn)
+
+    # The 10 lens prompts
     coupling.md                # Circular deps, layer violations, import graphs
-    complexity-churn.md        # Hotspots where high complexity meets frequent changes
+    complexity-churn.md        # Hotspots — uses hotspot-harness
     state.md                   # Persistence patterns, data consistency, race conditions
-    duplication.md             # Copy-paste code, emerging abstractions
+    duplication.md             # Copy-paste code, emerging abstractions (DRY = knowledge)
     errors.md                  # Silent failures, error propagation, resource leaks
     structure.md               # File organization, naming drift, dead code
+    extensibility.md           # Open/Closed adherence, change-impact simulation
+    variation-points.md        # Strategy/registry/flag inventory; dirty switches
+    contract-surface.md        # Public APIs — documented, validated, versioned, owned
+    # vertical-slicing.md      # (already listed above)
+
     tools.md                   # Recommended CLI tools by lens and language
+
+    stacks/                    # Stack adapter pattern — agents load the matching one
+      rails.md                 # Rails coupling/extensibility/slicing patterns
+      react-ts.md              # React/TS coupling/extensibility/slicing patterns
+      cross-stack.md           # Rails ↔ React contract surface (for crm-web-style apps)
+      python.md                # Python adapter
+      go.md                    # Go adapter
+      rust.md                  # Rust adapter
 ```
+
+### How extensibility-mode works
+
+The skill is always in extensibility mode — the four ⭐ lenses
+(extensibility, variation-points, contract-surface, vertical-slicing) run on
+every invocation alongside the original 6. The unifying rubric is:
+
+- **ETC ("Easier to Change")** — north-star principle from *The Pragmatic
+  Programmer* 2nd ed.
+- **Connascence** — measures the cost of a dependency by form × locality ×
+  degree.
+- **Vertical Slicing** — the technique that keeps high-cost connascence
+  local.
+
+Stack-specific guidance lives in `references/stacks/{stack}.md` adapter
+docs, loaded by every agent after stack detection. The lens prompts stay
+agnostic; the adapters carry the per-language signal.
+
+### Scope
+
+The Phase-0 step asks the user to scope the analysis to the whole repo
+(default), a subdirectory, or a named module. Extensibility findings are
+most actionable when scoped to "the part I'm about to extend."
 
 ### Key Design Decisions
 

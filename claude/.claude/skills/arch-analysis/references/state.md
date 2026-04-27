@@ -61,36 +61,14 @@ semgrep scan --config auto --json . 2>/dev/null | head -100   # Auto-detected is
 
 ## Stack-specific guidance
 
-### Ruby/Rails
-- `before_action` callbacks that modify instance variables in non-obvious order
-- Memoized methods (`@foo ||=`) that hide expensive computations or state
-- ActiveRecord callbacks (after_save, before_create) creating hidden data flow
-- Thread-unsafe class variables (`@@var`) in code that runs under Puma
-
-### JavaScript/TypeScript
-- Redux/Zustand/Jotai stores: are there multiple stores managing overlapping state?
-- React context providers nested 5+ deep creating "provider hell"
-- `useEffect` without cleanup leaking subscriptions
-- Server state (React Query/SWR) duplicated in client state
-
-### Rust
-- `Arc<Mutex<T>>` patterns — are they necessary or overused?
-- `lazy_static!` / `once_cell` globals — do they create hidden dependencies?
-- Ownership patterns that force excessive `.clone()`
-
-### Python
-- Module-level mutable state (dictionaries, lists) shared across imports
-- Django signals creating invisible data flow
-- SQLAlchemy session management — are sessions properly scoped?
-
-### Go
-- Context values used for data passing instead of explicit parameters
-- Package-level variables modified by init() or multiple goroutines
-- Channel usage patterns — unbuffered channels creating deadlock risk
+Load `references/stacks/{detected_stack}.md` for stack-specific patterns.
 
 ## Output format
 
-Follow the standard agent output format. Include:
+Follow the standard agent output schema in SKILL.md (≤ 800 words). Include:
 - A data flow map (text-based) of the main persistence paths
 - Any shared mutable state found with file paths
 - Boundary validation gaps
+
+Cite at least one applied pattern from the loaded stack adapter in your
+`### Adapter patterns applied` section.
