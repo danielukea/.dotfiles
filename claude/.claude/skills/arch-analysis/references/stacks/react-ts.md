@@ -116,12 +116,7 @@ slice (`lib/`, `shared/`). Cross-feature imports are findings.
 
 ### Composition patterns to recommend
 The user's existing skills cover the design choices:
-- `react-composition-2026` — current best practices overview
-- `compound-pattern` — for related-component sets (Tabs, Accordion)
-- `render-props-pattern` — for sharing render logic
-- `hoc-pattern` — for cross-cutting concerns
-- `hooks-pattern` — for shared stateful logic
-- `presentational-container-pattern` — for separating view from logic
+- `react-composition` — hooks, compound components, render props, HOCs, and view/logic separation
 - `headless-component-designer` — the workflow that enforces all of above
 
 The findings should *cite these by name* rather than re-explaining the
