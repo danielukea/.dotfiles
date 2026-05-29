@@ -12,7 +12,7 @@ Architectural design for a feature, grounded in the project's style guides (DHH 
 
 ## Why this shape
 
-The architect agents (`rails-architect`, `react-architect`) are the right home for style-guide expertise — they're already opinionated planners that consult DHH composition patterns and the React pattern skills (`compound-pattern`, `hooks-pattern`, `hoc-pattern`, `render-props-pattern`, `react-data-fetching`, `react-render-optimization`, `react-composition-2026`). This skill doesn't reproduce that knowledge; it routes to the agents that have it.
+The architect agents (`rails-architect`, `react-architect`) are the right home for style-guide expertise — they're already opinionated planners that consult DHH composition patterns and the React pattern skills (`react-composition`, `react-data-fetching`, `react-render-optimization`). This skill doesn't reproduce that knowledge; it routes to the agents that have it.
 
 The skill stays in the main thread because it needs to invoke `Skill` for pattern lookups during the principles review and the handoff (subagents can't always do that). It dispatches architects via the `Agent` tool with `subagent_type` set to the architect name.
 
@@ -68,11 +68,8 @@ For the principles review and the handoff, **you** (the main thread) may want pa
 | Shape signal | Skill to load |
 |--------------|---------------|
 | Rails feature (always, for principles review framing) | `rails-composition-dhh` |
-| New React component or hook | `react-composition-2026` |
-| Related sub-components (tabs, dropdown, accordion) | `compound-pattern` |
-| Extracting reusable stateful behavior | `hooks-pattern` |
-| Cross-cutting wrapper around many components | `hoc-pattern` |
-| Sharing rendering logic via function-as-prop | `render-props-pattern` |
+| New React component or hook | `wealthbox:headless-component-designer` |
+| Composition: hooks, compound, HOC, render props, view/logic split | `react-composition` |
 | Caching, dedup, optimistic updates, parallel fetches | `react-data-fetching` |
 | Re-render hot spots, memoization | `react-render-optimization` |
 

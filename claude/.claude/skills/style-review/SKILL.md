@@ -57,11 +57,8 @@ Reference table:
 | Diff shape | Skill to load |
 |------------|---------------|
 | Rails diff (always, for principles framing) | `rails-composition-dhh` |
-| New or substantially changed React components/hooks | `react-composition-2026` |
-| Tabs/dropdown/accordion-like component | `compound-pattern` |
-| New custom hooks | `hooks-pattern` |
-| HOC-style wrappers | `hoc-pattern` |
-| Render-prop / function-as-child usage | `render-props-pattern` |
+| New or substantially changed React components/hooks | `wealthbox:headless-component-designer` |
+| Composition: hooks, compound, HOC, render props | `react-composition` |
 | Data fetching, caching, optimistic updates | `react-data-fetching` |
 | Memoization, render perf | `react-render-optimization` |
 
