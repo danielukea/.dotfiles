@@ -12,6 +12,6 @@ return {
         path = "~/Documents/Wealthbox/",
       },
     },
-    ui = { enable = true },
+    ui = { enable = false },
   },
 }
