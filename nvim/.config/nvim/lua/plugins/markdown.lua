@@ -1,5 +1,14 @@
 return {
   {
+    'mfussenegger/nvim-lint',
+    optional = true,
+    opts = {
+      linters_by_ft = {
+        markdown = {},
+      },
+    },
+  },
+  {
     'MeanderingProgrammer/render-markdown.nvim',
     opts = {
       heading = {
