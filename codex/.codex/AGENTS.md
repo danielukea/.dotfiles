@@ -1,27 +1,22 @@
-# Claude Code User Configuration
+# Codex User Configuration
 
-Personal configuration and reference documentation for Claude Code.
+Personal configuration and reference documentation for Codex.
 
 ## Proactive Documentation
 
 When the user is creating, modifying, or discussing these topics, read the relevant documentation BEFORE providing guidance:
 
-- **Writing or editing skills**: Read [~/.agents/docs/SKILLS.md](~/.agents/docs/SKILLS.md) first
-- **Writing CLAUDE.md entries**: Read [~/.agents/docs/MEMORIES.md](~/.agents/docs/MEMORIES.md) first
+- **Writing AGENTS.md entries**: Read [~/.agents/docs/MEMORIES.md](~/.agents/docs/MEMORIES.md) first
 - **Testing/evaluating**: Read [~/.agents/docs/TESTING.md](~/.agents/docs/TESTING.md) first
 - **Team setup**: Read [~/.agents/docs/TEAM_WORKFLOWS.md](~/.agents/docs/TEAM_WORKFLOWS.md) first
 
 ## Reference Documentation
 
-Detailed guides for extending Claude Code:
+Detailed guides for extending this agent setup:
 
 - [Skills](~/.agents/docs/SKILLS.md) - Principles for building and maintaining skills
-- [Memories](~/.agents/docs/MEMORIES.md) - Institutional knowledge patterns (CLAUDE.md)
+- [Memories](~/.agents/docs/MEMORIES.md) - Institutional knowledge patterns (AGENTS.md)
 - [Testing](~/.agents/docs/TESTING.md) - Evaluation and iteration practices
 - [Team Workflows](~/.agents/docs/TEAM_WORKFLOWS.md) - Collaboration and sharing patterns
 - [Sources](~/.agents/docs/SOURCES.md) - Primary sources and references
-
-## Working with libraries
-
-For version-specific or unfamiliar library/framework/API questions, fetch current docs (Context7, else official docs via web) rather than relying on training memory — the `library-docs` skill carries the how.
 
