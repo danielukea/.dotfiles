@@ -167,6 +167,20 @@ change_shell() {
   fi
 }
 
+# Symlink configs that live in paths stow can't handle (spaces, etc.)
+link_extra_configs() {
+  if [[ "$OS" != "macos" ]]; then
+    return 0
+  fi
+
+  local lazygit_dir="$HOME/Library/Application Support/lazygit"
+  local lazygit_src="$DOTFILES_DIR/lazygit/.config/lazygit/config.yml"
+
+  mkdir -p "$lazygit_dir"
+  ln -sf "$lazygit_src" "$lazygit_dir/config.yml"
+  log "Linked lazygit config to ~/Library/Application Support/lazygit/config.yml"
+}
+
 # Load dotfiles sync agent (macOS only)
 load_sync_agent() {
   if [[ "$OS" != "macos" ]]; then
@@ -226,6 +240,7 @@ main() {
   init_submodules
   install_packages
   link_dotfiles
+  link_extra_configs
   change_shell
   load_sync_agent
   verify_installation
