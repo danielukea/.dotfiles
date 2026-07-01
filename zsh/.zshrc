@@ -1,6 +1,8 @@
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 
+export XDG_CONFIG_HOME="$HOME/.config"
+
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -139,39 +141,24 @@ fi
 [[ -f ~/.secrets ]] && source ~/.secrets
 
 # === AWS Profile Aliases ===
-# Requires: jq, awscli, coreutils (for gdate on macOS)
-if command -v aws &>/dev/null && command -v jq &>/dev/null; then
-  _aws-set-profile(){
-    local sso_session expires
-    echo "activating aws profile: $1" >&2
-    export AWS_PROFILE="$1"
-    export AWS_DEFAULT_REGION="us-east-1"
-    sso_session="$(aws configure get sso_session 2>/dev/null)"
-    if [[ -n "$sso_session" ]]; then
-      expires=$(aws configure export-credentials | jq -r '.Expiration')
-      # Use gdate on macOS (from coreutils), date on Linux
-      local date_cmd="date"
-      if [[ "$(uname)" == "Darwin" ]]; then
-        if command -v gdate &>/dev/null; then
-          date_cmd="gdate"
-        else
-          echo "WARNING: gdate not found. Install coreutils: brew install coreutils" >&2
-          return 1
-        fi
-      fi
-      if [[ -z "$expires" || $($date_cmd --date "$expires" +'%s') -lt $($date_cmd --date "+2 hours" +'%s') ]]; then
-       echo "refreshing sso session" >&2
-       aws sso login --sso-session "$sso_session"
-      fi
+_aws-set-profile(){
+  local sso_session expires
+  echo "activating aws profile: $1" >&2
+  export AWS_PROFILE="$1"
+  export AWS_DEFAULT_REGION="us-east-1"
+  sso_session="$(aws configure get sso_session 2>/dev/null)"
+  if [[ -n "$sso_session" ]]; then
+    expires=$(aws configure export-credentials | jq -r '.Expiration')
+    if [[ -z "$expires" || $(gdate --date "$expires" +'%s') -lt $(gdate --date "+2 hours" +'%s') ]]; then
+     echo "refreshing sso session" >&2
+     aws sso login --sso-session "$sso_session"
     fi
-  }
-  if [[ -f "${AWS_CONFIG_FILE:-$HOME/.aws/config}" ]]; then
-    for p in $(cat ${AWS_CONFIG_FILE:-~/.aws/config} | grep -E '^[[:space:]]*\[profile' | awk '{print substr($2, 1, length($2)-1)}'); do
-      [[ "$p" == "default" ]] && continue
-      eval "awsp-$p(){ _aws-set-profile \"$p\" }"
-    done
   fi
-fi
+}
+for p in $(cat ${AWS_CONFIG_FILE:-~/.aws/config} | grep -E '^[[:space:]]*\[profile' | awk '{print substr($2, 1, length($2)-1)}'); do
+  [[ "$p" == "default" ]] && continue
+  eval "awsp-$p(){ _aws-set-profile \"$p\" }"
+done
 # === End AWS Profile Aliases ===
 
 # SSH aliases
@@ -180,3 +167,12 @@ alias prod='ssh -t production "TERM=xterm-256color tmux attach || tmux new"'
 # Sandbox completion
 fpath=(/Users/lukedanielson/Workspace/wealthbox-sandbox/completions $fpath)
 autoload -Uz compinit && compinit
+export SKIP_POST_TOOL_USE_LINTER=1
+
+
+# Added by Antigravity CLI installer
+export PATH="/Users/lukedanielson/.local/bin:$PATH"
+
+# === developer variables ===
+export CONTRIBSYS_SECRET='99a16822:52bb5114'
+# === End developer variables ===

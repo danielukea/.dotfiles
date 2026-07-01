@@ -72,3 +72,7 @@ refresh_devcontainer() {
 
 # Claude with Wealthbox plugin (local development)
 alias claude-wb='claude --plugin-dir ~/Workspace/wealthbox-claude-plugin/plugins/wealthbox'
+
+# Wealthbox environment variables
+# Enable the crm-web husky pre-commit hook (.husky/pre-commit gates on this)
+export ENABLE_PRE_COMMIT_HOOK=1

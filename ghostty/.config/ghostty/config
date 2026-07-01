@@ -1,4 +1,5 @@
 theme = warp-modern
+font-family = "JetBrainsMono Nerd Font"
 
 # Window chrome
 macos-titlebar-style = transparent

@@ -1,0 +1,25 @@
+customCommands:
+  # Add an AI review note for the currently selected file (working tree)
+  - key: "N"
+    context: "files"
+    description: "Add AI review note for this file"
+    command: 'printf -- "- \`{{.SelectedFile.Name}}\`: {{index .PromptResponses 0}}\n" >> .ai-review.md'
+    prompts:
+      - type: input
+        title: "Review note for {{.SelectedFile.Name}}"
+
+  # Add an AI review note for the currently selected file (inside a commit diff)
+  - key: "N"
+    context: "commitFiles"
+    description: "Add AI review note for this file"
+    command: 'printf -- "- \`{{.SelectedCommitFile.Name}}\`: {{index .PromptResponses 0}}\n" >> .ai-review.md'
+    prompts:
+      - type: input
+        title: "Review note for {{.SelectedCommitFile.Name}}"
+
+  # Open the review file in $EDITOR
+  - key: "N"
+    context: "global"
+    description: "Open AI review notes"
+    command: "${EDITOR:-vi} .ai-review.md"
+    output: terminal
