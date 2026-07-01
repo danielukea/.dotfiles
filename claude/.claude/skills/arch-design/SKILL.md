@@ -1,6 +1,6 @@
 ---
 name: arch-design
-description: Style-guide-grounded architectural design for a feature. Optionally dispatches rails-architect and/or react-architect agents (which carry DHH composition and headless-first React patterns) and runs a principles review against the `design-principles` skill, then continues into implementation however fits — Superpowers, Plan Mode, or just coding. Use whenever the user says "design this", "plan the approach", "how should I build X", "explore approaches", or invokes /arch-design. Scale the process to the feature: a small change may need only a quick principles check, a cross-layer feature warrants the full architect dispatch. **Not for:** bug fixes (just code), broad refactors of existing code (use `arch-analysis`), or initial product scoping (use `scope-project`).
+description: Style-guide-grounded architectural design for a feature. Fans out general-purpose subagents that load the DHH Rails composition and headless-first React knowledge skills, and runs a principles review against the `design-principles` skill, then continues into implementation however fits — Superpowers, Plan Mode, or just coding. Use whenever the user says "design this", "plan the approach", "how should I build X", "explore approaches", or invokes /arch-design. Scale the process to the feature: a small change may need only a quick principles check, a cross-layer feature warrants fanning out both stacks. **Not for:** bug fixes (just code), broad refactors of existing code (use `arch-analysis`), or initial product scoping (use `brainstorm`).
 allowed-tools: Read, Grep, Glob, Bash, Agent, WebFetch, AskUserQuestion, Skill, mcp__basecamp__*
 ---
 
@@ -8,27 +8,30 @@ allowed-tools: Read, Grep, Glob, Bash, Agent, WebFetch, AskUserQuestion, Skill, 
 
 A design pass for a feature, grounded in the project's style guides (DHH Rails
 composition, headless-first React). This skill is a thin, **optional-by-part**
-orchestrator: it routes to architect agents that own the pattern catalogs and
+orchestrator: it fans out subagents that load the pattern-catalog skills and
 checks the result against durable design principles.
 
 **Match the ceremony to the surface area.** The steps below are a toolkit, not a
 mandatory pipeline. A one-file change might need only the principles lens; a
-cross-layer feature warrants dispatching both architects and a review. Skip any
+cross-layer feature warrants fanning out both stacks and a review. Skip any
 step that doesn't earn its keep for the feature in front of you — see the
 complexity heuristic in the `design-principles` skill.
 
 ## Why this shape
 
-The architect agents (`rails-architect`, `react-architect`) are the right home for
-style-guide expertise — they already consult DHH composition patterns and the React
-pattern skills (`react-composition`, `react-data-fetching`, `react-render-optimization`).
-This skill doesn't reproduce that knowledge; it routes to the agents that have it, and
-it borrows its evaluation criteria from the `design-principles` skill rather than
-embedding them.
+The style-guide knowledge lives in **knowledge skills**, not agents.
+`rails-composition-dhh` carries the DHH composition catalog; `react-composition`,
+`react-data-fetching`, `react-render-optimization`, and
+`wealthbox:headless-component-designer` carry the headless-first React patterns.
 
-The skill stays in the main thread because it may invoke `Skill` for pattern lookups
-and the handoff. It dispatches architects via the `Agent` tool with `subagent_type` set
-to the architect name.
+This skill doesn't reproduce that knowledge and doesn't need a bespoke architect agent
+to hold it. It **fans out `general-purpose` subagents, each told to `Skill`-load the
+relevant pattern skill**, then design against it. The knowledge rides in through the
+skill; the subagent supplies the isolated context window and lets both stacks run in
+parallel. Evaluation criteria come from the `design-principles` skill, not from here.
+
+For a small, single-layer change you understand well, skip the fan-out and design
+inline in the main thread — loading the one relevant skill yourself.
 
 ## Usage
 
@@ -56,45 +59,48 @@ one design pass, say so and ask the user to narrow scope first.
 Use `AskUserQuestion` to batch related questions in one round — scope boundaries,
 behavioral ambiguities, constraints. Skip entirely if the context is already specific.
 
-### Detect stack and decide who (if anyone) to dispatch
+### Detect stack and decide which skill(s) to fan out
 
-| Signal | Architect |
-|--------|-----------|
-| Rails models, controllers, jobs, mailers, views, migrations | `rails-architect` |
-| React components, hooks, contexts, frontend routing, data fetching | `react-architect` |
-| Both layers touched | dispatch both in parallel |
-| Neither — pure infra, scripts, docs | apply a lens manually, or skip dispatch |
+| Signal | Pattern skill to load |
+|--------|-----------------------|
+| Rails models, controllers, jobs, mailers, views, migrations | `rails-composition-dhh` |
+| React components, hooks, contexts, frontend routing | `react-composition` (+ `wealthbox:headless-component-designer` for new component seams) |
+| React data fetching, caching, optimistic updates | `react-data-fetching` |
+| React memoization / render perf | `react-render-optimization` |
+| Both layers touched | fan out one Rails subagent and one React subagent in parallel |
+| Neither — pure infra, scripts, docs | apply a lens manually, or skip the fan-out |
 
-Dispatching architects is the high-value move for anything non-trivial — it grounds the
-design in real pattern catalogs. But for a small, single-layer change you understand
-well, it's fine to sketch the approach yourself and go straight to the principles check.
+Fanning out a subagent per stack is the high-value move for anything non-trivial — it
+grounds the design in the real catalog and keeps the main thread clean. For a small,
+single-layer change you understand well, it's fine to load the one skill inline and
+sketch the approach yourself, then go straight to the principles check.
 
-### Pre-load pattern context (optional, main thread)
-If you'll interpret architect output or run the principles review yourself, load only
-what the feature involves via `Skill`: `rails-composition-dhh`,
-`wealthbox:headless-component-designer`, `react-composition`, `react-data-fetching`,
-`react-render-optimization`. Don't load speculatively.
+### Fan out the design subagent(s)
+One `Agent` call per applicable stack (`subagent_type=general-purpose`), in parallel.
+Brief each one:
 
-### Dispatch architect agents (when warranted)
-One `Agent` call per applicable architect, in parallel. Brief:
-
+> **First, `Skill`-load `<pattern skill for this stack>`** and design against it.
+>
 > Design **\<feature name\>**.
 >
 > **Context:** \<3-5 sentence summary\>
 > **Clarifications:** \<answers, if any\>
 >
 > Produce:
-> 1. **Recommended approach** — concrete, grounded in this codebase. Name actual files and patterns. Apply your style guide.
+> 1. **Recommended approach** — concrete, grounded in this codebase. Name actual files and patterns. Apply the loaded style guide.
 > 2. **Alternatives considered and rejected** — the reasoning trail, not parallel proposals.
 > 3. **Open questions** — anything that, answered differently, would change the recommendation.
 > 4. **Complexity estimate** — files touched, layers spanned, size (XS / S / M / L / XL).
+
+For a small change you're handling inline, skip the fan-out: `Skill`-load the one
+relevant pattern skill in the main thread and produce the same four-part output yourself.
 
 ### Principles review (scale to the change)
 Evaluate the approach against the `design-principles` skill's criteria — ETC,
 Tell-Don't-Ask, pragmatic SOLID, conventions, testability, least surprise. For a
 substantial or cross-layer design, spawn one review agent (`Agent`,
-`subagent_type=general-purpose`) with the feature context and each architect's full
-recommendation, and have it produce the per-principle ratings table that
+`subagent_type=general-purpose`) with the feature context and each design subagent's
+full recommendation, and have it produce the per-principle ratings table that
 `design-principles` defines. For a small change, apply the same lens yourself inline —
 no agent needed. Either way, the criteria come from `design-principles`, not from here.
 
@@ -106,7 +112,7 @@ One in-conversation message:
 ### Context
 <3-5 sentences>
 ### Recommended Approach
-<architect output: how it works, files touched, complexity>
+<design subagent output: how it works, files touched, complexity>
 ### Alternatives Considered
 <reasoning trail>
 ### Principles Review
@@ -116,8 +122,8 @@ One in-conversation message:
 - …
 ```
 
-If the review flags must-fix concerns, surface them and ask whether to refine (re-dispatch
-the architect with the concerns) or accept and move on.
+If the review flags must-fix concerns, surface them and ask whether to refine (re-run
+the design subagent with the concerns) or accept and move on.
 
 ### Continue into implementation
 Pick the continuation that fits — this is a suggestion, not a fork with only two doors:
@@ -134,7 +140,7 @@ obvious small change, just proceed. The user is always free to take the design a
 with it themselves.
 
 - **Superpowers path:** invoke `Skill: superpowers:writing-plans` with a primer — feature
-  name, chosen approach in a paragraph, and a pointer to the architect recommendation and
+  name, chosen approach in a paragraph, and a pointer to the design recommendation and
   principles review already in the conversation. Skip `superpowers:brainstorming`; the
   exploration is done.
 - **Plan Mode path:** format the chosen approach (Files to change, Steps, Verification) and
@@ -149,8 +155,8 @@ with it themselves.
 - **Don't write a tracked design-markdown dump** nobody reads. Superpowers writes a proper
   spec if that path is chosen; Plan Mode is in-memory.
 - **Ground everything in the codebase.** Don't invent patterns the codebase doesn't use —
-  that's what the architects and the conventions principle are for.
-- **One recommendation per architect, plus the reasoning trail** — not parallel proposals.
+  that's what the pattern skills and the conventions principle are for.
+- **One recommendation per stack, plus the reasoning trail** — not parallel proposals.
 - **Bias toward simplicity.** Least surprise beats clever; the principles review will flag
   cleverness anyway.
 - **Stay scoped.** If the request is really several features, name that and ask which to
