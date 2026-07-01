@@ -35,15 +35,37 @@ The output becomes the "Spike Reference" sections in each issue. Every issue sho
 
 ## Phase 1.6: Master Branch Infrastructure Check
 
-Before drafting, check the main branch for existing code that this milestone's issues might reuse. This prevents drafting issues for work that already exists (or significantly reduces their scope).
+**This is the highest-ROI phase. Treat it as non-skippable — every "build X" ticket drafted for something already on master is wasted scope you'll have to re-litigate when someone catches it later.** A real failure mode looks like: a ticket titled `[NEW] Build state machine for versions` shipped after the model already declares the state machine on master. Phase 1.6 catches this.
 
-Search for patterns, utilities, concerns, and infrastructure related to the milestone's domains. Examples of what to look for:
-- Sanitization/security utilities the milestone needs
-- Retry/backoff utilities the milestone needs
+Before drafting, check the main branch for existing code that this milestone's issues might reuse or already cover. Search broadly for patterns, utilities, models, concerns, validators, and infrastructure related to the milestone's domains. Examples:
+- Sanitization/security utilities the milestone needs (e.g. `PromptSafety`, `SecureUrlValidator`)
+- Retry/backoff utilities the milestone needs (e.g. `Utilities::ExponentialBackoff`)
+- Models the milestone might assume don't exist (e.g. `PartnerMembership`, `WebhookDelivery`)
+- State machines / transitions already declared on existing models
 - Existing audit logging patterns to follow
 - Similar features that establish conventions
 
-Note findings as "Existing Infrastructure on Master" sections in relevant issues. This step has high ROI — in practice it has eliminated entire issues and reduced others to a few lines of wiring.
+For substantive milestones, dispatch parallel Explore agents — one per major surface (e.g. composer, AA, dev portal, models). Each agent reports what's done / partial / missing for the milestone's deliverables.
+
+Two outcomes per finding:
+1. **Already shipped** — the issue should be **omitted** from the draft, or written as a **delta** ("AC: extend `X` with column Y") rather than "build X from scratch"
+2. **Partial** — the issue's scope **shrinks** to the missing pieces; note "Existing Infrastructure on Master" listing what to reuse
+
+Skipping this phase is the most common cause of drafted milestones that read as "build the foundation" when the foundation already exists. The cost of running it is one extra phase; the cost of skipping it is restructuring the milestone after someone audits the codebase.
+
+## Phase 1.7: Decisions Log
+
+Check the project directory and `~/Workspace/notes/projects/{project}/` for `decisions.md`. If it exists, read it before the Phase 2 interview.
+
+The decisions log captures durable choices made in prior drafting sessions for this project — slicing style, what's deferred, walking-skeleton splits, scope cuts. Use it to **skip questions already answered**:
+
+- Don't re-ask "vertical or horizontal slicing" if the log records the answer
+- Don't re-propose deferring something the log already deferred
+- Don't re-litigate parent-epic structure unless evidence has changed
+
+When the log conflicts with what the current docs/code show (e.g. log says "memberships deferred to M3" but code shows the model exists on master), surface the conflict to the user — don't silently override either.
+
+If `decisions.md` doesn't exist, that's fine. Phase 5 creates one after this drafting run.
 
 ## Phase 2: Interview
 
@@ -57,8 +79,11 @@ Before drafting, ask the user about their preferences. These shape everything:
 3. **Who's working** — "How many engineers? Can issues be parallelized across workstreams?"
 4. **What to defer** — "Anything from the milestone you want to explicitly defer or descope?" When recommending deferrals yourself, consider the domain and end users — don't defer features that are core to how users actually work just because they're technically complex.
 5. **Progressive enhancement** — For each major feature area, propose the smallest useful version and what layers on later. Confirm with the user before drafting. Example: "OAuth test flow could be just a token exchange button (M3), with per-URI testing and scope verification in M3.5. Does that split feel right?"
+6. **Walking skeleton** — "What's the thinnest end-to-end demo this milestone could ship? The skeleton: minimum depth across all layers, demoable as one slice. Polish: the issues that thicken the skeleton once it integrates." Identify which issues are skeleton and which are polish. Polish issues become explicit second-wave dependencies (their bodies say "depends on skeleton issue X for Y") — they don't get drafted as if from scratch when the skeleton already provides foundations.
 
-**Before asking, check project docs for answers.** CLAUDE.md, the project index, and the roadmap often contain team size, who's working, and what's explicitly deferred. Only ask questions the docs don't answer. Adapt based on answers.
+   This question is the highest-leverage one in the interview. Drafting without it produces a horizontally-sequenced milestone where nothing integrates until the last issue lands; drafting with it produces a milestone where one full slice is demoable early and polish layers on in parallel. If the user resists picking a skeleton ("we need all of it"), gently push: *which issue is the one that, if it shipped alone, would still demonstrate the milestone's value most clearly?* That's your skeleton anchor.
+
+**Before asking, check project docs and `decisions.md` (Phase 1.7) for answers.** CLAUDE.md, the project index, the roadmap, and the decisions log often contain team size, who's working, what's explicitly deferred, and prior slicing decisions. Only ask questions the docs and log don't answer. Adapt based on answers.
 
 ## Phase 3: Draft Issues
 
@@ -122,6 +147,18 @@ Branch `branch-name`:
 
 Omit sections that don't apply. If there's no spike, drop "Spike Reference". If there are no design decisions, drop that section. The template is a maximum, not a minimum.
 
+### Body Discipline
+
+These rules govern what goes inside an issue body. Each one is here because skipping it costs real cleanup work later.
+
+- **ACs are outcomes, never schema or implementation choices.** "Notes can be tagged with scope (general / tool / webhook)" is an outcome — observable, testable. "Add `scope` enum column to `ReviewNote` model" is implementation — that's the assignee's choice given the actual constraints. Schema columns, polymorphism vs. direct FK, concern names, gem choices, table names: never in ACs. The rule is enforced in service of *implementer freedom* — if the AC prescribes the design, the assignee can't push back when their context reveals a better path.
+
+- **Notes section is for inspiration patterns, not mandates.** When you reference a similar pattern elsewhere in the codebase (e.g. "see `~/Workspace/fizzy/app/models/concerns/eventable.rb` for an aggregate-events pattern"), frame it as *inspiration* — something the assignee can borrow from if it fits, not something they must use. The same rule applies to the spike: spike code is exploratory and the assignee redesigns from the ticket's outcomes, never copies.
+
+- **For UPDATE/sharpen entries, write the complete replacement body.** If a milestone has existing issues whose scope changed (because the codebase moved, or scope shifted to a sibling milestone, or the parent restructured), produce the *full new body* — Goal, Why, AC, Out of scope, Notes — that the executor pastes verbatim. Do not produce "drop AC #3, add new AC about Y" preambles. The executor copies, doesn't reason. A scope-note line above the new body is fine ("Scope note YYYY-MM-DD: shrunk because M1's X now ships the foundation"), but the body below it must be self-consistent — no orphaned ACs from the prior version.
+
+- **Self-contained.** Every issue body should make sense to someone reading it cold. No "see prior session," no "consolidates AIE-1234 + 5678," no "replaces the AA shim." Cross-references to other tickets are fine when they're scope clarifications ("Diff view is a separate ticket — not in scope here"). Session metadata is not.
+
 ### Slicing Principles
 
 - **Progressive enhancement** — for every feature area, ship the smallest useful version first. List what layers on later in the deferred section, not as acceptance criteria. Ask "what's the minimal slice that delivers value?" before drafting.
@@ -137,6 +174,21 @@ Omit sections that don't apply. If there's no spike, drop "Spike Reference". If 
 - **Reference the spike, don't copy it** — the spike is inspiration, production adapts it
 - **Right-size for the target** — if the user said "Claude Code sessions", each issue should be achievable in a single focused session. If "multi-day stories", issues can be broader.
 - **Domain-aware deferral** — when recommending what to defer, consider the end users and their actual workflows, not just technical complexity. A technically complex feature that's core to how users actually work should stay in scope. A technically simple feature that's nice-to-have can defer.
+
+### Vertical Integration Check
+
+Before finalizing, walk each child issue and verify:
+
+1. **Does it have a user-visible demo?** Something you could record a 30-second GIF of. If the only evidence of completion is a green test suite, it's probably a horizontal layer, not a feature.
+2. **Does it have independent value?** Can this ship alone, or does it need two siblings to land first to be observable? Independent = ship it. Coupled = consider merging.
+3. **Is it a horizontal layer masquerading as a feature?** Red-flag titles: `Foundation: CRUD API`, `Infrastructure:`, `*Model + ...`, `Feature flag setup`, `Scaffolding`. These rarely deserve standalone issues — they nest under (or absorb into) the feature that first needs them. The model "falls out of the form's needs."
+4. **Is it a feature flag issue?** If the flag mechanism already exists in the codebase (Flipper, LaunchDarkly, etc.), adding one config line is not an issue — it belongs inside whichever feature first gates on it.
+5. **Does the body match the title?** When you've been editing existing issues (sharpens, supersessions, retitles), check that the body actually describes what the title says. A common failure: ticket retitled to "X polish" with a scope note saying "M1 ships the base," but the body still contains the base-building ACs from before the retitle. The body must be self-consistent — see "Body Discipline" above.
+6. **Is the skeleton/polish split legible from the body?** For a polish issue (per Phase 2 walking-skeleton question), the body should explicitly reference what the skeleton ships and what's left for this issue. A reader should be able to tell whether they're picking up skeleton work or polish work from the issue alone.
+
+Count children per parent. **If a parent has materially more children than your plan intended (e.g., plan said 8, reality is 14), horizontal creep has snuck in.** Run the four checks above on each one.
+
+Model-foundation issues are a common offender: they get split out for DB-layer work, then sit alongside the feature that uses them. If they have active work (branches, PRs), don't delete — nest them under the feature issue as sub-children. The three-level hierarchy (slice parent → feature → model) reads cleanly and preserves history.
 
 ### Parent Issues (Value Increments)
 
@@ -169,6 +221,31 @@ After drafting, present the issue list and dependency graph. Ask:
 - "Missing anything from the milestone?"
 
 Iterate based on feedback. This is collaborative — expect 2-3 rounds of restructuring.
+
+## Phase 5: Update Decisions Log
+
+After the user is happy with the draft, append today's durable decisions to `decisions.md` in the project directory (create the file if it doesn't exist). The log is what Phase 1.7 reads in future drafting sessions to avoid relitigation.
+
+Capture only **durable** decisions — choices that should persist beyond this drafting run and that future sessions would otherwise re-ask:
+- Slicing style (vertical vs. horizontal-foundation)
+- What's been explicitly deferred and why
+- Walking-skeleton split — which issues are skeleton, which are polish
+- Major scope cuts ("V20 distributed into V11/V12 ACs instead of standalone scope")
+- Architectural calls ("review notes use direct FK to Version, not polymorphic")
+- Cross-milestone supersessions ("AIE-1721 superseded by M1 review skeleton")
+
+Skip transient choices — exact wording of an AC, which Figma frame to reference, etc.
+
+Format each entry:
+
+```markdown
+## YYYY-MM-DD — Topic
+**Decision**: One-line answer.
+**Why**: One-line rationale, ideally with the constraint or evidence that drove it.
+**Alternatives considered**: brief list (one phrase each).
+```
+
+Append to the bottom; don't reorder. The log is chronological.
 
 ## Path Inference
 

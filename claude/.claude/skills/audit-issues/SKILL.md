@@ -106,6 +106,54 @@ Run git log for the last 3 months to find recent relevant merges.
 
 This agent has high ROI — it frequently finds existing utilities that eliminate entire issues or reduce them to a few lines of wiring. Skip only if the milestone is greenfield with no relevant existing code.
 
+### Agent 5: Horizontal Creep Probe (always run)
+
+```
+Scan every draft issue and every existing tracker issue for the milestone.
+Flag horizontal-layer candidates that should be nested or absorbed rather
+than standing alone:
+
+Title smells:
+- "Foundation: X Model" or similar model-only issues
+- "CRUD API" / "REST API" / "GraphQL API" issues with no user-visible demo
+- "Infrastructure:" / "Scaffolding:" prefixes
+- "Feature flag" / "Flipper" setup issues when the flag system already exists
+- "Configuration" / "Setup" issues without a user outcome
+
+For each flagged issue, answer:
+1. Does it have a user-visible demo? (If yes, it might be a feature after all.)
+2. Does it have independent shippable value?
+3. Which feature issue is the natural home? (The one that first consumes
+   the model / first calls the API / first gates on the flag.)
+
+Recommend: nest under the feature issue, absorb into it, or cancel.
+
+Count children per parent. If a parent has materially more than the plan
+says (e.g., plan: 8 children, tracker: 14), flag the parent for horizontal
+creep review.
+```
+
+### Agent 6: GitHub Reality Check (when the project has a tracker integration)
+
+```
+For every issue in the tracker that isn't marked Done:
+- Grep merged PRs for the issue identifier (e.g., "AIE-1713")
+- Grep open PRs for the issue identifier
+- If PRs exist, note whether the tracker state (Backlog / In Progress / In Review)
+  reflects the actual PR state
+
+Also grep the codebase for planned identifiers mentioned in the issue
+(flag names, model class names, route paths). If they already exist, the
+issue may be cancellable or significantly narrower than drafted.
+
+Report:
+- Issues with Done-quality work not marked Done in tracker
+- Issues the drafter assumed were greenfield but already have partial implementation
+- Issues whose scope is already obsolete (flag exists, model renamed, etc.)
+```
+
+This is distinct from Agent 4 (Master Branch Overlap) — Agent 4 looks at what exists on main, Agent 6 cross-references tracker state against PR reality and catches issues that are "already done" but not marked so. Run when the project uses Linear/Jira/GitHub issues with identifier references in PR titles.
+
 ## Phase 3: Report
 
 Consolidate agent results into a single report:
@@ -126,6 +174,14 @@ Consolidate agent results into a single report:
 
 ### Master Branch Overlap (if applicable)
 - {utility/pattern} on master → affects issue #{filename} — {eliminate, reduce, or reference}
+
+### Horizontal Creep
+- {issue title} — {why it's horizontal} — {recommended action: nest under {feature}, absorb into {feature}, or cancel}
+- Parent {X} has {N} children, plan said {M} — review for horizontal creep
+
+### Tracker vs Reality (if applicable)
+- Issue {ID} marked {state}, but PR #{N} is {merged/open} — update status
+- Issue {ID} scope assumes greenfield; {code path} already exists — reduce or cancel
 
 ### Over-Scope
 ⚠️ N issues extend beyond the milestone:
