@@ -1,0 +1,12 @@
+{
+  "expectations": [
+    {"text": "Does NOT recommend a simple single-step change_column_null as the complete solution", "passed": true, "evidence": "Response explicitly says naive change_column_null false is unsafe — it scans every row under an ACCESS EXCLUSIVE lock blocking all reads/writes."},
+    {"text": "Shows add_check_constraint with validate: false in migration 1", "passed": true, "evidence": "Migration 1 shows add_check_constraint :events, \"account_id IS NOT NULL\", validate: false with named constraint."},
+    {"text": "Shows validate_check_constraint in a separate subsequent migration", "passed": true, "evidence": "Migration 2 (separate deploy) shows validate_check_constraint :events, name: ... before change_column_null."},
+    {"text": "Shows change_column_null false in the same migration as validate (after validation completes)", "passed": true, "evidence": "change_column_null :events, :account_id, false appears in Migration 2 after validate_check_constraint, with explanation that it's safe because constraint already validated."},
+    {"text": "Explains why this is safer (avoids ACCESS EXCLUSIVE lock during row scan)", "passed": true, "evidence": "Explains validate_check_constraint takes SHARE UPDATE EXCLUSIVE lock allowing reads/writes, vs naive change_column_null which takes ACCESS EXCLUSIVE blocking everything."}
+  ],
+  "summary": {"passed": 5, "failed": 0, "total": 5, "pass_rate": 1.0},
+  "claims": [],
+  "eval_feedback": {"suggestions": [], "overall": "All five expectations met. Correctly models the two-migration sequence and explains the lock-level reasoning."}
+}

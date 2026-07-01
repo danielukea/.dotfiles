@@ -1,0 +1,92 @@
+{
+  "skill_name": "write-tests",
+  "evals": [
+    {
+      "id": 0,
+      "name": "review-redundant-outgoing-query-assertions",
+      "prompt": "Review these specs and tell me which assertions should be removed or changed and why:\n\n```ruby\nRSpec.describe Tasks::AssignCommand do\n  let(:task) { create(:task) }\n  let(:user) { create(:user) }\n  subject(:command) { described_class.new(task, user) }\n\n  describe \"#perform\" do\n    it \"updates the assignee\" do\n      command.perform\n      expect(task.reload.assignee).to eq(user)\n    end\n\n    it \"enqueues the notification job\" do\n      expect { command.perform }.to have_enqueued_job(NotificationJob).with(task)\n    end\n\n    it \"increments the assignee count\" do\n      command.perform\n      expect(task.assignees.count).to eq(1)\n    end\n\n    it \"sets the assignee name\" do\n      command.perform\n      expect(task.assignee.full_name).to eq(user.full_name)\n    end\n\n    it \"responds to full_name\" do\n      expect(user).to respond_to(:full_name)\n    end\n  end\nend\n```",
+      "expected_output": "Identifies the redundant outgoing-query assertions (assignee count, assignee full_name) as owned by receiver specs. Catches the respond_to tautology. Explains the message-direction reasoning. Correctly identifies the two good tests as keepers.",
+      "assertions": [
+        {
+          "text": "Identifies 'assignees.count' assertion as redundant / owned by the Task model spec",
+          "type": "boolean"
+        },
+        {
+          "text": "Identifies 'assignee.full_name' assertion as redundant / owned by the User model spec",
+          "type": "boolean"
+        },
+        {
+          "text": "Identifies 'respond_to(:full_name)' as tautological (tests presence not behavior)",
+          "type": "boolean"
+        },
+        {
+          "text": "Correctly identifies the two GOOD tests ('updates the assignee', 'enqueues the notification job') as keepers",
+          "type": "boolean"
+        },
+        {
+          "text": "Explains the receiver-owns-assertion principle (not just says 'delete it')",
+          "type": "boolean"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "write-service-spec-with-collaborators",
+      "prompt": "Write specs for this service class. Be thorough about what to test and what to skip.\n\n```ruby\nclass Contacts::ArchiveService\n  def initialize(contact, current_user)\n    @contact = contact\n    @current_user = current_user\n  end\n\n  def call\n    return false if @contact.open_tasks.any?\n\n    @contact.archive!\n    AuditLog.create!(user: @current_user, action: :archive, subject: @contact)\n    ContactArchivedJob.perform_later(@contact)\n    true\n  end\nend\n```",
+      "expected_output": "Writes specs that: test return value (true/false), assert contact state change, assert job enqueued, test the open_tasks guard. Does NOT assert internal AuditLog attributes. Does NOT mock Contact or Task domain objects.",
+      "assertions": [
+        {
+          "text": "Tests the false/guard path when open tasks exist",
+          "type": "boolean"
+        },
+        {
+          "text": "Tests that contact is archived via state change (not mocking archive!)",
+          "type": "boolean"
+        },
+        {
+          "text": "Tests ContactArchivedJob is enqueued (have_enqueued_job)",
+          "type": "boolean"
+        },
+        {
+          "text": "Does NOT mock Contact or Task domain objects (uses real FactoryBot records)",
+          "type": "boolean"
+        },
+        {
+          "text": "Does NOT assert internal AuditLog attributes inside this spec",
+          "type": "boolean"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "tdd-scope-with-exclusion-side",
+      "prompt": "TDD a scope on this model. The scope is called `.active` and should return contacts where archived_at is nil and account matches the given account. Write the spec first, then the implementation.\n\n```ruby\nclass Contact < ApplicationRecord\n  belongs_to :account\n  # archived_at: datetime, nullable\nend\n```",
+      "expected_output": "Follows red-green-refactor. Scaffolds empty scope before first test. Includes both matching AND non-matching records (archived contact, cross-account contact). Uses contain_exactly. Writes the test before the implementation.",
+      "assertions": [
+        {
+          "text": "Writes the failing spec BEFORE writing the implementation",
+          "type": "boolean"
+        },
+        {
+          "text": "Scope test includes a non-matching record (archived contact) to prove exclusion",
+          "type": "boolean"
+        },
+        {
+          "text": "Scope test includes a cross-account contact to prove account scoping",
+          "type": "boolean"
+        },
+        {
+          "text": "Uses contain_exactly or equivalent (not just include, which can't prove exclusion)",
+          "type": "boolean"
+        },
+        {
+          "text": "Scaffolds the empty scope method before the first test run (avoiding NameError red)",
+          "type": "boolean"
+        }
+      ],
+      "files": []
+    }
+  ]
+}

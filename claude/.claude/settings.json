@@ -1,6 +1,7 @@
 {
   "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "EDITOR": "nvim"
   },
   "permissions": {
     "deny": [
@@ -22,7 +23,128 @@
     "defaultMode": "auto",
     "additionalDirectories": [
       "/Users/lukedanielson/Workspace/crm-web",
-      "/Users/lukedanielson/Workspace/partner-integration-prototype"
+      "/Users/lukedanielson/Workspace/partner-integration-prototype",
+      "/Users/lukedanielson/Worktrees/crm-web"
+    ]
+  },
+  "model": "sonnet[1m]",
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/lukedanielson/.local/share/yax/hooks/status-reporter.sh",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/lukedanielson/.local/share/yax/hooks/status-reporter.sh",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/lukedanielson/.local/share/yax/hooks/status-reporter.sh",
+            "async": true
+          }
+        ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.dotfiles/scripts/agent-usage-logger.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.dotfiles/scripts/agent-usage-logger.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/lukedanielson/.local/share/yax/hooks/status-reporter.sh",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/lukedanielson/.local/share/yax/hooks/status-reporter.sh",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/lukedanielson/.local/share/yax/hooks/status-reporter.sh",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/lukedanielson/.local/share/yax/hooks/status-reporter.sh",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/lukedanielson/.local/share/yax/hooks/status-reporter.sh",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/lukedanielson/.local/share/yax/hooks/status-reporter.sh",
+            "async": true
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
@@ -30,24 +152,14 @@
     "command": "input=$(cat); current_dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); model_name=$(echo \"$input\" | jq -r '.model.display_name'); printf \"➜  $(basename \"$current_dir\") \"; if git -C \"$current_dir\" rev-parse --git-dir >/dev/null 2>&1; then branch=$(git -C \"$current_dir\" branch --show-current 2>/dev/null || echo 'detached'); status=''; if ! git -C \"$current_dir\" diff-index --quiet HEAD -- 2>/dev/null; then status=' ✗'; fi; printf \"git:($branch)$status \"; fi; printf \"[$model_name]\""
   },
   "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true,
-    "github@claude-plugins-official": true,
-    "commit-commands@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
-    "context7@claude-plugins-official": true,
-    "playwright@claude-plugins-official": true,
+    "context7@claude-plugins-official": false,
+    "frontend-design@claude-plugins-official": false,
+    "ruby-lsp@claude-plugins-official": false,
     "skill-creator@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
-    "plugin-dev@claude-plugins-official": true,
     "wealthbox@wealthbox": true,
-    "wealthbox-code-review@wealthbox": true,
-    "wealthbox-development@wealthbox": true,
-    "wealthbox-qa@wealthbox": true,
-    "wealthbox-documentation@wealthbox": true,
-    "wealthbox-projects@wealthbox": true,
-    "ruby-lsp@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true
+    "frontend-design@claude-code-plugins": true,
+    "code-review@claude-code-plugins": true
   },
   "extraKnownMarketplaces": {
     "wealthbox": {
@@ -56,8 +168,17 @@
         "url": "git@github.com:starburstlabs/wealthbox-claude-plugin.git"
       },
       "autoUpdate": true
+    },
+    "claude-code-plugins": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/anthropics/claude-code.git"
+      }
     }
   },
   "alwaysThinkingEnabled": true,
+  "effortLevel": "xhigh",
+  "advisorModel": "opus",
+  "tui": "fullscreen",
   "skipAutoPermissionPrompt": true
 }

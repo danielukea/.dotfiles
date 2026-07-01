@@ -1,195 +1,157 @@
 ---
-name: design
-description: Style-guide-grounded architectural design for a feature. Dispatches rails-architect and/or react-architect agents (which carry DHH composition and headless-first React patterns), runs a principles review (ETC, Tell-Don't-Ask, SOLID, conventions, testability, least surprise), then hands off to Superpowers (spec + plan + execute) or Plan Mode (start coding now). No code edits. Use whenever the user says "design this", "plan the approach", "how should I build X", "explore approaches", or invokes /design — even for small features, since the principles review and architect lens catch style drift early. **Not for:** bug fixes (just code), broad refactors of existing code (use `arch-analysis`), or initial product scoping (use `scope-project`).
+name: arch-design
+description: Style-guide-grounded architectural design for a feature. Optionally dispatches rails-architect and/or react-architect agents (which carry DHH composition and headless-first React patterns) and runs a principles review against the `design-principles` skill, then continues into implementation however fits — Superpowers, Plan Mode, or just coding. Use whenever the user says "design this", "plan the approach", "how should I build X", "explore approaches", or invokes /arch-design. Scale the process to the feature: a small change may need only a quick principles check, a cross-layer feature warrants the full architect dispatch. **Not for:** bug fixes (just code), broad refactors of existing code (use `arch-analysis`), or initial product scoping (use `scope-project`).
 allowed-tools: Read, Grep, Glob, Bash, Agent, WebFetch, AskUserQuestion, Skill, mcp__basecamp__*
 ---
 
-# Design
+# Arch Design
 
-Architectural design for a feature, grounded in the project's style guides (DHH Rails composition, headless-first React). The skill is a thin orchestrator: it routes to architect agents that already own the pattern catalogs, then it runs a principles review and hands the chosen approach to an implementation flow.
+A design pass for a feature, grounded in the project's style guides (DHH Rails
+composition, headless-first React). This skill is a thin, **optional-by-part**
+orchestrator: it routes to architect agents that own the pattern catalogs and
+checks the result against durable design principles.
 
-**No code edits.** This skill explores and decides; it does not write source files. The output is the in-conversation recommendation and the downstream Superpowers spec or Plan Mode plan — not a markdown dump nobody reads.
+**Match the ceremony to the surface area.** The steps below are a toolkit, not a
+mandatory pipeline. A one-file change might need only the principles lens; a
+cross-layer feature warrants dispatching both architects and a review. Skip any
+step that doesn't earn its keep for the feature in front of you — see the
+complexity heuristic in the `design-principles` skill.
 
 ## Why this shape
 
-The architect agents (`rails-architect`, `react-architect`) are the right home for style-guide expertise — they're already opinionated planners that consult DHH composition patterns and the React pattern skills (`react-composition`, `react-data-fetching`, `react-render-optimization`). This skill doesn't reproduce that knowledge; it routes to the agents that have it.
+The architect agents (`rails-architect`, `react-architect`) are the right home for
+style-guide expertise — they already consult DHH composition patterns and the React
+pattern skills (`react-composition`, `react-data-fetching`, `react-render-optimization`).
+This skill doesn't reproduce that knowledge; it routes to the agents that have it, and
+it borrows its evaluation criteria from the `design-principles` skill rather than
+embedding them.
 
-The skill stays in the main thread because it needs to invoke `Skill` for pattern lookups during the principles review and the handoff (subagents can't always do that). It dispatches architects via the `Agent` tool with `subagent_type` set to the architect name.
+The skill stays in the main thread because it may invoke `Skill` for pattern lookups
+and the handoff. It dispatches architects via the `Agent` tool with `subagent_type` set
+to the architect name.
 
 ## Usage
 
 ```bash
-/design https://3.basecamp.com/.../todos/123   # Basecamp todo
-/design docs/feature-spec.md                    # Local spec file
-/design                                         # Describe interactively
+/arch-design https://3.basecamp.com/.../todos/123   # Basecamp todo
+/arch-design docs/feature-spec.md                    # Local spec file
+/arch-design                                         # Describe interactively
 ```
 
-## Step 1: Gather Context
+## The toolkit
 
-### Basecamp URL
-Extract `project_id` and `todo_id` from `3.basecamp.com/{account}/buckets/{project_id}/todos/{todo_id}`, then:
-- `mcp__basecamp__basecamp_get_todo` for the todo
-- `mcp__basecamp__basecamp_list_comments` for discussion
+Run these in roughly this order, using judgment about which to include.
 
-### Local file
-`Read` the file.
+### Gather context
+- **Basecamp URL:** extract `project_id` and `todo_id` from
+  `3.basecamp.com/{account}/buckets/{project_id}/todos/{todo_id}`, then
+  `mcp__basecamp__basecamp_get_todo` and `mcp__basecamp__basecamp_list_comments`.
+- **Local file:** `Read` it.
+- **Interactive:** ask the user to describe the feature.
 
-### Interactive
-Ask the user to describe the feature.
+Summarize what you understand in 3-5 sentences. If the description is too large for
+one design pass, say so and ask the user to narrow scope first.
 
-Summarize what you understand in 3-5 sentences. If the description is unclear or too large for one design pass, say so and ask the user to narrow scope before continuing.
+### Clarify ambiguities (only if they'd change the design)
+Use `AskUserQuestion` to batch related questions in one round — scope boundaries,
+behavioral ambiguities, constraints. Skip entirely if the context is already specific.
 
-## Step 2: Clarify Ambiguities
-
-Identify gaps that would lead to meaningfully different designs. Use `AskUserQuestion` to batch related questions in **one round**. Focus on:
-- Scope boundaries (what's in/out)
-- Behavioral ambiguities ("when X, should it Y or Z?")
-- Constraints (performance, permissions, compatibility)
-
-Skip this step entirely if the context is already specific. Fold answers into the brief passed to the architect agents in Step 5.
-
-## Step 3: Detect Stack
-
-Scan the feature description and any referenced files. Decide which architect(s) to dispatch.
+### Detect stack and decide who (if anyone) to dispatch
 
 | Signal | Architect |
 |--------|-----------|
 | Rails models, controllers, jobs, mailers, views, migrations | `rails-architect` |
 | React components, hooks, contexts, frontend routing, data fetching | `react-architect` |
 | Both layers touched | dispatch both in parallel |
-| Neither — pure infra, scripts, docs | ask the user whether to apply a Rails or React lens, or skip to Step 7 with manual exploration |
+| Neither — pure infra, scripts, docs | apply a lens manually, or skip dispatch |
 
-When in doubt, lean toward dispatching — the architects are cheap and grounding the design in their pattern catalogs is the whole point.
+Dispatching architects is the high-value move for anything non-trivial — it grounds the
+design in real pattern catalogs. But for a small, single-layer change you understand
+well, it's fine to sketch the approach yourself and go straight to the principles check.
 
-## Step 4: Pre-load pattern context (optional, main thread only)
+### Pre-load pattern context (optional, main thread)
+If you'll interpret architect output or run the principles review yourself, load only
+what the feature involves via `Skill`: `rails-composition-dhh`,
+`wealthbox:headless-component-designer`, `react-composition`, `react-data-fetching`,
+`react-render-optimization`. Don't load speculatively.
 
-For the principles review and the handoff, **you** (the main thread) may want pattern guidance in context. Load via the `Skill` tool only what's relevant to the feature's shape:
-
-| Shape signal | Skill to load |
-|--------------|---------------|
-| Rails feature (always, for principles review framing) | `rails-composition-dhh` |
-| New React component or hook | `wealthbox:headless-component-designer` |
-| Composition: hooks, compound, HOC, render props, view/logic split | `react-composition` |
-| Caching, dedup, optimistic updates, parallel fetches | `react-data-fetching` |
-| Re-render hot spots, memoization | `react-render-optimization` |
-
-Skip this step if nothing in the table fits. Don't load skills speculatively — load only what the feature actually involves. The architect agents will apply their own pattern knowledge inside the subagent; this step is for **your** ability to interpret their output and run the principles review.
-
-## Step 5: Dispatch Architect Agents
-
-Use the `Agent` tool, one call per applicable architect, in parallel. Pass each architect this brief:
+### Dispatch architect agents (when warranted)
+One `Agent` call per applicable architect, in parallel. Brief:
 
 > Design **\<feature name\>**.
 >
-> **Context (from Step 1):** \<3-5 sentence summary\>
->
-> **Clarifications (from Step 2):** \<answers, if any\>
+> **Context:** \<3-5 sentence summary\>
+> **Clarifications:** \<answers, if any\>
 >
 > Produce:
 > 1. **Recommended approach** — concrete, grounded in this codebase. Name actual files and patterns. Apply your style guide.
-> 2. **Alternatives considered and rejected** — 1-2 short paragraphs explaining what else you weighed and why you didn't pick it. The reasoning trail, not parallel proposals.
-> 3. **Open questions** — anything that, if answered differently, would change your recommendation.
-> 4. **Complexity estimate** — rough files touched, layers spanned, size (XS / S / M / L / XL).
+> 2. **Alternatives considered and rejected** — the reasoning trail, not parallel proposals.
+> 3. **Open questions** — anything that, answered differently, would change the recommendation.
+> 4. **Complexity estimate** — files touched, layers spanned, size (XS / S / M / L / XL).
 
-The architects' style guides come from their own prompts/skills; you don't need to inject pattern text.
+### Principles review (scale to the change)
+Evaluate the approach against the `design-principles` skill's criteria — ETC,
+Tell-Don't-Ask, pragmatic SOLID, conventions, testability, least surprise. For a
+substantial or cross-layer design, spawn one review agent (`Agent`,
+`subagent_type=general-purpose`) with the feature context and each architect's full
+recommendation, and have it produce the per-principle ratings table that
+`design-principles` defines. For a small change, apply the same lens yourself inline —
+no agent needed. Either way, the criteria come from `design-principles`, not from here.
 
-## Step 6: Principles Review
-
-Once architect output(s) return, spawn **one** review agent (`Agent` with `subagent_type=general-purpose`). Pass it the feature context (Steps 1-2) and each architect's full recommendation block.
-
-Prompt:
-
-> Evaluate the recommended approach(es) below against these design principles. You are **not** proposing your own approach — only critiquing.
->
-> - **Easy To Change (ETC)** — the overriding principle. When requirements shift, what couples, what isolates, what breaks?
-> - **Tell, Don't Ask** — does behavior live with the data it acts on, or does logic leak into callers/controllers?
-> - **SOLID** — pragmatic, not dogmatic. Where does each principle land, and is the tradeoff worth it? Don't penalize simplicity.
-> - **Codebase conventions** — does the approach follow patterns already established, or invent new ones?
-> - **Testability** — does it lead to simple, fast unit tests, or force complex integration tests?
-> - **Least surprise** — would another developer immediately understand this? Clever is the enemy of clear.
->
-> For each principle, give a one-line rating (Strong / Acceptable / Weak) and the reason. End with:
-> - **Verdict:** Sound / Sound with concerns / Needs revision
-> - **Concerns:** red flags worth raising before implementation
-> - **Suggested tweaks:** small refinements (not a full rewrite)
-
-If two architects' recommendations cover different layers (Rails + React), the reviewer evaluates each layer separately.
-
-## Step 7: Present and Decide
-
-One in-conversation message. Structure:
+### Present and decide
+One in-conversation message:
 
 ```markdown
 ## Feature: <name>
-
 ### Context
 <3-5 sentences>
-
 ### Recommended Approach
 <architect output: how it works, files touched, complexity>
-(If two architects: two sub-sections, one per layer.)
-
 ### Alternatives Considered
-<architect's reasoning trail>
-
+<reasoning trail>
 ### Principles Review
-| Principle | Rating | Reason |
-|-----------|--------|--------|
-| ETC | … | … |
-| Tell, Don't Ask | … | … |
-| SOLID | … | … |
-| Conventions | … | … |
-| Testability | … | … |
-| Least Surprise | … | … |
-
-**Verdict:** …
-**Concerns:** …
-**Suggested tweaks:** …
-
+<ratings table from design-principles, or a short inline assessment for small changes>
+**Verdict / Concerns / Suggested tweaks**
 ### Open Questions
 - …
 ```
 
-If the principles review flags must-fix concerns, surface them and ask whether to refine the approach (re-dispatch architect with the concerns) or accept and move on.
+If the review flags must-fix concerns, surface them and ask whether to refine (re-dispatch
+the architect with the concerns) or accept and move on.
 
-## Step 8: Handoff
+### Continue into implementation
+Pick the continuation that fits — this is a suggestion, not a fork with only two doors:
 
-The skill terminates in one of two ways. **Don't write a markdown spec file** — Superpowers writes a proper one if chosen, and Plan Mode is in-memory.
+| Signal | Suggested continuation |
+|--------|------------------------|
+| Single file / surgical | Just start coding (Plan Mode optional) |
+| Multiple files, single layer, S/M | Plan Mode |
+| Cross-layer, L/XL, or multi-day | Superpowers (spec + tracked plan) |
+| Concerns needing iterative refinement | Superpowers |
 
-Suggest a handoff from the architect's complexity estimate and the surface area:
+Offer the recommended continuation via `AskUserQuestion` when it's a real choice; for an
+obvious small change, just proceed. The user is always free to take the design and run
+with it themselves.
 
-| Signal | Suggested handoff |
-|--------|-------------------|
-| Single file / single layer / surgical | Plan Mode |
-| Multiple files, single layer, S/M | Plan Mode (Superpowers also valid) |
-| Cross-layer (Rails + React), L/XL, or multi-day | Superpowers |
-| Concerns raised in principles review that need iterative refinement | Superpowers |
+- **Superpowers path:** invoke `Skill: superpowers:writing-plans` with a primer — feature
+  name, chosen approach in a paragraph, and a pointer to the architect recommendation and
+  principles review already in the conversation. Skip `superpowers:brainstorming`; the
+  exploration is done.
+- **Plan Mode path:** format the chosen approach (Files to change, Steps, Verification) and
+  call `ExitPlanMode`.
 
-Ask via `AskUserQuestion`:
+## Notes (not hard rules)
 
-> Handoff to:
-> - **Superpowers** — full spec + tracked plan + execution checkpoints. Heavier, durable.
-> - **Plan Mode** — present the chosen approach as a plan, start coding on approval. Lighter, in-memory.
->
-> Recommended: **\<your suggestion\>** because \<one-line reason\>.
-
-### Superpowers path
-
-Invoke `Skill: superpowers:writing-plans` with a primer message:
-
-> Feature: **\<name\>**. Chosen approach: **\<one-paragraph summary\>**. Architect recommendation and principles review are above in this conversation — use them as the spec. Proceed directly to writing the implementation plan.
-
-Design has already done the exploration and decision work that `superpowers:brainstorming` would otherwise do, so we skip straight to the plan-writing phase.
-
-### Plan Mode path
-
-Format the chosen approach as a concise plan (sections: Files to change, Steps, Verification) and call `ExitPlanMode` with that plan content. On approval you exit plan mode and implementation begins in the same conversation.
-
-## Rules
-
-- **No code changes** in this skill — separating the decision from the implementation keeps the handoff to Superpowers / Plan Mode clean and lets the user reject the approach without rolling back commits.
-- **No tracked design markdown.** Superpowers writes the spec if needed.
-- **Ground everything in the codebase via the architects.** Don't invent patterns the codebase doesn't use.
-- **One recommendation per architect, plus alternatives.** Style-guide-driven architects produce a single best answer with the reasoning trail attached — don't ask them to generate parallel proposals.
-- **Bias toward simplicity.** When tweaking the recommendation, prefer the less-clever option — the principles review will already flag cleverness as a Least-Surprise risk, so doubling down rarely survives.
-- **Stay scoped.** If the request decomposes into multiple independent features, name that and ask which one to design first.
+- **This is a design pass, so it usually doesn't edit source files** — separating the
+  decision from implementation lets the user reject the approach cleanly. But if a quick
+  exploratory sketch or spike is the fastest way to answer a design question, that's a
+  legitimate part of designing; don't contort around the "no edits" idea.
+- **Don't write a tracked design-markdown dump** nobody reads. Superpowers writes a proper
+  spec if that path is chosen; Plan Mode is in-memory.
+- **Ground everything in the codebase.** Don't invent patterns the codebase doesn't use —
+  that's what the architects and the conventions principle are for.
+- **One recommendation per architect, plus the reasoning trail** — not parallel proposals.
+- **Bias toward simplicity.** Least surprise beats clever; the principles review will flag
+  cleverness anyway.
+- **Stay scoped.** If the request is really several features, name that and ask which to
+  design first.

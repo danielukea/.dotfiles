@@ -1,0 +1,71 @@
+{
+  "skill_name": "strong-migrations",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to rename the `email` column to `email_address` on our users table. We have about 2 million rows and we do rolling deploys. How do I do this safely?",
+      "expected_output": "A clear 3-deploy sequence: (1) add new column + dual-write, (2) backfill with in_batches + disable_ddl_transaction!, (3) switch reads + ignored_columns, (4) drop old column. Should include actual migration code for each step.",
+      "files": [],
+      "assertions": [
+        "Explains that a single rename is unsafe during rolling deploys because old code writes to old column name",
+        "Provides a multi-deploy sequence (at least 3 deploys/steps)",
+        "Shows migration code for adding the new column",
+        "Shows backfill migration using disable_ddl_transaction! and in_batches",
+        "Mentions ignored_columns to suppress ActiveRecord warnings before dropping",
+        "Shows migration code for dropping the old column using safety_assured"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Is this migration safe to run on production? We use Postgres 14 and do rolling deploys.\n\n```ruby\nclass AddStatusToOrders < ActiveRecord::Migration[7.2]\n  def change\n    add_column :orders, :status, :string, default: \"pending\", null: false\n    add_index :orders, :status\n  end\nend\n```",
+      "expected_output": "Identifies two issues: (1) add_column with non-null default may cause issues depending on PG version/strong_migrations config, (2) add_index without algorithm: :concurrently will block writes. Provides corrected migration code.",
+      "files": [],
+      "assertions": [
+        "Identifies the add_index without algorithm: :concurrently as unsafe (blocks writes)",
+        "Notes that disable_ddl_transaction! is required for concurrent index creation",
+        "Provides corrected migration code with algorithm: :concurrently",
+        "Addresses the add_column with non-null default (either confirming safe on PG 14+ with safe_by_default or explaining the manual approach)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "We want to drop the `legacy_notes` column from our contacts table. The column isn't referenced anywhere in our codebase anymore but we're not 100% sure. What's the safe process?",
+      "expected_output": "Step 1: add ignored_columns as a safety net and deploy. Step 2: run the drop migration with safety_assured. Explains why ignored_columns is needed (AR caching) and how to verify the column isn't referenced.",
+      "files": [],
+      "assertions": [
+        "Recommends adding to ignored_columns before dropping, even if column isn't referenced",
+        "Explains that ActiveRecord caches column names at startup",
+        "Shows the migration with safety_assured { remove_column }",
+        "Mentions removing the ignored_columns entry after the column is dropped",
+        "Is a 2-deploy sequence (ignored_columns deploy, then drop deploy)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "We need to add a NOT NULL constraint to the `account_id` column on the events table. We've already backfilled all the nulls. How do we add the constraint without downtime?",
+      "expected_output": "Two-migration approach: (1) add_check_constraint with validate: false, (2) validate_check_constraint + change_column_null false + remove_check_constraint. Explains that validate_check_constraint uses ShareUpdateExclusiveLock (allows reads/writes).",
+      "files": [],
+      "assertions": [
+        "Does NOT recommend a simple change_column_null as a single-step migration",
+        "Shows add_check_constraint with validate: false in the first migration",
+        "Shows validate_check_constraint in a separate subsequent migration",
+        "Shows change_column_null false at some point after validation completes (same or later migration)",
+        "Explains why this approach is safer (ShareUpdateExclusiveLock vs ACCESS EXCLUSIVE)"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "How do I set up strong_migrations in my Rails app so it automatically catches unsafe migrations in CI before they hit production?",
+      "expected_output": "Install steps, recommended configuration (safe_by_default, lock_timeout, target_version, start_after), explanation that rails db:migrate will raise errors on unsafe migrations, how to use safety_assured, and CI integration.",
+      "files": [],
+      "assertions": [
+        "Shows how to add the gem to Gemfile",
+        "Shows the rails generate strong_migrations:install command",
+        "Mentions safe_by_default = true",
+        "Mentions target_version to match production Postgres",
+        "Explains that running rails db:migrate in CI catches unsafe migrations automatically",
+        "Explains the safety_assured escape hatch and warns against misuse"
+      ]
+    }
+  ]
+}

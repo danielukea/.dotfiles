@@ -1,0 +1,13 @@
+{
+  "expectations": [
+    {"text": "Explains that a single rename is unsafe during rolling deploys because old code writes to the old column name", "passed": true, "evidence": "Old and new code run simultaneously; 'Old code keeps writing to email. After the rename, that column no longer exists - those writes error out', plus AR caches column list causing crashes."},
+    {"text": "Provides a multi-deploy sequence with at least 3 distinct steps/deploys", "passed": true, "evidence": "Explicit 3-deploy expand/contract: Deploy 1 Expand, Deploy 2 Switch, Deploy 3 Contract, plus intermediate backfill/constraint/index steps with summary table."},
+    {"text": "Shows migration code for adding the new column", "passed": true, "evidence": "AddEmailAddressToUsers with add_column :users, :email_address, :string shown with full migration class."},
+    {"text": "Shows backfill migration using disable_ddl_transaction! and in_batches", "passed": true, "evidence": "BackfillEmailAddress declares disable_ddl_transaction! and uses User.unscoped.in_batches(of: 10_000) with batched update_all."},
+    {"text": "Mentions ignored_columns before dropping the old column", "passed": true, "evidence": "Deploy 2 sets self.ignored_columns += [\"email\"] with explanation that it makes dropping safe, before Deploy 3 remove_column."},
+    {"text": "Shows migration code for dropping the old column using safety_assured", "passed": true, "evidence": "RemoveEmailFromUsers uses safety_assured { remove_column :users, :email }."}
+  ],
+  "summary": {"passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0},
+  "claims": [],
+  "eval_feedback": {"suggestions": [], "overall": "Fully satisfies all six expectations with correct migration code and a clear 3-deploy expand/contract narrative. Bonus: concurrent index, NOT NULL restoration via NOT VALID check constraint, strong_migrations setup."}
+}
