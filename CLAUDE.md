@@ -51,7 +51,7 @@ Each directory is a Stow package that mirrors `$HOME`:
 The `claude/` package contains:
 
 - `.claude/settings.json` - Default model, plugins, status line
-- `.claude/agents/` - Custom agent definitions (code-architect, design-system-expert, rails-pattern-expert, etc.)
+- `.claude/skills/` - Knowledge and orchestration skills (e.g. `rails-composition-dhh`, `arch-design`, `style-review`). Custom subagents were retired in favor of composable skills; orchestration skills fan out `general-purpose` subagents that `Skill`-load the relevant knowledge skill.
 - `.claude/commands/` - Slash commands (take-notes, remember-note, vibe-this)
 - `.claude/templates/` - Spec templates for bugs, features, refactors
 - `.claude/docs/` - Reference documentation (MAKING_AN_AGENT, MAKING_A_SKILL, MEMORIES, etc.)
