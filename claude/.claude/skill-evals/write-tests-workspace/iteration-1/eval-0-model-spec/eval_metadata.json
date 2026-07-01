@@ -1,0 +1,35 @@
+{
+  "eval_id": 0,
+  "eval_name": "write-model-spec-email-domain",
+  "prompt": "Write a model spec for Contact#email_domain. Returns domain from primary email, nil when blank, nil when no @. Use crm-web conventions.",
+  "assertions": [
+    {
+      "text": "Uses require 'spec_helper' (not rails_helper)",
+      "check": "grep -q 'require.*spec_helper' {file} && ! grep -q 'rails_helper' {file}"
+    },
+    {
+      "text": "Uses describe Contact (class constant, not string)",
+      "check": "grep -q 'describe Contact do' {file}"
+    },
+    {
+      "text": "Has context block starting with 'when'",
+      "check": "grep -q \"context \\\"when\" {file}"
+    },
+    {
+      "text": "Happy path uses literal string expected value, not interpolated contact attributes",
+      "check": "grep -qE 'eq\\(\"[a-z0-9.-]+\\.[a-z]+\"\\)' {file}"
+    },
+    {
+      "text": "Covers nil case when email is blank",
+      "check": "grep -qE '(blank|empty|no email)' {file} && grep -q 'be_nil' {file}"
+    },
+    {
+      "text": "Covers nil case when email has no @ symbol",
+      "check": "grep -qE '(@|at sign|no @)' {file} && grep -q 'be_nil' {file}"
+    },
+    {
+      "text": "Does not use rails_helper",
+      "check": "! grep -q 'rails_helper' {file}"
+    }
+  ]
+}

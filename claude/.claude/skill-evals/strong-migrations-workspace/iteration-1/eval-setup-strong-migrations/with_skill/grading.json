@@ -1,0 +1,13 @@
+{
+  "expectations": [
+    {"text": "Shows how to add the gem to Gemfile", "passed": true, "evidence": "Section 1: gem \"strong_migrations\" with bundle install shown."},
+    {"text": "Shows the rails generate strong_migrations:install command", "passed": true, "evidence": "Shown in Section 1, generates configured initializer at config/initializers/strong_migrations.rb."},
+    {"text": "Mentions safe_by_default = true configuration", "passed": true, "evidence": "StrongMigrations.safe_by_default = true shown in initializer with explanation that it auto-applies concurrent index pattern."},
+    {"text": "Mentions target_version to match production Postgres version", "passed": true, "evidence": "StrongMigrations.target_version = 16 shown with explanation that some operations are safe on newer Postgres but not older."},
+    {"text": "Explains that running rails db:migrate in CI automatically catches unsafe migrations (deterministic gate)", "passed": true, "evidence": "Explicit 'THE GATE' comment in CI YAML; Section 3 explains any unsafe migration raises and exits non-zero. Summary: 'deterministic, automated gate'."},
+    {"text": "Explains the safety_assured escape hatch and warns against misuse", "passed": true, "evidence": "Section 5 shows safety_assured with explicit warning: 'Treat this as a deliberate, reviewed exception — never a shortcut to silence the check.'"}
+  ],
+  "summary": {"passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0},
+  "claims": [],
+  "eval_feedback": {"suggestions": [], "overall": "All six expectations met. Provides a complete CI YAML example and clearly explains the deterministic gate concept."}
+}

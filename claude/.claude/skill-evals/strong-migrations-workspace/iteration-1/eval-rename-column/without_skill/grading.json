@@ -1,0 +1,19 @@
+{
+  "expectations": [
+    {"text": "Explains that a single rename is unsafe during rolling deploys because old code writes to the old column name", "passed": true, "evidence": "During a rolling deploy two app versions run at once; old code references email, new references email_address. The instant the migration runs, email no longer exists and every old process querying it throws errors."},
+    {"text": "Provides a multi-deploy sequence with at least 3 distinct steps/deploys", "passed": true, "evidence": "5-deploy sequence: add column, dual-write, backfill, read from new, stop using old, drop old."},
+    {"text": "Shows migration code for adding the new column", "passed": true, "evidence": "AddEmailAddressToUsers with add_column :users, :email_address, :string shown."},
+    {"text": "Shows backfill migration using disable_ddl_transaction! and in_batches", "passed": true, "evidence": "BackfillEmailAddress with disable_ddl_transaction! and User.unscoped.in_batches(of: 10_000)."},
+    {"text": "Mentions ignored_columns before dropping the old column", "passed": true, "evidence": "Mentions adding column to self.ignored_columns before dropping it in an earlier deploy."},
+    {"text": "Shows migration code for dropping the old column using safety_assured", "passed": true, "evidence": "RemoveEmailFromUsers with safety_assured { remove_column :users, :email }."}
+  ],
+  "summary": {"passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0},
+  "claims": [],
+  "eval_feedback": {
+    "suggestions": [
+      "All 6 passed even without the skill — consider tightening expectations toward skill-specific guidance (strong_migrations deterministic CI check, exact lock-level reasoning, precise naming conventions).",
+      "Response went beyond rubric (concurrent unique index, NOT NULL handling, alias_attribute alternative). Add expectations if these are skill-differentiating."
+    ],
+    "overall": "without_skill response fully satisfied all 6 expectations. Strong baseline — rubric may not distinguish skill from no-skill here. The skill adds structural scaffolding and Wealthbox-specific patterns, but core knowledge is present without it."
+  }
+}

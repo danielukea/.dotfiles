@@ -1,0 +1,12 @@
+{
+  "eval_id": 3,
+  "eval_name": "drop-column-safely",
+  "prompt": "We want to drop the `legacy_notes` column from our contacts table. The column isn't referenced anywhere in our codebase anymore but we're not 100% sure. What's the safe process?",
+  "assertions": [
+    "Recommends adding to ignored_columns before dropping, even if column appears unreferenced",
+    "Explains that ActiveRecord caches column names at startup (the reason for ignored_columns)",
+    "Shows the migration with safety_assured { remove_column }",
+    "Describes a 2-deploy sequence (deploy ignored_columns, then drop column)",
+    "Mentions removing the ignored_columns entry after the column is dropped"
+  ]
+}

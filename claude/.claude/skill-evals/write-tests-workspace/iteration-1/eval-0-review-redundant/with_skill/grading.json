@@ -1,0 +1,34 @@
+{
+  "eval_id": 0,
+  "run": "with_skill",
+  "expectations": [
+    {
+      "text": "Identifies 'assignees.count' assertion as redundant / owned by the Task model spec",
+      "passed": true,
+      "evidence": "Explicitly identifies it as 'cross-ownership violation' and cites the Message-Direction Heuristic: 'the receiver's spec owns the assertion'"
+    },
+    {
+      "text": "Identifies 'assignee.full_name' assertion as redundant / owned by the User model spec",
+      "passed": true,
+      "evidence": "Identifies it as redundant: 'assignee identity is already established' and full_name derived from same object means both sides wrong together"
+    },
+    {
+      "text": "Identifies 'respond_to(:full_name)' as tautological (tests presence not behavior)",
+      "passed": true,
+      "evidence": "'textbook tautological test — tests method presence, not method behavior'"
+    },
+    {
+      "text": "Correctly identifies the two GOOD tests as keepers ('updates the assignee', 'enqueues the notification job')",
+      "passed": true,
+      "evidence": "Labels both explicitly as 'Keep' with explanations"
+    },
+    {
+      "text": "Explains the receiver-owns-assertion principle (not just says 'delete it')",
+      "passed": true,
+      "evidence": "Invokes 'Message-Direction Heuristic: the receiver's spec owns the assertion' with explicit reasoning about why coupling increases without coverage gain"
+    }
+  ],
+  "pass_count": 5,
+  "total_count": 5,
+  "pass_rate": 1.0
+}

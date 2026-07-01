@@ -1,0 +1,13 @@
+{
+  "eval_id": 5,
+  "eval_name": "setup-strong-migrations-ci",
+  "prompt": "How do I set up strong_migrations in my Rails app so it automatically catches unsafe migrations in CI before they hit production?",
+  "assertions": [
+    "Shows how to add the gem to Gemfile",
+    "Shows the rails generate strong_migrations:install command",
+    "Mentions safe_by_default = true configuration",
+    "Mentions target_version to match production Postgres version",
+    "Explains that running rails db:migrate in CI automatically catches unsafe migrations (deterministic gate)",
+    "Explains the safety_assured escape hatch and warns against misuse"
+  ]
+}

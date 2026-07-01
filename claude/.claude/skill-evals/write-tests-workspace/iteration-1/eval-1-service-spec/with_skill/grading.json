@@ -1,0 +1,34 @@
+{
+  "eval_id": 1,
+  "run": "with_skill",
+  "expectations": [
+    {
+      "text": "Tests the false/guard path when open tasks exist",
+      "passed": true,
+      "evidence": "Full 'when the contact has open tasks' context with 4 assertions covering return value, no archive, no audit log, no job"
+    },
+    {
+      "text": "Tests that contact is archived via state change (not mocking archive!)",
+      "passed": true,
+      "evidence": "Uses `change { contact.reload.archived? }.to(true)`. Explains explicitly: 'testing persisted state survives any refactor that renames archive!'"
+    },
+    {
+      "text": "Tests ContactArchivedJob is enqueued (have_enqueued_job)",
+      "passed": true,
+      "evidence": "`expect { service.call }.to have_enqueued_job(ContactArchivedJob).with(contact)`"
+    },
+    {
+      "text": "Does NOT mock Contact or Task domain objects (uses real FactoryBot records)",
+      "passed": true,
+      "evidence": "Uses `create(:contact)`, `create(:task, contact: contact, completed_at: nil)` — all real records"
+    },
+    {
+      "text": "Does NOT assert internal AuditLog attributes inside this spec",
+      "passed": true,
+      "evidence": "Uses `AuditLog.where(user:, action:, subject:).count` query — tests what the service provided (its responsibility), not AuditLog's internal processing. Explicitly names 'AuditLog internals' in 'What to Skip'"
+    }
+  ],
+  "pass_count": 5,
+  "total_count": 5,
+  "pass_rate": 1.0
+}

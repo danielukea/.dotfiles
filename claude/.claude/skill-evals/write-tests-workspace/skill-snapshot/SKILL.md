@@ -1,25 +1,21 @@
 ---
 name: write-tests
 description: >
-  Durable principles for writing and reviewing high-quality, non-tautological
-  RSpec tests. Use whenever writing new tests, adding specs to existing code,
-  reviewing tests for quality, or doing TDD — or when a user says "write a spec",
-  "add tests", "TDD this", "review these tests", "are these tests good?", or
-  "check my specs". Also apply proactively when implementing any feature or fix.
-  Teaches WHAT makes a test valuable (the discriminator, message-direction,
-  semantic invariants, observable outcomes) rather than prescribing a fixed
-  workflow. Project-specific conventions (how to run specs, auth setup, shared
-  examples, feature flags) belong in that project's rules, not here.
+  Write and review high-quality, non-tautological RSpec tests for this Rails
+  codebase. Use this skill whenever writing new tests, adding specs to existing
+  code, reviewing tests for quality issues, doing TDD, or when a user says "write
+  a spec", "add tests", "TDD this", "review these tests", "are these tests
+  good?", or "check my specs". Also use proactively whenever implementing any
+  feature or fix — tests should come first. Covers model specs, request specs,
+  command/service specs, job specs, and shared examples following this codebase's
+  exact conventions.
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write
 ---
 
 # Write Tests
 
-Durable principles for RSpec tests that are behavior-driven and non-tautological.
-This skill is knowledge, not a procedure — apply the principles in whatever order
-the work calls for. Framework- and project-specific conventions (spec runner
-command, authentication setup, shared examples, feature-flag helpers) live in the
-relevant project's rules, not here.
+Write and review RSpec tests that are behavior-driven, non-tautological, and
+follow this codebase's conventions.
 
 ---
 
@@ -34,8 +30,6 @@ A test is valuable only when it satisfies **both** conditions simultaneously:
 
 Tautological tests fail #1 (they pass against broken code). Change-detector tests
 fail #2 (they shatter on harmless internal changes). Both are false confidence.
-
-This is the single lens that governs everything below.
 
 ---
 
@@ -214,54 +208,6 @@ Context lines complete the sentence begun by `it`. Read them together:
 
 ---
 
-## Message-Direction Heuristic
-
-When deciding *where* an assertion belongs, ask: who is the **receiver** of this message?
-
-**The receiver's spec owns the assertion.** If your subject calls `account.users.active` internally, the `User` model spec already asserts what that returns. Adding that same assertion inside the subject's spec doesn't increase coverage — it increases coupling. A change to `User` now breaks two specs for no additional safety.
-
-As the *sender*, you assert only the **visible outcome you produced**, not the internal behavior of your collaborators.
-
-```ruby
-# A command that assigns a user and enqueues a notification
-class Tasks::AssignCommand
-  def perform
-    task.update!(assignee: user)         # side effect — yours to assert
-    NotificationJob.perform_later(task)  # outgoing command — yours to assert
-    task.assignees.count                 # outgoing query — Task model spec owns this
-  end
-end
-
-# Good — assert what this command is responsible for
-it "updates the assignee" do
-  expect { command.perform }.to change { task.reload.assignee }.to(user)
-end
-
-it "enqueues the notification" do
-  expect { command.perform }.to have_enqueued_job(NotificationJob).with(task)
-end
-
-# Avoid — this duplicates the Task model spec, adds coupling, adds nothing
-it "reflects the new assignee count" do
-  command.perform
-  expect(task.assignees.count).to eq(1)
-end
-```
-
-**The corollary:** outgoing query stubs that immediately assert themselves are tautological. If you `allow(service).to receive(:count).and_return(5)` and then assert `expect(service).to have_received(:count)`, you've proved the stub mechanism works — not your code. Either assert the real side effect, or delete the stub assertion entirely.
-
-**What belongs where:**
-
-| What happened | Who asserts it |
-|---|---|
-| My method's return value | My spec |
-| My method changed state | My spec (via `change { record.reload.attr }`) |
-| I enqueued a job / sent mail | My spec (`have_enqueued_job`, `have_sent_email`) |
-| A collaborator's return value | The collaborator's own spec |
-| What the enqueued job *does* | The job's own spec |
-
----
-
 ## describe / context / it Structure
 
 ```ruby
@@ -302,7 +248,7 @@ let!(:archived_user) { create(:user, state: :archived) }
 ```
 
 Use `let` over `before` for anything the test body might inspect. Use `before` for
-side effects only: authenticating a user, stubbing a dependency, toggling a flag.
+side effects only: setting `Current.user`, stubbing a dependency, toggling a flag.
 
 **Never assign variables in `before` blocks that the spec then asserts on** — that
 variable belongs in a named `let`.
@@ -325,9 +271,7 @@ expect(WelcomeMailer).to have_received(:deliver_later)
 let(:mailer) { instance_double("WelcomeMailer", deliver_later: true) }
 ```
 
-Avoid stubs on your own domain objects (models, commands, services you own) — use real collaborators instead. Stubs on owned code are a signal the subject is doing too much or the test is at the wrong level.
-
-- Enable `verify_partial_doubles` in the RSpec config so verifying doubles catch interface drift
+- Enable `verify_partial_doubles` (already configured in this repo)
 - Use `instance_double("ClassName")` with string names for classes that may not be loaded
 - Use `have_received` (after the action) rather than `expect(...).to receive` (before) — it reads as verification, not prescription
 
@@ -380,9 +324,6 @@ let(:contact) { create(:contact).tap { |c| create(:email_address, resource: c, .
 
 ## Spec Type Guide
 
-These show how the principles above land for each spec type. They are illustrative
-shapes, not mandatory templates.
-
 ### Model specs
 
 ```ruby
@@ -408,7 +349,10 @@ Never mock the model in its own spec — use real objects and real DB interactio
 ### Request specs
 
 ```ruby
-before { authenticate(user) }  # however this app logs a user in for requests
+before do
+  Current.user = user
+  login_with user          # Warden; needed for actual HTTP requests
+end
 
 it "creates the record and returns 201" do
   expect {
@@ -505,36 +449,57 @@ end
 
 ---
 
-## Tests as a Design Signal
+## Codebase-Specific Rules (crm-web)
 
-Testing is not a phase that happens after design — the test *is* a design probe.
-
-- **Hard-to-test code is poorly-factored code.** When a test needs five `let` blocks
-  and three stubs to set up, that's a coupling signal, not a testing problem. The fix
-  is usually in the subject, not the spec.
-- **The test can drive the design.** Writing the test first (TDD) is one effective way
-  to surface that coupling early — scaffold the class, write a test that fails with a
-  *behavioral* message ("expected 3, got nil", not "undefined method"), then implement
-  the minimum to pass. Use it when it helps; it's a tool, not a mandate.
-- **Find bugs once.** When a bug is found — by QA, in production, by a user — write a
-  failing test that reproduces it *before* fixing. The test proves the bug, the fix
-  makes it pass, and the committed test prevents regression.
-- **Design-by-Contract lens:** `context` blocks are preconditions, `it` blocks are
-  postconditions, and semantic invariants hold regardless of path. Asking "what does
-  this method promise?" tells you what to assert.
+- **`require "spec_helper"`** — there is no `rails_helper` in this repo
+- **No feature or system specs** (`spec/features/`, `spec/system/`) — too slow, too flaky
+- **Run tests**: `bin/wealthbox rspec spec/path/to_spec.rb` — never bare `rspec` or `bundle exec rspec`
+- **`Current.user = user`** in `before` blocks for model/command/lib specs; `login_with user` for request specs
+- **Feature flags**: `enable_feature_flag("team:flag:YYYY_MM")` helper (from `Common::FeatureFlagHelpers`); `FeatureWhitelist.toggle_whitelist(user, "Feature Name")` for whitelists
+- **VCR**: network calls are auto-recorded/replayed per spec type; use `skip_vcr: true` to opt out
+- **Shared examples** live in `spec/support/shared_examples/`; use `it_behaves_like "name"` with keyword args for parameterization. **When reviewing tests or writing model specs, check if a shared example already exists** for the concern being tested — e.g., `"taggable"`, `"a resource that publishes its system events"`, `"a job with account-scoped concurrency limit"`. Using `it_behaves_like` where it fits is better than re-writing equivalent tests inline.
+- **Concern helpers**: models using `TrashCanRecoverable` (soft-delete) have `smart_destroy` and `smart_recover`. Test through those, not through direct attribute manipulation. Similarly, `LinkedTo`, `CustomFieldsManager`, and other concerns have dedicated shared examples — use them.
+- **`aggregate_failures`** for multiple related assertions where failure of one doesn't invalidate the others
+- **Time**: use `travel_to(Time.current)` (Rails built-in) for time-sensitive tests
 
 ---
 
-## Smells to Watch For
+## TDD Workflow
 
-Not a gate to run — signals that a test may be low-value. When one shows up, reconsider:
+1. **Scaffold first** — create the empty class and stub the method signatures before the first test run. `NameError` / `NoMethodError` are not "red" in a useful sense — they say nothing about behavior.
+2. **Write the failing test** — the test should fail with a clear behavioral message: *"expected 3, got nil"* not *"undefined method"*.
+3. **Verify the red** — run the test. Confirm the failure message matches what you expect.
+4. **Write minimal implementation** — only enough to pass the test. Resist adding behavior the test doesn't demand.
+5. **Verify green** — run the test again. It must pass.
+6. **Refactor** — improve the code with all tests green. This is when you extract helpers, simplify conditionals, and rename for clarity.
+7. **Repeat** — add the next case (edge case, error path, second behavior).
 
-- Would this test still pass if the method returned `nil`? (tautology)
-- Does it assert an internal call count instead of an observable outcome?
-- Is the expected value copied from the implementation rather than derived from the spec?
-- Is this assertion already owned by the receiver's own spec? (redundant coupling)
-- Missing a "should not" case for a scope, filter, or validation?
-- Would it break if you renamed an internal private method? (change-detector)
-- Is every `let`/`before` line causally necessary, or would the test pass without it?
-- Is the failure message uninformative?
-- Request spec asserting status but not body shape (or vice versa)?
+**The test drives the design.** When a test is hard to set up — requiring five `let` blocks and three stubs — that is a design signal, not a testing problem. A class that's painful to test is too coupled. Hard-to-test code and poorly-factored code are the same thing viewed from different angles.
+
+**Find bugs once.** When a bug is found — by QA, in production, by a user — the first step before fixing it is writing a failing test that reproduces it. The test proves the bug exists, the fix makes it pass, and the committed test prevents regression. Every bug found outside your test suite is a gap in your tests. Close it.
+
+**Design by Contract — a lens for writing tests:**
+- `context` blocks = *preconditions* (the state and inputs assumed to be true)
+- `it` blocks = *postconditions* (what the method guarantees on completion)
+- Semantic invariants = things that hold regardless of which path was taken
+
+This framing makes it natural to ask: *what does this method promise?* That promise is what you test.
+
+---
+
+## Test Review Checklist
+
+Run this on every spec before declaring it done:
+
+- [ ] Would this test fail if the method returned `nil`?
+- [ ] Does it assert an observable outcome (state, return value, exception, side effect) — not an internal call count?
+- [ ] Is the expected value derived independently from the implementation, not copied from it?
+- [ ] Does it include a "should not" case where one is needed (scopes, filters, validations)?
+- [ ] Would it survive renaming an internal private method?
+- [ ] Is every `let` and `before` line causally necessary? (Remove anything the test still passes without)
+- [ ] Is the failure message informative? Would a reader immediately understand what went wrong?
+- [ ] For request specs: are both status code and response body asserted?
+- [ ] For scope/query specs: does at least one non-matching record exist?
+- [ ] For methods with multiple input/output pairs: is a data table more readable than N identical context blocks?
+- [ ] Are there codebase shared examples (`it_behaves_like`) that cover concerns this class includes?
+- [ ] For request specs: are params inlined rather than over-extracted to `let` variables the body never uses?
