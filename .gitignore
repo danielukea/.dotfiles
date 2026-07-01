@@ -9,6 +9,11 @@ claude/.claude/shell-snapshots/
 claude/.claude/statsig/
 claude/.claude/todos/
 
+# Skill-creator eval run-outputs (regenerable). Eval *specs* live at
+# claude/.claude/skills/<skill>/evals/evals.json and stay tracked.
+claude/.claude/skills/*-workspace/
+claude/.claude/skill-evals/
+
 # Stray config and log files
 mise.toml
 *.log
