@@ -161,9 +161,9 @@ Group findings by file when there are many in the same file. Sort within each se
 This skill is **terminal**. Don't apply refactors automatically. End with one of:
 
 - **No must-fix items:** "Looks good to ship. \<N\> suggestions and \<M\> nits above if you want to address them."
-- **Must-fix items present:** "Recommend refactoring before shipping. Let me know how you want to proceed — I can hand off to `/design`, start edits if you confirm scope, or just leave the report here."
+- **Must-fix items present:** "Recommend refactoring before shipping. Let me know how you want to proceed — I can hand off to `/arch-design`, start edits if you confirm scope, or just leave the report here."
 
-Don't auto-invoke `/design` or any implementation flow — leave that to the user.
+Don't auto-invoke `/arch-design` or any implementation flow — leave that to the user.
 
 ## Rules
 
