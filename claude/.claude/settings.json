@@ -27,7 +27,7 @@
       "/Users/lukedanielson/Worktrees/crm-web"
     ]
   },
-  "model": "sonnet[1m]",
+  "model": "opus[1m]",
   "hooks": {
     "Notification": [
       {
@@ -152,33 +152,35 @@
     "command": "input=$(cat); current_dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); model_name=$(echo \"$input\" | jq -r '.model.display_name'); printf \"➜  $(basename \"$current_dir\") \"; if git -C \"$current_dir\" rev-parse --git-dir >/dev/null 2>&1; then branch=$(git -C \"$current_dir\" branch --show-current 2>/dev/null || echo 'detached'); status=''; if ! git -C \"$current_dir\" diff-index --quiet HEAD -- 2>/dev/null; then status=' ✗'; fi; printf \"git:($branch)$status \"; fi; printf \"[$model_name]\""
   },
   "enabledPlugins": {
+    "code-review@claude-code-plugins": true,
     "context7@claude-plugins-official": false,
+    "frontend-design@claude-code-plugins": true,
     "frontend-design@claude-plugins-official": false,
     "ruby-lsp@claude-plugins-official": false,
     "skill-creator@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
-    "wealthbox@wealthbox": true,
-    "frontend-design@claude-code-plugins": true,
-    "code-review@claude-code-plugins": true
+    "wealthbox@wealthbox": true
   },
   "extraKnownMarketplaces": {
+    "claude-code-plugins": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/anthropics/claude-code.git"
+      }
+    },
     "wealthbox": {
       "source": {
         "source": "git",
         "url": "git@github.com:starburstlabs/wealthbox-claude-plugin.git"
       },
       "autoUpdate": true
-    },
-    "claude-code-plugins": {
-      "source": {
-        "source": "git",
-        "url": "https://github.com/anthropics/claude-code.git"
-      }
     }
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "xhigh",
   "advisorModel": "opus",
   "tui": "fullscreen",
+  "skipWorkflowUsageWarning": true,
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true
 }
