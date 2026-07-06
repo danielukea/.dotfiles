@@ -127,6 +127,13 @@ init_submodules() {
   log "Git submodules initialized"
 }
 
+# Install a pre-commit hook (gitleaks) so secrets can't be committed to this repo
+setup_git_hooks() {
+  log "Configuring git hooks..."
+  git -C "$DOTFILES_DIR" config core.hooksPath githooks
+  log "core.hooksPath set to githooks/ (secret-scan pre-commit hook active)"
+}
+
 # Link dotfiles using stow
 link_dotfiles() {
   log "Unlinking old dotfiles..."
@@ -239,6 +246,7 @@ main() {
   install_homebrew
   init_submodules
   install_packages
+  setup_git_hooks
   link_dotfiles
   link_extra_configs
   change_shell

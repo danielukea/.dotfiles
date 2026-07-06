@@ -1,0 +1,21 @@
+title = "dotfiles gitleaks config"
+
+[extend]
+useDefault = true
+
+# Contribsys (Sidekiq Pro/Enterprise) bundler credentials look like
+# `user:pass` hex pairs and don't match any default gitleaks rule.
+[[rules]]
+id = "contribsys-bundler-credential"
+description = "Sidekiq Pro/Enterprise (contribsys.com) bundler auth credential"
+regex = '''(?i)(CONTRIBSYS_SECRET|BUNDLE_ENTERPRISE__CONTRIBSYS__COM)\s*[=:]\s*['"]?[0-9a-f]{8}:[0-9a-f]{8}['"]?'''
+keywords = ["contribsys", "CONTRIBSYS_SECRET", "BUNDLE_ENTERPRISE"]
+
+# Generic catch-all: any shell export/assignment of a var named like a
+# secret to a literal value, so future one-off leaks of this shape (paste
+# a real credential into a tracked shell profile) get caught too.
+[[rules]]
+id = "shell-export-secret-assignment"
+description = "Shell export of a var named SECRET/TOKEN/KEY/PASSWORD to a non-placeholder literal"
+regex = '''(?i)export\s+\w*(SECRET|TOKEN|PASSWORD|API_KEY)\w*\s*=\s*['"][^'"$<]{6,}['"]'''
+keywords = ["export"]

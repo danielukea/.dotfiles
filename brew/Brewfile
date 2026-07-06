@@ -4,6 +4,7 @@ brew "curl"                   # HTTP client
 brew "stow"                   # Dotfiles management
 brew "jq"                     # JSON processor (used by AWS aliases)
 brew "coreutils"              # GNU utilities (provides gdate on macOS)
+brew "gitleaks"                # Secret scanning (pre-commit hook, see githooks/pre-commit)
 
 # Cloud tools
 brew "awscli"                 # AWS CLI

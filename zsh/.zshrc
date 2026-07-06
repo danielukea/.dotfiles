@@ -172,7 +172,3 @@ export SKIP_POST_TOOL_USE_LINTER=1
 
 # Added by Antigravity CLI installer
 export PATH="/Users/lukedanielson/.local/bin:$PATH"
-
-# === developer variables ===
-export CONTRIBSYS_SECRET='***REMOVED-SIDEKIQ-ENTERPRISE-CREDENTIAL-SEE-SECURITY-INCIDENT***'
-# === End developer variables ===

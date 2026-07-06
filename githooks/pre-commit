@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#
+# Blocks commits that introduce secrets. Installed repo-wide via
+# `git config core.hooksPath githooks` (see install.sh).
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+if ! command -v gitleaks &>/dev/null; then
+  echo "pre-commit: gitleaks not installed (brew install gitleaks) - skipping secret scan" >&2
+  exit 0
+fi
+
+if ! gitleaks protect --staged --config "$REPO_ROOT/.gitleaks.toml" --source "$REPO_ROOT" -v; then
+  echo "" >&2
+  echo "pre-commit: gitleaks found a likely secret in your staged changes (see above)." >&2
+  echo "If this is a false positive, fix the rule in .gitleaks.toml rather than bypassing this hook." >&2
+  exit 1
+fi
