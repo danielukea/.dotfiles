@@ -11,11 +11,25 @@ description = "Sidekiq Pro/Enterprise (contribsys.com) bundler auth credential"
 regex = '''(?i)(CONTRIBSYS_SECRET|BUNDLE_ENTERPRISE__CONTRIBSYS__COM)\s*[=:]\s*['"]?[0-9a-f]{8}:[0-9a-f]{8}['"]?'''
 keywords = ["contribsys", "CONTRIBSYS_SECRET", "BUNDLE_ENTERPRISE"]
 
-# Generic catch-all: any shell export/assignment of a var named like a
-# secret to a literal value, so future one-off leaks of this shape (paste
-# a real credential into a tracked shell profile) get caught too.
+# Generic catch-all: any assignment (shell export, .env line, or simple
+# YAML/config "key: value") of a var whose name has a SECRET/TOKEN/KEY/
+# PASSWORD/CREDENTIAL segment, to a non-placeholder literal. Derived from
+# a 2026-07-06 audit of every ENV[...] / ENV.fetch(...) name referenced in
+# crm-web's app/config/lib (90 names) - see project memory
+# project_sidekiq_secret_leak for context. Catches future one-off leaks of
+# this shape (pasting a real credential into a tracked dotfile) for any of
+# those vars, not just CONTRIBSYS_SECRET, plus any similarly-named var from
+# other projects.
 [[rules]]
-id = "shell-export-secret-assignment"
-description = "Shell export of a var named SECRET/TOKEN/KEY/PASSWORD to a non-placeholder literal"
-regex = '''(?i)export\s+\w*(SECRET|TOKEN|PASSWORD|API_KEY)\w*\s*=\s*['"][^'"$<]{6,}['"]'''
-keywords = ["export"]
+id = "secret-shaped-var-assignment"
+description = "Assignment of a var named *_SECRET/_TOKEN/_KEY/_PASSWORD/_CREDENTIAL to a non-placeholder literal"
+regex = '''(?i)(?:export\s+)?(?:[a-z0-9]+_)*(?:secret|token|password|credential|key)(?:_[a-z0-9]+)*\s*[:=]\s*['"][^'"$<]{6,}['"]'''
+keywords = ["secret", "token", "password", "credential", "key"]
+
+[rules.allowlist]
+description = "Known non-secret metadata suffixes and obvious placeholder values, not credential material"
+regexes = [
+  '''(?i)_(url|id|ids|version|limit|hours|mode|prefix|name|offset)\s*[:=]''',
+  '''(?i)['"](change_?me|placeholder|<[a-z0-9_-]+>|dev_secret|sample[-_]?value|dummy|fake[-_]?value|your[-_]|x{3,}|todo|fixme)''',
+]
+regexTarget = "match"
