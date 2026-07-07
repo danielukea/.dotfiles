@@ -46,6 +46,7 @@ link_dotfiles() {
     stow $folder -v --adopt
   done
   popd
+  bridge_claude_skills
   echo "✅ Dotfiles linked successfully!"
 }
 
@@ -57,7 +58,42 @@ unlink_dotfiles() {
     stow -D $folder -v
   done
   popd
+  unbridge_claude_skills
   echo "✅ Dotfiles unlinked successfully!"
+}
+
+# Claude Code only discovers skills under ~/.claude/skills/, but dotfiles-canonical
+# skills live under ~/.agents/skills/ (agent-agnostic, shared with Codex/Gemini CLI).
+# Bridge every ~/.agents/skills/* entry into ~/.claude/skills/ so newly added skills
+# are always discoverable without a separate manual symlink step.
+bridge_claude_skills() {
+  local agents_skills="$HOME/.agents/skills"
+  local claude_skills="$HOME/.claude/skills"
+  [ -d "$agents_skills" ] || return 0
+  mkdir -p "$claude_skills"
+  for skill_dir in "$agents_skills"/*/; do
+    [ -d "$skill_dir" ] || continue
+    local name
+    name=$(basename "$skill_dir")
+    local link="$claude_skills/$name"
+    if [ ! -e "$link" ]; then
+      ln -s "../../.agents/skills/$name" "$link"
+      echo "Bridged skill: ~/.claude/skills/$name -> ~/.agents/skills/$name"
+    fi
+  done
+}
+
+# Remove only the bridge symlinks link.sh created (points into ../../.agents/skills/),
+# leaving any unrelated ~/.claude/skills/ entries (e.g. plain marketplace installs) alone.
+unbridge_claude_skills() {
+  local claude_skills="$HOME/.claude/skills"
+  [ -d "$claude_skills" ] || return 0
+  for link in "$claude_skills"/*; do
+    [ -L "$link" ] || continue
+    case "$(readlink "$link")" in
+      ../../.agents/skills/*) rm "$link" ;;
+    esac
+  done
 }
 
 case "$1" in
