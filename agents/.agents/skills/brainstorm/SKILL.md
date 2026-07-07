@@ -53,6 +53,13 @@ faster than five more questions. You can prototype mid-interview.
 | User journey | Step-by-step narrative with decision points |
 | Hierarchy or taxonomy | Indented outline |
 
+**Ground UI prototypes in the real surface.** If what you're sketching already exists in the
+codebase, read its actual components and styles before drawing — a wireframe or mockup that
+invents a generic design language (or guesses at a house style from memory) isn't a prototype
+of the thing, it's a prototype of something else. A few real component files are usually
+enough to borrow the actual vocabulary — class names, spacing, component names — rather than
+approximate it.
+
 Write prototypes inline by default (Mermaid renders as a code block; ASCII renders directly).
 
 **Optional live preview.** When a prototype would be genuinely clearer *seen than read* — a
@@ -66,6 +73,10 @@ Once the problem is defined and a direction sketched, write the Brief and offer 
 (suggest `BRIEF.md` in cwd, or ask). Template and rules: `references/brief-template.md`.
 
 ## Gotchas
+- **Resist the pull into planning.** Once the problem is sharp, momentum wants to keep going —
+  sketch the data model, list the PRs, write the tickets. That's `arch-design`'s job. If you
+  notice yourself enumerating concrete implementation steps, that's the signal to close the
+  Brief now and name `arch-design` as the next step, not to keep drafting.
 - **Three rounds of questions with no prototype → make a diagram.** Show, don't ask.
 - **Don't anchor the solution during sharpening.** Keep the problem frame open until the real
   constraint or pain surfaces.
