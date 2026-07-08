@@ -12,6 +12,14 @@ the problem and direction without having seen this conversation. No jargon from 
 ### The Problem
 One or two sentences. What is broken, missing, or painful, and for whom?
 
+### Users & Stakeholders
+*(Include when the problem is user-facing; omit for pure infra/tooling.)* Who is affected
+and who has a stake — distinguishing the people who live in the flow (users) from those who
+decide, pay, or support it (stakeholders). Name the key jobs they're trying to accomplish
+and where the current experience hurts. For anything with real multi-party or multi-segment
+complexity, produce this with the `user-centered-problem-definition` skill and drop the map
+(or a link to it) here.
+
 ### Why Now
 What's driving this? Why is it worth solving today?
 

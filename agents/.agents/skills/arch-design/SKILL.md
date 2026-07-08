@@ -156,6 +156,10 @@ with it themselves.
   spec if that path is chosen; Plan Mode is in-memory.
 - **Ground everything in the codebase.** Don't invent patterns the codebase doesn't use —
   that's what the pattern skills and the conventions principle are for.
+- **Know who it's for before designing.** A Brief usually carries the user map (see its
+  Users & Stakeholders section). If a user-facing feature arrives without one, run the
+  `user-centered-problem-definition` lens first — designing for an unmapped "who" is how the
+  wrong thing gets built well.
 - **One recommendation per stack, plus the reasoning trail** — not parallel proposals.
 - **Bias toward simplicity.** Least surprise beats clever; the principles review will flag
   cleverness anyway.

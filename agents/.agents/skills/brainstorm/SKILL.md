@@ -29,7 +29,10 @@ assumptions early.
 
 ## Sharpen — interview until the problem snaps
 - **Why before what.** "Why does this matter now? Who feels the pain?" before "What should
-  it do?" The solution space opens once the problem is real and owned.
+  it do?" The solution space opens once the problem is real and owned. When "who feels the
+  pain?" needs more than a one-line answer — multiple user types, stakeholders vs users,
+  journeys with real friction — expand it with the `user-centered-problem-definition` skill
+  and carry the map into the Brief's Users & Stakeholders section.
 - **Separate problem from solution.** If they're pitching a solution, surface the problem
   underneath — solutions anchor too early and close off better approaches.
 - **One question at a time.** Each answer steers the next — don't batch a questionnaire.
@@ -52,6 +55,7 @@ faster than five more questions. You can prototype mid-interview.
 | Data model / relationships | Mermaid ER or class diagram |
 | Options comparison | Decision matrix (markdown table) |
 | User journey | Step-by-step narrative with decision points |
+| Users, stakeholders, or a structured journey | `user-centered-problem-definition` skill (maps who's involved and what they need) |
 | Hierarchy or taxonomy | Indented outline |
 
 **Ground UI prototypes in the real surface.** If what you're sketching already exists in the

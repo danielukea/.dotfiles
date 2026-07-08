@@ -59,16 +59,55 @@ for judgment tasks; and **codebase coupling in a general skill** — project-spe
 commands/paths belong in that project's rules (e.g. `crm-web/.claude/rules/`), not in a
 portable skill.
 
+Corollary for a knowledge skill over frameworks the model already knows (JTBD, SOLID,
+journey maps): the value is the **traps and the when-to-reach-for-it call**, not the
+framework definitions. Keep the definitions to one-line pointers and spend the words on what
+goes wrong — `design-principles` and `user-centered-problem-definition` are built this way.
+
 ## Progressive disclosure
 
 Use the file system. Keep `SKILL.md` lean and point to `references/`, `templates/`,
 `scripts/` for detail the agent loads only when it needs them.
+
+**Cut on the decide/do line.** What the agent needs to *recognize the skill and choose an
+approach* stays in the always-loaded `SKILL.md` — the framing, a decision table, the
+boundaries. What it needs only *while producing the artifact* — worked examples, format
+strings, fill-in templates — moves to `references/`. Test each paragraph: is this helping me
+choose, or helping me execute once I've chosen? Executing-detail belongs one hop away.
+
+**Keep a hook in the loaded layer.** When you push a gotcha's detail to a reference, leave a
+one-line trace in `SKILL.md` (a "trap" column, a parenthetical) so the highest-value signal
+survives even when the reference is never opened. Gotchas are why the skill exists — don't
+let progressive disclosure hide them entirely.
+
+**DRY within a skill.** Say each thing once. Three phrasings of the same caution is two too
+many; a gotcha that restates the intro or a table cell is dead weight — cut it. Redundancy is
+earned only as a hook→full-detail relationship *across* layers, never as a repeat within one.
 
 ## Descriptions are triggers
 
 The `description` frontmatter is how the skill gets selected — write it for the model.
 Include the activation keywords and phrasings a user would actually say. A vague
 description means the skill never fires.
+
+## Composing skills — peers and seams
+
+Most useful skills plug into others. Two failure modes to design out:
+
+**Description collision.** Adding a skill at the same altitude as an existing one (a second
+problem-definition skill beside `brainstorm`) is riskier than any body content — if their
+`description` triggers overlap, the wrong one fires or both do. Give them disjoint trigger
+phrasings and reciprocal `Not for:` pointers that name the sibling ("…not for X — use
+`other-skill`"). Read the two descriptions side by side before shipping; that seam, not the
+prose, is where peer skills break.
+
+**A seam isn't real until the handoff artifact carries it.** "Composes into `brainstorm`" is
+cosmetic if the thing that skill hands downstream has nowhere to hold your output. Wire it
+both directions — the caller names your skill at the decision point; your skill names the
+caller and respects its boundary — *and* give the shared handoff artifact (a template, a
+brief, a report format) a slot for what you produce. Otherwise the work evaporates at the
+handoff. (This repo: the `user-centered-problem-definition` map only reached `arch-design`
+once `brainstorm`'s Problem Brief template gained a Users & Stakeholders section.)
 
 ## Start small, iterate, measure
 
