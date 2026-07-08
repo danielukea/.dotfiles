@@ -48,6 +48,7 @@ faster than five more questions. You can prototype mid-interview.
 | Flow / process / sequence | Mermaid flowchart or sequence diagram |
 | State machine / lifecycle | Mermaid state diagram |
 | UI layout or screen | ASCII wireframe or structured section list |
+| Visual look & feel of a UI surface | `html-mockup` skill (real HTML, grounded in the actual design system) |
 | Data model / relationships | Mermaid ER or class diagram |
 | Options comparison | Decision matrix (markdown table) |
 | User journey | Step-by-step narrative with decision points |
