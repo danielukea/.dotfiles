@@ -355,7 +355,9 @@ Testing is not a phase that happens after design — the test *is* a design prob
 - **The test can drive the design.** Writing the test first (TDD) is one effective way
   to surface that coupling early — scaffold the class, write a test that fails with a
   *behavioral* message ("expected 3, got nil", not "undefined method"), then implement
-  the minimum to pass. Use it when it helps; it's a tool, not a mandate.
+  the minimum to pass. Use it when it helps; it's a tool, not a mandate. For the cycle
+  itself — building a test list, picking the next test, when to refactor — see the `tdd`
+  skill; this skill covers what makes each test you write actually good.
 - **Find bugs once.** When a bug is found — by QA, in production, by a user — write a
   failing test that reproduces it *before* fixing. The test proves the bug, the fix
   makes it pass, and the committed test prevents regression.
