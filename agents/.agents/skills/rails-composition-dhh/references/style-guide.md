@@ -217,9 +217,9 @@ end
 
 ## Anti-patterns DHH avoids
 
-Extracted from the skill's decision-flow discussion. When you feel the itch to reach
-for one of the left-column abstractions, use the right column instead. Pattern numbers
-(`#N`) refer to sections in `SKILL.md`.
+When you feel the itch to reach for one of the left-column abstractions, use the right
+column instead. Pattern numbers (`#N`) refer to sections in `core-patterns.md` (#1–#7)
+and `advanced-patterns.md` (#8–#10).
 
 | Anti-pattern | Why it's wrong | What to do instead |
 |--------------|----------------|---------------------|
@@ -231,7 +231,7 @@ for one of the left-column abstractions, use the right column instead. Pattern n
 | Callbacks for state transitions | Magic, hard to follow, easy to trigger accidentally | Explicit method on the model; callbacks for passive effects only (#6) |
 | Form objects to validate combinations | Splits validation between form and model | Validations on the model; presenter/decorator only if truly view-only |
 | Pundit/CanCan policy objects | Adds a layer for what scoping already enforces | Scope queries through `Current.user.accessible_*`; explicit `ensure_*` predicates |
-| Guard clauses everywhere | Hard to read with nesting | Expanded conditionals; reserve guards for early-method returns with non-trivial bodies (per fizzy `STYLE.md`) |
+| Guard clauses everywhere | Hard to read with nesting | Expanded conditionals; reserve guards for early-method returns with non-trivial bodies |
 | `!` to mark "destructive" | Misleading; `!` in Ruby means "raises" or "has a counterpart" | Drop the `!` unless there's a non-bang variant |
 | No `scope :preloaded` on list models | Each view partial fires 1+ queries per row (classic N+1) | Define `scope :preloaded` on the model; pipe all list queries through it (see `references/performance-patterns.md`) |
 | `.count` on a scope chained over preloaded data | Rails fires a new COUNT query even though records are in memory | Use `collection.count { |r| r.condition? }` to count in Ruby on already-loaded records |

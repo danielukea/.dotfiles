@@ -1,6 +1,6 @@
 # Advanced Rails composition patterns
 
-These extend the core patterns in `SKILL.md`. Reach for them when the situation
+These extend the core patterns in [`core-patterns.md`](core-patterns.md). Reach for them when the situation
 calls for it — a cross-cutting audit trail, cascading configuration, or search at
 scale. They are power-user concerns, not first-read material.
 
