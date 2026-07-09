@@ -27,7 +27,7 @@
       "/Users/lukedanielson/Worktrees/crm-web"
     ]
   },
-  "model": "opus[1m]",
+  "model": "sonnet",
   "hooks": {
     "Notification": [
       {
