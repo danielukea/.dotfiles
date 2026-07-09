@@ -1,0 +1,447 @@
+<!--
+  TEMPLATE — ActiveAdmin 3.x index/list page, real default DOM + CSS.
+  Swap in the real resource name, columns, and rows before treating this as a finished
+  mockup — this is the chrome, not the content. See references/active-admin.md for what to
+  prune (batch actions block below) and the id/class list this was built from.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Reports | Active Admin</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    color: #323537;
+    background: #fff;
+  }
+  a { color: #38678b; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  h1, h2, h3 { margin: 0; }
+  table { border-collapse: collapse; }
+
+  #wrapper { width: 100%; }
+
+  /* ---------- Header ---------- */
+  #header {
+    display: table;
+    width: 100%;
+    padding: 5px 0;
+    background: #6a7176;
+    background-image: linear-gradient(180deg, #6a7176, #4d5256);
+    border-bottom: 1px solid #44484b;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.3);
+  }
+  #header h1 {
+    display: table-cell;
+    vertical-align: middle;
+    white-space: nowrap;
+    color: #cdcdcd;
+    padding: 3px 30px 0 30px;
+    font-size: 1.3em;
+    font-weight: normal;
+  }
+  #header h1 a { color: #cdcdcd; }
+  #header h1 a:hover { color: #fff; text-decoration: none; }
+  #header ul.tabs {
+    display: table-cell;
+    vertical-align: middle;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  #header ul.tabs > li {
+    display: inline-block;
+    margin: 5px 4px 5px 0;
+    font-size: 1.0em;
+  }
+  #header ul.tabs > li > a {
+    display: inline-block;
+    padding: 6px 10px 4px 10px;
+    border-radius: 10px;
+    color: #cdcdcd;
+    text-decoration: none;
+  }
+  #header ul.tabs > li:hover > a,
+  #header ul.tabs > li.current > a {
+    background: #7b8389;
+    color: #fff;
+  }
+  #utility_nav {
+    color: #aaa;
+    display: table-cell;
+    white-space: nowrap;
+    text-align: right;
+    padding-right: 26px;
+    list-style: none;
+  }
+  #utility_nav li { display: inline; margin-left: 10px; }
+  #utility_nav a { color: #aaa; }
+  #utility_nav a:hover { color: #fff; }
+
+  /* ---------- Flash ---------- */
+  .flashes { }
+  .flash {
+    background: #dce9dd;
+    background-image: linear-gradient(180deg, #dce9dd, #ccdfcd);
+    border-bottom: 1px solid #adcbaf;
+    color: #416347;
+    font-weight: bold;
+    font-size: 1.1em;
+    padding: 13px 30px 11px;
+  }
+
+  /* ---------- Title bar ---------- */
+  #title_bar {
+    display: table;
+    width: 100%;
+    padding: 10px 30px;
+    background: #efefef;
+    background-image: linear-gradient(180deg, #efefef, #dfe1e2);
+    border: solid 1px #cdcdcd;
+    border-width: 0 0 1px 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.37);
+  }
+  #titlebar_left, #titlebar_right { display: table-cell; vertical-align: middle; height: 50px; }
+  #titlebar_right { text-align: right; }
+  .breadcrumb {
+    display: block;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .breadcrumb a { color: #8a949e; }
+  .breadcrumb_sep { margin: 0 2px; color: #aab2ba; }
+  #page_title { font-size: 2.2em; font-weight: bold; }
+  .action_items .action_item { margin-left: 6px; }
+  .action_items .action_item > a {
+    display: inline-block;
+    padding: 8px 16px 7px;
+    border-radius: 200px;
+    background: #fff;
+    background-image: linear-gradient(180deg, #ffffff, #e7e7e7);
+    border: solid 1px #c7c7c7;
+    color: #5e6469;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  .action_items .action_item > a.button.primary,
+  .action_items .action_item > a.new_report {
+    background: #838a90;
+    background-image: linear-gradient(180deg, #838a90, #414549);
+    border: solid 1px #484e53;
+    color: #efefef;
+  }
+
+  /* ---------- Content layout ---------- */
+  #active_admin_content { padding: 30px; }
+  #main_content_wrapper { float: left; width: 100%; }
+  #active_admin_content.with_sidebar #main_content_wrapper #main_content { margin-right: 300px; }
+  #sidebar { float: left; width: 270px; margin-left: -270px; }
+  .index_content { clear: both; }
+
+  /* ---------- Scopes ---------- */
+  .scopes { margin-bottom: 10px; }
+  .table_tools_segmented_control { list-style: none; margin: 0; padding: 0; }
+  .table_tools_segmented_control li { display: inline-block; margin-right: 4px; }
+  .table_tools_button {
+    display: inline-block;
+    padding: 5px 12px 4px;
+    border-radius: 200px;
+    background: #fff;
+    background-image: linear-gradient(180deg, #ffffff, #e7e7e7);
+    border: solid 1px #c7c7c7;
+    color: #5e6469;
+    font-weight: bold;
+  }
+  .scope.selected .table_tools_button {
+    background: #838a90;
+    background-image: linear-gradient(180deg, #838a90, #414549);
+    border: solid 1px #484e53;
+    color: #efefef;
+  }
+  .table_tools_button .count { color: #8e979e; font-weight: normal; font-size: 0.9em; }
+  .scope.selected .table_tools_button .count { color: #d9dcde; }
+
+  /* ---------- Table tools row ---------- */
+  .table_tools { overflow: hidden; margin-bottom: 8px; }
+  .download_links { float: left; font-size: 0.9em; }
+  .pagination_per_page { float: right; font-size: 0.9em; margin-left: 4px; }
+  .pagination_per_page select { border: 1px solid #c7c7c7; border-radius: 0; padding: 2px 4px; }
+  #collection_selection_toggle_panel { float: left; margin-right: 10px; font-size: 0.9em; }
+
+  /* ---------- Index table ---------- */
+  table.index_table { width: 100%; margin-bottom: 10px; border: 0; border-spacing: 0; }
+  table.index_table th {
+    background: #efefef;
+    background-image: linear-gradient(180deg, #efefef, #dfe1e2);
+    border: solid 1px #cdcdcd;
+    border-width: 1px 0 1px 0;
+    font-weight: bold;
+    padding: 5px 12px 3px;
+    text-align: left;
+  }
+  table.index_table th:last-child { border-right: solid 1px #d4d4d4; }
+  table.index_table th a { color: #5e6469; text-decoration: none; }
+  table.index_table th.sortable a::after { content: " \25B4\25BE"; font-size: 0.7em; color: #aaa; }
+  table.index_table td { padding: 10px 12px 8px; border-bottom: 1px solid #e8e8e8; vertical-align: top; }
+  table.index_table tr.even td { background: #f4f5f5; }
+  table.index_table th.selectable, table.index_table td.selectable { width: 20px; }
+
+  /* ---------- Status tags ---------- */
+  .status_tag {
+    display: inline-block;
+    background: #cacaca;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 3px 6px 2px;
+    font-size: 0.8em;
+    border-radius: 2px;
+  }
+  .status_tag.yes { background: #6090db; }
+  .status_tag.no { background: grey; }
+
+  a.member_link { margin-right: 7px; white-space: nowrap; }
+
+  /* ---------- Pagination ---------- */
+  .paginated_collection_contents { clear: both; overflow: hidden; }
+  .pagination { float: right; font-size: 0.9em; margin-left: 10px; list-style: none; padding: 0; }
+  .pagination a, .pagination span.page {
+    display: inline-block;
+    border-radius: 0;
+    margin-right: 4px;
+    padding: 2px 7px;
+    background: #fff;
+    background-image: linear-gradient(180deg, #ffffff, #e7e7e7);
+    border: solid 1px #c7c7c7;
+    color: #5e6469;
+  }
+  .pagination span.page.current {
+    background: #838a90;
+    background-image: linear-gradient(180deg, #838a90, #414549);
+    border: solid 1px #484e53;
+    color: #efefef;
+  }
+  .pagination_information { float: right; margin-bottom: 5px; color: #b3bcc1; }
+  .pagination_information b { color: #5c6469; }
+
+  /* ---------- Panels (sidebar) ---------- */
+  .panel, .sidebar_section {
+    background: #f4f4f4;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 4px #ddd;
+    margin-bottom: 20px;
+  }
+  .panel > h3, .sidebar_section > h3 {
+    background: #efefef;
+    background-image: linear-gradient(180deg, #efefef, #dfe1e2);
+    border: solid 1px #cdcdcd;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    font-size: 1em;
+    font-weight: bold;
+    margin: 0 0 0.5em;
+    padding: 5px 10px 3px;
+    color: #5e6469;
+  }
+  .panel_contents { padding: 3px 15px 15px; }
+
+  /* ---------- Filter form (sidebar) ---------- */
+  form.filter_form label {
+    display: block;
+    text-transform: uppercase;
+    color: #5e6469;
+    font-size: 0.85em;
+    font-weight: bold;
+    margin-bottom: 3px;
+  }
+  .filter_form_field { margin-bottom: 10px; }
+  form.filter_form input[type=text], form.filter_form select {
+    width: 100%;
+    border: 1px solid #c9d0d6;
+    border-radius: 3px;
+    padding: 6px 8px;
+    font-size: 0.95em;
+  }
+  a.clear_filters_btn {
+    display: inline-block;
+    padding: 5px 12px 4px;
+    border-radius: 200px;
+    background: #fff;
+    background-image: linear-gradient(180deg, #ffffff, #e7e7e7);
+    border: solid 1px #c7c7c7;
+    color: #5e6469;
+    font-size: 0.9em;
+  }
+
+  /* ---------- Footer ---------- */
+  #footer { padding: 30px; font-size: 0.8em; color: #999; clear: both; }
+  #footer a { color: #999; }
+</style>
+</head>
+<body class="index reports admin_reports active_admin logged_in main_namespace">
+<div id="wrapper">
+
+  <div id="header">
+    <h1><a href="#">My App Admin</a></h1>
+    <ul class="header-item tabs">
+      <li class="current"><a href="#">Reports</a></li>
+      <li><a href="#">Advisors</a></li>
+      <li><a href="#">Custom Fields</a></li>
+      <li><a href="#">Workflows</a></li>
+    </ul>
+    <ul id="utility_nav" class="header-item tabs">
+      <li>Signed in as <strong style="color:#fff;">jsmith</strong></li>
+      <li><a href="#">Logout</a></li>
+    </ul>
+  </div>
+
+  <div class="flashes">
+    <div class="flash flash_notice">Report was successfully created.</div>
+  </div>
+
+  <div id="title_bar">
+    <div id="titlebar_left">
+      <span class="breadcrumb"><a href="#">Admin</a><span class="breadcrumb_sep">/</span></span>
+      <h2 id="page_title">Reports</h2>
+    </div>
+    <div id="titlebar_right">
+      <div class="action_items">
+        <span class="action_item"><a href="#" class="new_report">New Report</a></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="active_admin_content" class="with_sidebar">
+    <div id="main_content_wrapper">
+      <div id="main_content">
+
+        <div class="scopes">
+          <ul class="table_tools_segmented_control">
+            <li class="scope selected"><a href="#" class="table_tools_button">All <span class="count">(128)</span></a></li>
+            <li class="scope"><a href="#" class="table_tools_button">Scheduled <span class="count">(12)</span></a></li>
+            <li class="scope"><a href="#" class="table_tools_button">Failed <span class="count">(3)</span></a></li>
+          </ul>
+        </div>
+
+        <div class="index_content">
+          <div class="table_tools">
+            <!-- BATCH ACTIONS — delete this block (and the checkbox column below) if the
+                 target project disables batch_actions. See references/active-admin.md. -->
+            <div id="collection_selection_toggle_panel">
+              <label><input type="checkbox"> Select all</label>
+            </div>
+            <!-- /BATCH ACTIONS -->
+            <div class="download_links">
+              <a href="#">CSV</a>
+            </div>
+            <div class="pagination_per_page">
+              Per Page:
+              <select><option>30</option><option>50</option><option>100</option></select>
+            </div>
+          </div>
+
+          <table class="index_table index_table_reports">
+            <thead>
+              <tr>
+                <!-- BATCH ACTIONS start -->
+                <th class="selectable col-selectable"><input type="checkbox"></th>
+                <!-- BATCH ACTIONS end -->
+                <th class="sortable sorted-desc col-name"><a href="#">Name</a></th>
+                <th class="sortable col-status"><a href="#">Status</a></th>
+                <th class="sortable col-created_at"><a href="#">Created At</a></th>
+                <th class="col-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="odd" id="report_1">
+                <td class="selectable"><input type="checkbox"></td>
+                <td class="col-name"><a href="#">Q3 Advisor Activity</a></td>
+                <td class="col-status"><span class="status_tag yes">complete</span></td>
+                <td class="col-created_at">2026-07-02</td>
+                <td class="col-actions">
+                  <a class="member_link" href="#">View</a>
+                  <a class="member_link" href="#">Edit</a>
+                  <a class="member_link" href="#">Delete</a>
+                </td>
+              </tr>
+              <tr class="even" id="report_2">
+                <td class="selectable"><input type="checkbox"></td>
+                <td class="col-name"><a href="#">Weekly Pipeline Summary</a></td>
+                <td class="col-status"><span class="status_tag">pending</span></td>
+                <td class="col-created_at">2026-07-05</td>
+                <td class="col-actions">
+                  <a class="member_link" href="#">View</a>
+                  <a class="member_link" href="#">Edit</a>
+                  <a class="member_link" href="#">Delete</a>
+                </td>
+              </tr>
+              <tr class="odd" id="report_3">
+                <td class="selectable"><input type="checkbox"></td>
+                <td class="col-name"><a href="#">Contact Import Audit</a></td>
+                <td class="col-status"><span class="status_tag no">failed</span></td>
+                <td class="col-created_at">2026-06-29</td>
+                <td class="col-actions">
+                  <a class="member_link" href="#">View</a>
+                  <a class="member_link" href="#">Edit</a>
+                  <a class="member_link" href="#">Delete</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="paginated_collection_contents">
+          <nav class="pagination">
+            <span class="page current">1</span>
+            <a href="#" class="page">2</a>
+            <a href="#" class="page">3</a>
+            <a href="#" class="page">Next &rsaquo;</a>
+          </nav>
+          <div class="pagination_information">Displaying <b>1&nbsp;-&nbsp;30</b> of <b>128</b> Reports</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="sidebar">
+      <div class="panel sidebar_section" id="filters_sidebar_section">
+        <h3>Filter</h3>
+        <div class="panel_contents">
+          <form class="filter_form">
+            <div class="filter_form_field">
+              <label for="q_name_cont">Name</label>
+              <input type="text" id="q_name_cont">
+            </div>
+            <div class="filter_form_field">
+              <label for="q_status_eq">Status</label>
+              <select id="q_status_eq">
+                <option value="">Any</option>
+                <option>complete</option>
+                <option>pending</option>
+                <option>failed</option>
+              </select>
+            </div>
+            <div class="filter_form_field">
+              <label for="q_created_at_gteq">Created At</label>
+              <input type="text" id="q_created_at_gteq" placeholder="From">
+              <input type="text" id="q_created_at_lteq" placeholder="To" style="margin-top:6px;">
+            </div>
+            <a href="#" class="clear_filters_btn">Clear Filters</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer">
+    Powered by <a href="#">Active Admin</a>.
+  </div>
+
+</div>
+</body>
+</html>

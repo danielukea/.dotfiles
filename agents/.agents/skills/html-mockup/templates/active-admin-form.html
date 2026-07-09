@@ -1,0 +1,304 @@
+<!--
+  TEMPLATE — ActiveAdmin 3.x form (Formtastic) page, real default DOM + CSS.
+  Swap in the real resource name and fields before treating this as a finished mockup —
+  this is the chrome, not the content. See references/active-admin.md for the id/class
+  list this was built from.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Report | Active Admin</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    color: #323537;
+    background: #fff;
+  }
+  a { color: #38678b; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  h1, h2, h3 { margin: 0; }
+
+  #wrapper { width: 100%; }
+
+  /* ---------- Header ---------- */
+  #header {
+    display: table;
+    width: 100%;
+    padding: 5px 0;
+    background: #6a7176;
+    background-image: linear-gradient(180deg, #6a7176, #4d5256);
+    border-bottom: 1px solid #44484b;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.3);
+  }
+  #header h1 {
+    display: table-cell;
+    vertical-align: middle;
+    white-space: nowrap;
+    color: #cdcdcd;
+    padding: 3px 30px 0 30px;
+    font-size: 1.3em;
+    font-weight: normal;
+  }
+  #header h1 a { color: #cdcdcd; }
+  #header h1 a:hover { color: #fff; text-decoration: none; }
+  #header ul.tabs {
+    display: table-cell;
+    vertical-align: middle;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  #header ul.tabs > li {
+    display: inline-block;
+    margin: 5px 4px 5px 0;
+    font-size: 1.0em;
+  }
+  #header ul.tabs > li > a {
+    display: inline-block;
+    padding: 6px 10px 4px 10px;
+    border-radius: 10px;
+    color: #cdcdcd;
+    text-decoration: none;
+  }
+  #header ul.tabs > li:hover > a,
+  #header ul.tabs > li.current > a {
+    background: #7b8389;
+    color: #fff;
+  }
+  #utility_nav {
+    color: #aaa;
+    display: table-cell;
+    white-space: nowrap;
+    text-align: right;
+    padding-right: 26px;
+    list-style: none;
+  }
+  #utility_nav li { display: inline; margin-left: 10px; }
+  #utility_nav a { color: #aaa; }
+  #utility_nav a:hover { color: #fff; }
+
+  /* ---------- Title bar ---------- */
+  #title_bar {
+    display: table;
+    width: 100%;
+    padding: 10px 30px;
+    background: #efefef;
+    background-image: linear-gradient(180deg, #efefef, #dfe1e2);
+    border: solid 1px #cdcdcd;
+    border-width: 0 0 1px 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.37);
+  }
+  #titlebar_left, #titlebar_right { display: table-cell; vertical-align: middle; height: 50px; }
+  #titlebar_right { text-align: right; }
+  .breadcrumb {
+    display: block;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .breadcrumb a { color: #8a949e; }
+  .breadcrumb_sep { margin: 0 2px; color: #aab2ba; }
+  #page_title { font-size: 2.2em; font-weight: bold; }
+
+  /* ---------- Content layout (no sidebar on form pages, by default) ---------- */
+  #active_admin_content { padding: 30px; }
+  #main_content_wrapper { float: left; width: 100%; }
+
+  /* ---------- Panel wrapping the form ---------- */
+  .panel {
+    background: #f4f4f4;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 4px #ddd;
+    margin-bottom: 20px;
+    max-width: 760px;
+  }
+  .panel > h3 {
+    background: #efefef;
+    background-image: linear-gradient(180deg, #efefef, #dfe1e2);
+    border: solid 1px #cdcdcd;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    font-size: 1em;
+    font-weight: bold;
+    margin: 0 0 0.5em;
+    padding: 5px 10px 3px;
+    color: #5e6469;
+  }
+  .panel_contents { padding: 3px 15px 15px; }
+
+  /* ---------- Formtastic form ---------- */
+  form ul, form ol, form li, form fieldset, form legend { margin: 0; padding: 0; list-style: none; }
+  fieldset { border: 0; padding: 10px 0; margin-bottom: 20px; }
+  fieldset.inputs {
+    background: #f4f4f4;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 4px #ddd;
+    padding: 10px 0;
+  }
+  fieldset legend span {
+    display: block;
+    background: #efefef;
+    background-image: linear-gradient(180deg, #efefef, #dfe1e2);
+    border: solid 1px #cdcdcd;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    font-weight: bold;
+    color: #5e6469;
+    padding: 5px 10px 3px;
+    margin: 0 10px 10px;
+  }
+  fieldset.inputs > ol > li { padding: 10px 20px; overflow: hidden; }
+  fieldset.inputs label {
+    display: block;
+    width: 20%;
+    float: left;
+    font-weight: bold;
+    color: #5e6469;
+  }
+  fieldset.inputs label abbr { border: none; color: #aaa; text-decoration: none; }
+  fieldset.inputs input[type=text],
+  fieldset.inputs input[type=email],
+  fieldset.inputs input[type=number],
+  fieldset.inputs input[type=date],
+  fieldset.inputs textarea,
+  fieldset.inputs select {
+    width: 76%;
+    border: 1px solid #c9d0d6;
+    border-radius: 3px;
+    padding: 8px 10px 7px;
+    font-size: 0.95em;
+    font-family: inherit;
+    outline: none;
+  }
+  fieldset.inputs input:focus, fieldset.inputs textarea:focus, fieldset.inputs select:focus {
+    border: 1px solid #99a2aa;
+    box-shadow: 0 0 4px #99a2aa;
+  }
+  fieldset.inputs textarea { min-height: 90px; vertical-align: top; }
+  fieldset.inputs li.boolean { padding-left: 20%; }
+  fieldset.inputs li.boolean label { width: auto; float: none; font-weight: normal; text-transform: none; }
+  fieldset.inputs p.inline-hints { font-size: 0.95em; font-style: italic; color: #666; margin: 0.5em 0 0 20%; }
+
+  fieldset.actions { overflow: hidden; margin-top: 15px; padding: 0 20px; }
+  fieldset.actions li { float: left; margin-right: 10px; }
+  input[type=submit] {
+    display: inline-block;
+    border: 0;
+    border-radius: 200px;
+    padding: 8px 20px 7px;
+    background: #838a90;
+    background-image: linear-gradient(180deg, #838a90, #414549);
+    border: solid 1px #484e53;
+    color: #efefef;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+  }
+  a.cancel_link {
+    display: inline-block;
+    padding: 8px 16px 7px;
+    border-radius: 200px;
+    background: #fff;
+    background-image: linear-gradient(180deg, #ffffff, #e7e7e7);
+    border: solid 1px #c7c7c7;
+    color: #5e6469;
+    font-weight: bold;
+  }
+
+  #footer { padding: 30px; font-size: 0.8em; color: #999; clear: both; }
+  #footer a { color: #999; }
+</style>
+</head>
+<body class="edit reports admin_reports active_admin logged_in main_namespace">
+<div id="wrapper">
+
+  <div id="header">
+    <h1><a href="#">My App Admin</a></h1>
+    <ul class="header-item tabs">
+      <li class="current"><a href="#">Reports</a></li>
+      <li><a href="#">Advisors</a></li>
+      <li><a href="#">Custom Fields</a></li>
+      <li><a href="#">Workflows</a></li>
+    </ul>
+    <ul id="utility_nav" class="header-item tabs">
+      <li>Signed in as <strong style="color:#fff;">jsmith</strong></li>
+      <li><a href="#">Logout</a></li>
+    </ul>
+  </div>
+
+  <div id="title_bar">
+    <div id="titlebar_left">
+      <span class="breadcrumb"><a href="#">Admin</a><span class="breadcrumb_sep">/</span><a href="#">Reports</a><span class="breadcrumb_sep">/</span><a href="#">Q3 Advisor Activity</a><span class="breadcrumb_sep">/</span></span>
+      <h2 id="page_title">Edit Report</h2>
+    </div>
+    <div id="titlebar_right"></div>
+  </div>
+
+  <div id="active_admin_content">
+    <div id="main_content_wrapper">
+      <div id="main_content">
+
+        <div class="panel">
+          <h3>Report Details</h3>
+          <div class="panel_contents">
+            <form>
+              <fieldset class="inputs">
+                <legend><span>Report Details</span></legend>
+                <ol>
+                  <li class="string required">
+                    <label>Name <abbr title="required">*</abbr></label>
+                    <input type="text" value="Q3 Advisor Activity">
+                  </li>
+                  <li class="select required">
+                    <label>Status <abbr title="required">*</abbr></label>
+                    <select>
+                      <option>complete</option>
+                      <option>pending</option>
+                      <option>failed</option>
+                    </select>
+                  </li>
+                  <li class="select">
+                    <label>Owner</label>
+                    <select>
+                      <option>Jane Smith</option>
+                      <option>Marcus Lee</option>
+                    </select>
+                  </li>
+                  <li class="string">
+                    <label>Schedule</label>
+                    <input type="text" value="Every Monday, 6:00 AM ET">
+                    <p class="inline-hints">Cron-style schedule or a plain-English description.</p>
+                  </li>
+                  <li class="boolean">
+                    <label><input type="checkbox" checked> Email recipients on completion</label>
+                  </li>
+                  <li class="text">
+                    <label>Notes</label>
+                    <textarea></textarea>
+                  </li>
+                </ol>
+              </fieldset>
+              <fieldset class="actions">
+                <ol>
+                  <li><input type="submit" value="Update Report"></li>
+                  <li class="cancel"><a href="#" class="cancel_link">Cancel</a></li>
+                </ol>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div id="footer">
+    Powered by <a href="#">Active Admin</a>.
+  </div>
+
+</div>
+</body>
+</html>

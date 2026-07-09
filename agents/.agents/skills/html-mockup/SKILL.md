@@ -46,7 +46,13 @@ split. This is disposable scaffolding, not an app.
 
 Iterate by overwriting the same file — feedback stays in the terminal.
 
+## Premade templates
+Mocking ActiveAdmin? Start from `templates/active-admin-{index,show,form}.html` (real AA 3.x
+DOM/CSS) — see `references/active-admin.md` for what to prune per project.
+
 ## Gotchas
 - **Not for a shareable link.** This is fast, disposable, local iteration. If the user
   wants something durable to hand off or share, use the Artifact tool directly — it loads
   `artifact-design` itself.
+- **ActiveAdmin is light-theme only.** Don't add a dark-mode variant to the templates —
+  that would be less faithful to the real system, not more.
