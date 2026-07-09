@@ -23,5 +23,5 @@ Detailed guides for extending Claude Code:
 
 ## Working with libraries
 
-For version-specific or unfamiliar library/framework/API questions, fetch current docs (Context7, else official docs via web) rather than relying on training memory — the `library-docs` skill carries the how.
+For version-specific or unfamiliar library/framework/API questions, fetch current docs from the official source (via web) rather than relying on training memory.
 
