@@ -15,7 +15,7 @@ file when you're at that decision point.
 `2025-06-18`, which is itself past `2025-03-26` and the original `2024-11-05`. Versions are dated,
 not semver: a version string means "the last date backward-incompatible changes were made," and
 a "Current" version keeps receiving compatible additions. Don't assume a version you remember is
-still latest — check [references/lifecycle-transports-versioning.md](references/lifecycle-transports-versioning.md#versioning)
+still latest — check [references/versioning-and-extensions.md](references/versioning-and-extensions.md#versioning)
 before asserting one.
 
 ## The Core Mental Model
@@ -34,18 +34,10 @@ Two layers:
 **Feature ownership:** servers offer Tools, Resources, Prompts. Clients offer Sampling, Roots,
 Elicitation, Logging.
 
-## Reach for this skill when
-
-- Designing what primitive (Tool vs Resource vs Prompt vs Sampling vs Roots vs Elicitation) a piece of server functionality should be
-- Writing or reviewing the `initialize` handshake / capability negotiation for a custom MCP implementation
-- Choosing or debugging a transport (stdio vs Streamable HTTP) — message framing, session headers, resumable streams
-- Wiring up or reviewing MCP's OAuth 2.1 authorization flow, or auditing an MCP server/proxy for confused-deputy, token-passthrough, or SSRF vulnerabilities
-- Something "isn't spec compliant" and you need the exact method name, field name, or MUST/SHOULD requirement — not a paraphrase
-- Reasoning about protocol version compatibility ("does my server work with a `2025-06-18` client?") or whether a feature is core-spec vs. a separately-governed Extension
-- Deciding what to cache (and how to scope it) across tool/resource/prompt lists or tool-call results
-- A client is accumulating tools across many servers and selection accuracy is degrading, or you need to publish/discover a server via the MCP Registry
-
 ## Surface → Reference
+
+The `Need` column is your "when to reach for this" index; each row routes to the file with the full treatment.
+
 
 | Need | Reach for | Reference |
 | --- | --- | --- |
@@ -55,10 +47,10 @@ Elicitation, Logging.
 | Server needs LLM reasoning mid-task without its own model/API key | `Sampling` — `sampling/createMessage` | [primitives.md](references/primitives.md#sampling) |
 | Server needs to know which directories/workspaces are in scope | `Roots` — `roots/list` (**advisory only**) | [primitives.md](references/primitives.md#roots) |
 | Server needs missing info or confirmation from the user mid-workflow | `Elicitation` — `elicitation/create` (`form`/`url` mode) | [primitives.md](references/primitives.md#elicitation) |
-| Handshake, capability negotiation, shutdown, timeouts | `initialize` / `notifications/initialized` | [lifecycle-transports-versioning.md](references/lifecycle-transports-versioning.md#lifecycle) |
-| Local-process vs remote transport, session headers, resumable streams | stdio / Streamable HTTP | [lifecycle-transports-versioning.md](references/lifecycle-transports-versioning.md#transports) |
-| "Does my client/server support version X?" | dated version scheme + negotiation | [lifecycle-transports-versioning.md](references/lifecycle-transports-versioning.md#versioning) |
-| "Is this a core-spec feature or an optional Extension?" (Apps, Tasks, OAuth Client Credentials) | `capabilities.extensions`, SEP-2133 | [lifecycle-transports-versioning.md](references/lifecycle-transports-versioning.md#extensions) |
+| Handshake, capability negotiation, shutdown, timeouts | `initialize` / `notifications/initialized` | [lifecycle-and-transports.md](references/lifecycle-and-transports.md#lifecycle) |
+| Local-process vs remote transport, session headers, resumable streams | stdio / Streamable HTTP | [lifecycle-and-transports.md](references/lifecycle-and-transports.md#transports) |
+| "Does my client/server support version X?" | dated version scheme + negotiation | [versioning-and-extensions.md](references/versioning-and-extensions.md#versioning) |
+| "Is this a core-spec feature or an optional Extension?" (Apps, Tasks, OAuth Client Credentials) | `capabilities.extensions`, SEP-2133 | [versioning-and-extensions.md](references/versioning-and-extensions.md#extensions) |
 | Auth flow, or "is this MCP server/proxy exploitable?" | OAuth 2.1 framework + named attack patterns | [security.md](references/security.md) |
 | Too many tools across too many servers, or "how do I find/publish an MCP server?" | pagination ceiling, gateway/meta-tool pattern, MCP Registry (preview) | [scaling-and-discovery.md](references/scaling-and-discovery.md) |
 | "Can I cache this?" / "do I need to scope the cache?" | `cacheScope`/`ttlMs` (draft), tool-annotation caveats | [caching.md](references/caching.md) |
@@ -81,11 +73,12 @@ Elicitation, Logging.
 
 ## Bundled References
 
-- **[references/primitives.md](references/primitives.md)** — Host/Client/Server architecture, JSON-RPC framing and the `_meta` convention, every primitive (Tools, Resources, Prompts, Sampling, Roots, Elicitation, Logging), and the other utilities (Pagination, Completion, Progress, Cancellation): who controls it, exact methods/fields, minimal real examples, when to reach for it, primitive-specific traps.
-- **[references/lifecycle-transports-versioning.md](references/lifecycle-transports-versioning.md)** — the `initialize` handshake, stdio and Streamable HTTP transports (framing, session IDs, resumability), the dated versioning scheme and negotiation mechanics, the deltas between the last three spec revisions, and the separately-governed Extensions track (SEP-2133: negotiation, official extensions incl. MCP Apps and MCP Tasks).
-- **[references/security.md](references/security.md)** — the OAuth 2.1 authorization framework (discovery, PKCE, resource indicators, token validation) and every named attack pattern from the spec's security best-practices page (confused deputy, token passthrough, SSRF via OAuth discovery, session hijacking, local server compromise, auth-URL injection, elicitation URL phishing, scope minimization).
-- **[references/scaling-and-discovery.md](references/scaling-and-discovery.md)** — what MCP itself offers for large tool catalogs (pagination + `list_changed`, and nothing else), the gateway/meta-tool pattern, tool-description writing tips, and the MCP Registry (currently in preview) for publishing/discovering servers.
-- **[references/caching.md](references/caching.md)** — carefully tiered released-vs-draft-vs-community-vs-inference: the unreleased `ttlMs`/`cacheScope` caching model, why tool annotations aren't a spec-endorsed caching signal, and why cached responses with user-specific data must be scoped per authorization context.
+- **[references/primitives.md](references/primitives.md)** — Host/Client/Server architecture, JSON-RPC + `_meta`, and every primitive/utility (Tools, Resources, Prompts, Sampling, Roots, Elicitation, Logging, Pagination, Completion, Progress, Cancellation): owner, methods/fields, examples, traps.
+- **[references/lifecycle-and-transports.md](references/lifecycle-and-transports.md)** — connection-time: the `initialize` handshake, capability negotiation, shutdown/timeouts, and the stdio + Streamable HTTP transports (framing, sessions, resumability, Origin validation).
+- **[references/versioning-and-extensions.md](references/versioning-and-extensions.md)** — protocol-evolution: the dated versioning scheme, version negotiation, deltas between recent revisions, and the SEP-2133 Extensions track (incl. MCP Apps, MCP Tasks).
+- **[references/security.md](references/security.md)** — the OAuth 2.1 authorization framework and every named attack pattern (confused deputy, token passthrough, SSRF, session hijacking, local compromise, auth-URL injection, elicitation phishing, scope minimization).
+- **[references/scaling-and-discovery.md](references/scaling-and-discovery.md)** — large tool catalogs (pagination + `list_changed`), the gateway/meta-tool pattern, tool-description tips, and the MCP Registry (preview).
+- **[references/caching.md](references/caching.md)** — the unreleased `ttlMs`/`cacheScope` model, why tool annotations aren't a caching signal, and per-authorization-context scoping — tiered by released vs. draft vs. inference.
 
 ---
 

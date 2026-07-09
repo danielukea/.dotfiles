@@ -52,7 +52,7 @@ you don't set one explicitly, the gem defaults to the **latest** stable version,
 negotiation fallback. `DEFAULT_NEGOTIATED_PROTOCOL_VERSION` (`"2025-03-26"`) matches the spec's own
 rule for what an HTTP server should assume when the `MCP-Protocol-Version` header is absent (see
 `model-context-protocol`'s
-[lifecycle-transports-versioning.md](../../model-context-protocol/references/lifecycle-transports-versioning.md#transports)).
+[lifecycle-and-transports.md](../../model-context-protocol/references/lifecycle-and-transports.md#transports)).
 Setting an unsupported version raises `ArgumentError` — the list above is exhaustive, not a
 "probably works" guess.
 

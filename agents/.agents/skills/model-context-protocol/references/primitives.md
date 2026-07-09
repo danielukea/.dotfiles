@@ -11,7 +11,7 @@ talk over Streamable HTTP (typically many clients).
 
 **Two-layer model.**
 - **Data layer** (inner) — JSON-RPC 2.0-based protocol: lifecycle management plus the primitives below.
-- **Transport layer** (outer) — stdio or Streamable HTTP; see [lifecycle-transports-versioning.md](lifecycle-transports-versioning.md).
+- **Transport layer** (outer) — stdio or Streamable HTTP; see [lifecycle-and-transports.md](lifecycle-and-transports.md#transports).
 
 **JSON-RPC 2.0 wire protocol.** Requests carry `jsonrpc:"2.0"`, `id`, `method`, optional `params`;
 responses echo the `id` and carry `result` or `error`. **Notifications** have no `id` and expect
@@ -23,7 +23,7 @@ an optional `_meta` field for out-of-band metadata that isn't part of the primit
 Reserved key format: optional reverse-DNS prefix + name (e.g. `modelcontextprotocol.io/foo`); any
 prefix whose second-to-last label is `modelcontextprotocol` or `mcp` is reserved for the spec
 itself — don't invent keys under that namespace. `_meta` is the carrier both for
-[extensions](lifecycle-transports-versioning.md#extensions) and for distributed-tracing context: the
+[extensions](versioning-and-extensions.md#extensions) and for distributed-tracing context: the
 W3C Trace Context fields `traceparent`/`tracestate`/`baggage` travel as reserved `_meta` keys, so a
 server can propagate an OpenTelemetry trace across an MCP call without the transport needing to
 know about tracing at all (Ruby specifics: `mcp-ruby-sdk`'s server-dsl.md).
@@ -261,7 +261,7 @@ unsupported mode.
   long-running work; tools opt in via `execution.taskSupport`. Tasks started as an experimental
   feature inside the dated `2025-11-25` core spec, but is now organized as a formal **extension**
   (part of the SEP-2133 Extensions track, evolving on its own repo/timeline) rather than a
-  core-spec primitive — see [Extensions](lifecycle-transports-versioning.md#extensions) for the
+  core-spec primitive — see [Extensions](versioning-and-extensions.md#extensions) for the
   current negotiation mechanism. Don't assume every `2025-11-25`-conformant server implements it.
 
 ## Other Utilities
@@ -288,7 +288,7 @@ fuzzy-match rather than requiring an exact prefix.
 request by sending `notifications/cancelled` with the original request's `id` — the receiver
 SHOULD stop work and MUST NOT send a response for that id afterward (a race where the response was
 already in flight is expected and not an error). Recall from
-[lifecycle-transports-versioning.md](lifecycle-transports-versioning.md#lifecycle) that a
+[lifecycle-and-transports.md](lifecycle-and-transports.md#lifecycle) that a
 progress notification MAY reset a request's timeout clock, but a maximum timeout SHOULD still
 apply regardless. Ruby-specific mechanics (`MCP::Progress`, `MCP::Cancellation`,
 `MCP::CancelledError`) are in `mcp-ruby-sdk`'s server-dsl.md.
@@ -318,7 +318,7 @@ apply regardless. Ruby-specific mechanics (`MCP::Progress`, `MCP::Cancellation`,
 - https://modelcontextprotocol.io/specification/2025-11-25/server/utilities/logging (confirmed: Logging is active, not deprecated, in the current spec)
 - https://modelcontextprotocol.io/specification/2025-11-25/server/utilities/completion
 - https://modelcontextprotocol.io/specification/2025-11-25/schema (verified `ToolAnnotations` field names/defaults directly against `schema.ts`)
-- https://modelcontextprotocol.io/extensions/overview.md (confirmed: Tasks is organized under the SEP-2133 Extensions track, separate from the dated core spec — see [lifecycle-transports-versioning.md](lifecycle-transports-versioning.md#extensions))
+- https://modelcontextprotocol.io/extensions/overview.md (confirmed: Tasks is organized under the SEP-2133 Extensions track, separate from the dated core spec — see [versioning-and-extensions.md](versioning-and-extensions.md#extensions))
 - Forward-looking SDK note sourced from `lib/mcp/server_context.rb` in https://github.com/modelcontextprotocol/ruby-sdk — see `mcp-ruby-sdk` skill, not treated as current spec fact here
 
 If re-verifying: check `/specification/<latest-date>/server/*` and `/client/*` pages — the path

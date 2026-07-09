@@ -19,18 +19,10 @@ Official MCP-org SDK, built in collaboration with Shopify, ships **both server a
 across minor versions (module removals, a 0.23.0 handshake behavior change). **Pin the version and
 read the CHANGELOG before upgrading.**
 
-## Reach for this skill when
-
-- Standing up an `MCP::Server` and registering Tools/Resources/Prompts
-- Choosing between the three ways to define a Tool (class, `.define` block, `server.define_tool`)
-- Connecting to a server from Ruby via `MCP::Client`
-- Deploying over HTTP — mounting `StreamableHTTPTransport` in Rails/Sinatra, sessions, OAuth
-- Embedding `MCP::Client` **inside a web server** (Rails/Puma) instead of a CLI/desktop process —
-  pooling, per-tenant OAuth token storage, thread-safety
-- Testing a server built with this gem
-- Debugging "why is my tool argument nil" or "why did this method disappear between versions"
-
 ## Surface → Reference
+
+The `Need` column is your "when to reach for this" index; each row routes to the file with the full treatment.
+
 
 | Need | Reach for | Reference |
 | --- | --- | --- |
@@ -66,10 +58,10 @@ read the CHANGELOG before upgrading.**
 
 ## Bundled References
 
-- **[references/server-dsl.md](references/server-dsl.md)** — module map, `MCP::Server.new`, a minimal working server, all three Tool-definition styles plus `InputSchema`/`OutputSchema`/`annotations`/`Tool::Response`, Resource/ResourceTemplate, Prompt + its value objects, Content classes, `MCP.configure` (exception_reporter/around_request), server-side `server_context` helpers (sampling/roots/progress/elicitation), `MCP::Progress`/`MCP::Cancellation`/`MCP::CancelledError`, `MCP::TraceContext` (W3C trace propagation via `_meta`), and wiring `completion_handler`.
-- **[references/client-and-transports.md](references/client-and-transports.md)** — the full `MCP::Client` API, the verified `Client::Stdio`/`Client::HTTP` constructors, the verified `StreamableHTTPTransport` constructor (session/stateless/DNS-rebinding kwargs), the verified `OAuth::Provider` constructor, and Rails/Sinatra Rack-mounting patterns.
-- **[references/client-in-web-server.md](references/client-in-web-server.md)** — why `MCP::Client::HTTP` can't be shared across threads/requests (verified from source), the pool-per-tenant-per-server pattern, the OAuth token-storage seam vs. the interactive-flow mismatch, and resilience patterns for calling a third-party MCP server from inside a request-serving fleet.
-- **[references/testing-and-gotchas.md](references/testing-and-gotchas.md)** — the in-process `server.handle`/`handle_json` testing pattern the SDK's own suite uses, the `symbolize_names` round-trip gotcha in full, verified protocol-version compatibility, and every gotcha above with CHANGELOG/issue citations.
+- **[references/server-dsl.md](references/server-dsl.md)** — module map, `MCP::Server.new`, a minimal server, all three Tool styles + `InputSchema`/`OutputSchema`/`Tool::Response`, Resource/ResourceTemplate, Prompt + Content classes, `MCP.configure`, `server_context` helpers, `MCP::Progress`/`Cancellation`, `MCP::TraceContext`, `completion_handler`.
+- **[references/client-and-transports.md](references/client-and-transports.md)** — the `MCP::Client` API, verified `Client::Stdio`/`Client::HTTP` and `StreamableHTTPTransport`/`OAuth::Provider` constructors, and Rails/Sinatra Rack-mounting.
+- **[references/client-in-web-server.md](references/client-in-web-server.md)** — why `MCP::Client::HTTP` can't be shared across threads, the pool-per-tenant-per-server pattern, the OAuth token-storage seam, and resilience patterns for calling a third-party server from a request-serving fleet.
+- **[references/testing-and-gotchas.md](references/testing-and-gotchas.md)** — the in-process `server.handle`/`handle_json` testing pattern, the `symbolize_names` round-trip gotcha, protocol-version compatibility, and every gotcha above with CHANGELOG/issue citations.
 
 ---
 
