@@ -27,8 +27,19 @@ breaks the stow re-link — make this repo the single source.
 
 - After changing skills or other stowed files, run `./link.sh link`.
 - Skill/agent usage is logged by a portable `PostToolUse` hook
-  (`scripts/agent-usage-logger.sh`) → `~/.claude/logs/`. Wired into both Claude Code
-  (`claude/.claude/settings.json`) and Codex (`codex/.codex/hooks.json`).
+  (`agents/.agents/scripts/agent-usage-logger.sh`) → `~/.claude/logs/*.jsonl`. Wired
+  into Claude Code (`claude/.claude/settings.json`, matchers `Skill`/`Agent`) and Codex
+  (`codex/.codex/hooks.json`, matchers `Bash`/`spawn_agent` — Codex's hook-facing tool
+  names, which are NOT what the model calls them: Codex's shell tool is `exec_command`
+  to the model but `Bash` to the hook, confirmed empirically 2026-07-09 after
+  `exec_command` as a matcher silently never fired. Codex has no discrete "skill
+  invoked" tool call, so its skill-usage entries are a heuristic — scanning `Bash`
+  commands for a `skills/<name>/SKILL.md` path — tagged `detection:"inferred"` vs
+  Claude's `"explicit"`). Both hooks are user-level only (`~/.claude/settings.json`,
+  `~/.codex/hooks.json`) — never duplicate this into a project's own `.claude/` or
+  `.codex/` config; both tools merge hooks across user/project/local scopes, so the
+  user-level hook already fires everywhere. Quick view: `skill-usage-report.sh`
+  (same directory). Prune decisions: the `skill-prune` skill.
 - Commit or push only when asked. This repo commits directly to `main` (a background
   agent auto-syncs via `git pull --ff-only` every 5 minutes).
 

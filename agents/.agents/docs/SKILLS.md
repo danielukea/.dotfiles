@@ -113,8 +113,11 @@ once `brainstorm`'s Problem Brief template gained a Users & Stakeholders section
 
 - Ship a few lines + one gotcha; grow from real usage, not speculation.
 - Usage is logged deterministically by a `PostToolUse` hook (see
-  `scripts/agent-usage-logger.sh`) → `~/.claude/logs/skill-usage.log`. Audit which
-  skills earn their keep with the `skill-prune` skill.
+  `agents/.agents/scripts/agent-usage-logger.sh`) → `~/.claude/logs/skill-usage.jsonl`.
+  Claude Code invocations are `detection:"explicit"` (a real `Skill` tool call); Codex has
+  no such tool call, so its entries are `detection:"inferred"` — heuristically detected
+  from shell commands that open a `SKILL.md` — and are weaker evidence of real use. Audit
+  which skills earn their keep with the `skill-prune` skill.
 
 ## Evals: specs vs runs
 

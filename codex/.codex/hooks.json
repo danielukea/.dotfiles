@@ -2,20 +2,20 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Skill",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "~/.dotfiles/scripts/agent-usage-logger.sh"
+            "command": "~/.agents/scripts/agent-usage-logger.sh codex"
           }
         ]
       },
       {
-        "matcher": "Agent",
+        "matcher": "spawn_agent",
         "hooks": [
           {
             "type": "command",
-            "command": "~/.dotfiles/scripts/agent-usage-logger.sh"
+            "command": "~/.agents/scripts/agent-usage-logger.sh codex"
           }
         ]
       }

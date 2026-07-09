@@ -12,7 +12,8 @@ Identify installed skills that are unused or rarely used, so the user can disabl
 
 ## Inputs
 
-- **Usage log**: `~/.claude/logs/skill-usage.log` (tab-separated: `timestamp<TAB>cwd<TAB>skill-name`, populated by the `PostToolUse:Skill` hook).
+- **Usage log**: `~/.claude/logs/skill-usage.jsonl` (one JSON object per line: `{ts, source, cwd, session_id, skill, detection}`, populated by `agent-usage-logger.sh` via the `PostToolUse` hook — `Skill` matcher in Claude Code, `Bash` matcher in Codex — Codex's hook-facing name for its shell tool, not the `exec_command` name the model sees). `source` is `"claude"` or `"codex"`; `detection` is `"explicit"` (a real `Skill` tool call) or `"inferred"` (Codex heuristically detected via a `skills/<name>/SKILL.md` path in a shell command — treat these counts as weaker signal, see Notes).
+  - A legacy TSV file (`~/.claude/logs/skill-usage.log`, pre-JSONL-migration) may still exist with historical data (`timestamp<TAB>cwd<TAB>skill-name`, Claude-only, no source/detection). It's not read by this procedure — mention its existence if the JSONL log looks thin, since real history may predate the migration.
 - **Installed skills**: `~/.claude/skills/*/SKILL.md` (includes symlinks into `~/.dotfiles/claude/.claude/skills/`, `~/.agents/skills/`, and standalone dirs).
 - **Agent files** (for cross-reference): `~/.claude/agents/*.md`, `~/.dotfiles/claude/.claude/agents/*.md`.
 - **Threshold**: if the user passed a number as an argument, treat it as "days since last use" cutoff. Default: 30.
@@ -26,7 +27,7 @@ Every installed skill's `name` and `description` ship in the per-turn context vi
 ### 1. Sanity-check the log
 
 ```bash
-[ -f ~/.claude/logs/skill-usage.log ] && wc -l ~/.claude/logs/skill-usage.log || echo "no log yet"
+[ -f ~/.claude/logs/skill-usage.jsonl ] && wc -l ~/.claude/logs/skill-usage.jsonl || echo "no log yet"
 ```
 
 If the log is missing or has fewer than ~20 lines, tell the user the data is too thin to draw conclusions and to re-run after more usage. Stop.
@@ -34,10 +35,20 @@ If the log is missing or has fewer than ~20 lines, tell the user the data is too
 ### 2. Build the usage summary
 
 ```bash
-awk -F'\t' '{count[$3]++; last[$3]=$1} END {for (s in count) printf "%s\t%d\t%s\n", s, count[s], last[s]}' ~/.claude/logs/skill-usage.log | sort -k2 -n
+jq -s '
+  group_by(.skill) | map({
+    skill: .[0].skill,
+    count: length,
+    explicit: (map(select(.detection == "explicit")) | length),
+    inferred: (map(select(.detection == "inferred")) | length),
+    claude: (map(select(.source == "claude")) | length),
+    codex: (map(select(.source == "codex")) | length),
+    last: (map(.ts) | max)
+  }) | sort_by(.count)
+' ~/.claude/logs/skill-usage.jsonl
 ```
 
-Columns: `skill-name`, `invocation-count`, `last-used-timestamp`.
+Fields: `skill`, `count`, `explicit`/`inferred` split, `claude`/`codex` split, `last` (ISO timestamp). When categorizing (step 5), a skill whose count is dominated by `inferred` entries is weaker evidence of real use than the same count in `explicit` — call this out rather than treating all counts as equally confident.
 
 ### 3. List installed skills with mtime
 
@@ -101,7 +112,7 @@ Use this exact structure:
 
 ### {skill-name}
 - Last used: {last-used-timestamp} ({N} days ago)
-- Invocations: {count}
+- Invocations: {count} ({explicit}e/{inferred}i, {claude}c/{codex}x)
 - Path: {resolved-path}
 - Disable (soft):   ...
 - Delete (hard):    ...
@@ -142,6 +153,7 @@ Note that for symlinked skills, hard deletion should target the source directory
 
 ## Notes
 
-- The usage log captures every `Skill` tool invocation — model auto-activations and explicit user `/skill-name` calls both count.
+- The usage log captures every `Skill` tool invocation in Claude Code (`detection:"explicit"`) — model auto-activations and explicit user `/skill-name` calls both count.
+- Codex has no discrete "skill invoked" tool call — its entries (`source:"codex"`, `detection:"inferred"`) come from a heuristic that scans shell commands for a `skills/<name>/SKILL.md` path. This misses skills Codex reasoned about without opening the file, and has no visibility into Codex's VS Code app-server path. Treat `inferred` counts as a weaker signal than `explicit` — don't let a skill's Codex-only inferred count alone override a "never used in Claude" finding.
 - Skills invoked inside subagents are logged, but the `cwd` column reflects the parent session.
 - A skill not in the log may still be providing value by appearing in `available_skills` and influencing model decisions without being formally invoked. The `description` text alone can steer behavior. This tool can't detect that — treat the report as a starting point for the user's judgment, not a verdict.
