@@ -2,7 +2,13 @@
 
 The three `templates/active-admin-*.html` files are real ActiveAdmin 3.x default markup and
 CSS (verified against the gem's own Arbre view source and stylesheet partials), not an
-invented approximation. Ground per-project before treating the output as a finished mockup:
+invented approximation. They're layouts, not finished mockups: every `[bracketed]` string is
+a slot to fill in with the real resource's data — edit in place, don't rebuild the structure
+around it. HTML comments mark the pieces that are optional per-resource (scopes, sidebar,
+batch actions) — delete those blocks if the target resource doesn't have the feature, but
+leave the rest of the chrome as-is.
+
+Ground per-project before treating the output as a finished mockup:
 
 - **Batch actions / comments are per-namespace toggles** (`config.batch_actions`,
   `config.comments` in `active_admin.rb`, or per-resource `config.batch_actions = false`).

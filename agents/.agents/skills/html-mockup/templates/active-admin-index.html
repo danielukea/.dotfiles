@@ -1,14 +1,15 @@
 <!--
-  TEMPLATE — ActiveAdmin 3.x index/list page, real default DOM + CSS.
-  Swap in the real resource name, columns, and rows before treating this as a finished
-  mockup — this is the chrome, not the content. See references/active-admin.md for what to
-  prune (batch actions block below) and the id/class list this was built from.
+  LAYOUT — ActiveAdmin 3.x index/list page, real default DOM + CSS.
+  Copy this file and edit the [bracketed] placeholders in place with the real resource's
+  name/columns/rows — the structure and CSS are real AA 3.x default chrome, don't rebuild
+  them. See references/active-admin.md for what to prune (batch actions block below) and
+  the id/class list this was built from.
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Reports | Active Admin</title>
+<title>[Resource Plural] | Active Admin</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -83,8 +84,7 @@
   #utility_nav a { color: #aaa; }
   #utility_nav a:hover { color: #fff; }
 
-  /* ---------- Flash ---------- */
-  .flashes { }
+  /* ---------- Flash (optional — only appears after create/update/delete) ---------- */
   .flash {
     background: #dce9dd;
     background-image: linear-gradient(180deg, #dce9dd, #ccdfcd);
@@ -129,13 +129,6 @@
     font-weight: bold;
     text-decoration: none;
   }
-  .action_items .action_item > a.button.primary,
-  .action_items .action_item > a.new_report {
-    background: #838a90;
-    background-image: linear-gradient(180deg, #838a90, #414549);
-    border: solid 1px #484e53;
-    color: #efefef;
-  }
 
   /* ---------- Content layout ---------- */
   #active_admin_content { padding: 30px; }
@@ -144,7 +137,7 @@
   #sidebar { float: left; width: 270px; margin-left: -270px; }
   .index_content { clear: both; }
 
-  /* ---------- Scopes ---------- */
+  /* ---------- Scopes (delete .scopes block entirely if the resource has none) ---------- */
   .scopes { margin-bottom: 10px; }
   .table_tools_segmented_control { list-style: none; margin: 0; padding: 0; }
   .table_tools_segmented_control li { display: inline-block; margin-right: 4px; }
@@ -283,35 +276,36 @@
   #footer a { color: #999; }
 </style>
 </head>
-<body class="index reports admin_reports active_admin logged_in main_namespace">
+<body class="index [resource_plural] admin_[resource_plural] active_admin logged_in main_namespace">
 <div id="wrapper">
 
   <div id="header">
-    <h1><a href="#">My App Admin</a></h1>
+    <h1><a href="#">[App Name]</a></h1>
     <ul class="header-item tabs">
-      <li class="current"><a href="#">Reports</a></li>
-      <li><a href="#">Advisors</a></li>
-      <li><a href="#">Custom Fields</a></li>
-      <li><a href="#">Workflows</a></li>
+      <!-- one <li> per item in the admin nav menu; duplicate/edit/delete as needed -->
+      <li class="current"><a href="#">[Resource Plural]</a></li>
+      <li><a href="#">[Other Resource]</a></li>
     </ul>
     <ul id="utility_nav" class="header-item tabs">
-      <li>Signed in as <strong style="color:#fff;">jsmith</strong></li>
+      <li>Signed in as <strong style="color:#fff;">[user]</strong></li>
       <li><a href="#">Logout</a></li>
     </ul>
   </div>
 
+  <!-- Flash — uncomment to show a post-action state (e.g. after create/update/delete)
   <div class="flashes">
-    <div class="flash flash_notice">Report was successfully created.</div>
+    <div class="flash flash_notice">[Resource Singular] was successfully created.</div>
   </div>
+  -->
 
   <div id="title_bar">
     <div id="titlebar_left">
       <span class="breadcrumb"><a href="#">Admin</a><span class="breadcrumb_sep">/</span></span>
-      <h2 id="page_title">Reports</h2>
+      <h2 id="page_title">[Resource Plural]</h2>
     </div>
     <div id="titlebar_right">
       <div class="action_items">
-        <span class="action_item"><a href="#" class="new_report">New Report</a></span>
+        <span class="action_item"><a href="#">New [Resource Singular]</a></span>
       </div>
     </div>
   </div>
@@ -320,11 +314,11 @@
     <div id="main_content_wrapper">
       <div id="main_content">
 
+        <!-- Scopes — delete this whole .scopes block if the resource has none -->
         <div class="scopes">
           <ul class="table_tools_segmented_control">
-            <li class="scope selected"><a href="#" class="table_tools_button">All <span class="count">(128)</span></a></li>
-            <li class="scope"><a href="#" class="table_tools_button">Scheduled <span class="count">(12)</span></a></li>
-            <li class="scope"><a href="#" class="table_tools_button">Failed <span class="count">(3)</span></a></li>
+            <li class="scope selected"><a href="#" class="table_tools_button">All <span class="count">([count])</span></a></li>
+            <li class="scope"><a href="#" class="table_tools_button">[Scope Name] <span class="count">([count])</span></a></li>
           </ul>
         </div>
 
@@ -345,46 +339,37 @@
             </div>
           </div>
 
-          <table class="index_table index_table_reports">
+          <!-- one <th>/<td> pair per column — add/remove pairs to match the real resource -->
+          <table class="index_table index_table_[resource_plural]">
             <thead>
               <tr>
                 <!-- BATCH ACTIONS start -->
                 <th class="selectable col-selectable"><input type="checkbox"></th>
                 <!-- BATCH ACTIONS end -->
-                <th class="sortable sorted-desc col-name"><a href="#">Name</a></th>
-                <th class="sortable col-status"><a href="#">Status</a></th>
-                <th class="sortable col-created_at"><a href="#">Created At</a></th>
+                <th class="sortable sorted-desc col-a"><a href="#">[Column A]</a></th>
+                <th class="sortable col-b"><a href="#">[Column B]</a></th>
+                <th class="col-c">[Column C]</th>
                 <th class="col-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr class="odd" id="report_1">
+              <!-- duplicate this <tr> per record; tr.odd/tr.even alternate for zebra striping -->
+              <tr class="odd" id="[resource_singular]_1">
                 <td class="selectable"><input type="checkbox"></td>
-                <td class="col-name"><a href="#">Q3 Advisor Activity</a></td>
-                <td class="col-status"><span class="status_tag yes">complete</span></td>
-                <td class="col-created_at">2026-07-02</td>
+                <td class="col-a"><a href="#">[Record 1 — link cell]</a></td>
+                <td class="col-b"><span class="status_tag yes">[status]</span></td>
+                <td class="col-c">[plain text cell]</td>
                 <td class="col-actions">
                   <a class="member_link" href="#">View</a>
                   <a class="member_link" href="#">Edit</a>
                   <a class="member_link" href="#">Delete</a>
                 </td>
               </tr>
-              <tr class="even" id="report_2">
+              <tr class="even" id="[resource_singular]_2">
                 <td class="selectable"><input type="checkbox"></td>
-                <td class="col-name"><a href="#">Weekly Pipeline Summary</a></td>
-                <td class="col-status"><span class="status_tag">pending</span></td>
-                <td class="col-created_at">2026-07-05</td>
-                <td class="col-actions">
-                  <a class="member_link" href="#">View</a>
-                  <a class="member_link" href="#">Edit</a>
-                  <a class="member_link" href="#">Delete</a>
-                </td>
-              </tr>
-              <tr class="odd" id="report_3">
-                <td class="selectable"><input type="checkbox"></td>
-                <td class="col-name"><a href="#">Contact Import Audit</a></td>
-                <td class="col-status"><span class="status_tag no">failed</span></td>
-                <td class="col-created_at">2026-06-29</td>
+                <td class="col-a"><a href="#">[Record 2 — link cell]</a></td>
+                <td class="col-b"><span class="status_tag no">[status]</span></td>
+                <td class="col-c">[plain text cell]</td>
                 <td class="col-actions">
                   <a class="member_link" href="#">View</a>
                   <a class="member_link" href="#">Edit</a>
@@ -402,34 +387,29 @@
             <a href="#" class="page">3</a>
             <a href="#" class="page">Next &rsaquo;</a>
           </nav>
-          <div class="pagination_information">Displaying <b>1&nbsp;-&nbsp;30</b> of <b>128</b> Reports</div>
+          <div class="pagination_information">Displaying <b>1&nbsp;-&nbsp;30</b> of <b>[total]</b> [Resource Plural]</div>
         </div>
 
       </div>
     </div>
 
+    <!-- Sidebar — delete #sidebar and the .with_sidebar class above if the resource has no filters/sidebar sections -->
     <div id="sidebar">
       <div class="panel sidebar_section" id="filters_sidebar_section">
         <h3>Filter</h3>
         <div class="panel_contents">
           <form class="filter_form">
+            <!-- one .filter_form_field per filter; delete/duplicate to match -->
             <div class="filter_form_field">
-              <label for="q_name_cont">Name</label>
-              <input type="text" id="q_name_cont">
+              <label for="q_field_cont">[Filter Field]</label>
+              <input type="text" id="q_field_cont">
             </div>
             <div class="filter_form_field">
-              <label for="q_status_eq">Status</label>
-              <select id="q_status_eq">
+              <label for="q_field_eq">[Filter Field]</label>
+              <select id="q_field_eq">
                 <option value="">Any</option>
-                <option>complete</option>
-                <option>pending</option>
-                <option>failed</option>
+                <option>[Option]</option>
               </select>
-            </div>
-            <div class="filter_form_field">
-              <label for="q_created_at_gteq">Created At</label>
-              <input type="text" id="q_created_at_gteq" placeholder="From">
-              <input type="text" id="q_created_at_lteq" placeholder="To" style="margin-top:6px;">
             </div>
             <a href="#" class="clear_filters_btn">Clear Filters</a>
           </form>

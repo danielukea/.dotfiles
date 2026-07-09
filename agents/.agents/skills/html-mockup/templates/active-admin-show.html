@@ -1,14 +1,14 @@
 <!--
-  TEMPLATE — ActiveAdmin 3.x show/detail page, real default DOM + CSS.
-  Swap in the real resource name and attribute rows before treating this as a finished
-  mockup — this is the chrome, not the content. See references/active-admin.md for the
-  id/class list this was built from.
+  LAYOUT — ActiveAdmin 3.x show/detail page, real default DOM + CSS.
+  Copy this file and edit the [bracketed] placeholders in place with the real resource's
+  name/attributes — the structure and CSS are real AA 3.x default chrome, don't rebuild
+  them. See references/active-admin.md for the id/class list this was built from.
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Q3 Advisor Activity | Active Admin</title>
+<title>[Record Title] | Active Admin</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -117,7 +117,6 @@
     font-weight: bold;
     text-decoration: none;
   }
-  .action_items .action_item > a.delete_link { color: #932419; }
 
   /* ---------- Content layout ---------- */
   #active_admin_content { padding: 30px; }
@@ -181,7 +180,7 @@
   .status_tag.yes { background: #6090db; }
   .status_tag.no { background: grey; }
 
-  /* ---------- Panel table (e.g. recipients list) ---------- */
+  /* ---------- Panel table (e.g. a related/nested collection) ---------- */
   .panel_contents table.plain { width: 100%; margin-top: 5px; }
   .panel_contents table.plain th {
     padding-top: 10px;
@@ -203,32 +202,31 @@
   #footer a { color: #999; }
 </style>
 </head>
-<body class="show reports admin_reports active_admin logged_in main_namespace">
+<body class="show [resource_plural] admin_[resource_plural] active_admin logged_in main_namespace">
 <div id="wrapper">
 
   <div id="header">
-    <h1><a href="#">My App Admin</a></h1>
+    <h1><a href="#">[App Name]</a></h1>
     <ul class="header-item tabs">
-      <li class="current"><a href="#">Reports</a></li>
-      <li><a href="#">Advisors</a></li>
-      <li><a href="#">Custom Fields</a></li>
-      <li><a href="#">Workflows</a></li>
+      <!-- one <li> per item in the admin nav menu; duplicate/edit/delete as needed -->
+      <li class="current"><a href="#">[Resource Plural]</a></li>
+      <li><a href="#">[Other Resource]</a></li>
     </ul>
     <ul id="utility_nav" class="header-item tabs">
-      <li>Signed in as <strong style="color:#fff;">jsmith</strong></li>
+      <li>Signed in as <strong style="color:#fff;">[user]</strong></li>
       <li><a href="#">Logout</a></li>
     </ul>
   </div>
 
   <div id="title_bar">
     <div id="titlebar_left">
-      <span class="breadcrumb"><a href="#">Admin</a><span class="breadcrumb_sep">/</span><a href="#">Reports</a><span class="breadcrumb_sep">/</span></span>
-      <h2 id="page_title">Q3 Advisor Activity</h2>
+      <span class="breadcrumb"><a href="#">Admin</a><span class="breadcrumb_sep">/</span><a href="#">[Resource Plural]</a><span class="breadcrumb_sep">/</span></span>
+      <h2 id="page_title">[Record Title]</h2>
     </div>
     <div id="titlebar_right">
       <div class="action_items">
-        <span class="action_item"><a href="#">Edit Report</a></span>
-        <span class="action_item"><a href="#" class="delete_link">Delete Report</a></span>
+        <span class="action_item"><a href="#">Edit [Resource Singular]</a></span>
+        <span class="action_item"><a href="#">Delete [Resource Singular]</a></span>
       </div>
     </div>
   </div>
@@ -237,36 +235,34 @@
     <div id="main_content_wrapper">
       <div id="main_content">
 
-        <div class="panel" id="report_detail_panel">
-          <h3>Report Details</h3>
+        <!-- one <tr>/<th>/<td> per attribute; add/remove rows to match the real resource -->
+        <div class="panel" id="[resource_singular]_detail_panel">
+          <h3>[Panel Title]</h3>
           <div class="panel_contents">
             <div class="attributes_table">
               <table>
                 <tbody>
-                  <tr class="row row-id"><th>Id</th><td>4821</td></tr>
-                  <tr class="row row-name"><th>Name</th><td>Q3 Advisor Activity</td></tr>
-                  <tr class="row row-status"><th>Status</th><td><span class="status_tag yes">complete</span></td></tr>
-                  <tr class="row row-owner"><th>Owner</th><td><a href="#">Jane Smith</a></td></tr>
-                  <tr class="row row-schedule"><th>Schedule</th><td>Every Monday, 6:00 AM ET</td></tr>
-                  <tr class="row row-notes"><th>Notes</th><td><span class="empty">empty</span></td></tr>
-                  <tr class="row row-created_at"><th>Created At</th><td>July 02, 2026 09:14</td></tr>
-                  <tr class="row row-updated_at"><th>Updated At</th><td>July 05, 2026 06:00</td></tr>
+                  <tr class="row row-a"><th>[Attribute]</th><td>[Value]</td></tr>
+                  <tr class="row row-b"><th>[Attribute]</th><td><span class="status_tag yes">[status]</span></td></tr>
+                  <tr class="row row-c"><th>[Attribute]</th><td><a href="#">[Related record link]</a></td></tr>
+                  <tr class="row row-d"><th>[Attribute]</th><td><span class="empty">empty</span></td></tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <div class="panel" id="recipients_panel">
-          <h3>Recipients</h3>
+        <!-- Optional second panel for a related/nested collection — duplicate or delete -->
+        <div class="panel" id="[related_collection]_panel">
+          <h3>[Related Collection Title]</h3>
           <div class="panel_contents">
             <table class="plain">
               <thead>
-                <tr><th>Name</th><th>Email</th><th>Sent At</th></tr>
+                <tr><th>[Column]</th><th>[Column]</th><th>[Column]</th></tr>
               </thead>
               <tbody>
-                <tr><td>Jane Smith</td><td>jane@example.com</td><td>Jul 05, 2026 06:01</td></tr>
-                <tr><td>Marcus Lee</td><td>marcus@example.com</td><td>Jul 05, 2026 06:01</td></tr>
+                <tr><td>[Value]</td><td>[Value]</td><td>[Value]</td></tr>
+                <tr><td>[Value]</td><td>[Value]</td><td>[Value]</td></tr>
               </tbody>
             </table>
           </div>
@@ -275,14 +271,15 @@
       </div>
     </div>
 
+    <!-- Sidebar — delete #sidebar and the .with_sidebar class above if the resource has no sidebar sections -->
     <div id="sidebar">
-      <div class="panel sidebar_section" id="report_history_sidebar_section">
-        <h3>Recent Runs</h3>
+      <div class="panel sidebar_section" id="[sidebar_section]">
+        <h3>[Sidebar Panel Title]</h3>
         <div class="panel_contents">
           <ul>
-            <li>Jul 05, 2026 — <span class="status_tag yes" style="padding:1px 4px;font-size:0.7em;">complete</span></li>
-            <li>Jun 28, 2026 — <span class="status_tag yes" style="padding:1px 4px;font-size:0.7em;">complete</span></li>
-            <li>Jun 21, 2026 — <span class="status_tag no" style="padding:1px 4px;font-size:0.7em;">failed</span></li>
+            <li>[List item]</li>
+            <li>[List item]</li>
+            <li>[List item]</li>
           </ul>
         </div>
       </div>

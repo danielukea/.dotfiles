@@ -1,14 +1,16 @@
 <!--
-  TEMPLATE — ActiveAdmin 3.x form (Formtastic) page, real default DOM + CSS.
-  Swap in the real resource name and fields before treating this as a finished mockup —
-  this is the chrome, not the content. See references/active-admin.md for the id/class
-  list this was built from.
+  LAYOUT — ActiveAdmin 3.x form (Formtastic) page, real default DOM + CSS.
+  Copy this file and edit the [bracketed] placeholders in place with the real resource's
+  name/fields — the structure and CSS are real AA 3.x default chrome, don't rebuild them.
+  Each <li> below is a worked example of one Formtastic input type (string, select, text,
+  boolean) — duplicate the one that matches a given field and delete the ones you don't
+  need. See references/active-admin.md for the id/class list this was built from.
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Edit Report | Active Admin</title>
+<title>Edit [Record Title] | Active Admin</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -212,27 +214,26 @@
   #footer a { color: #999; }
 </style>
 </head>
-<body class="edit reports admin_reports active_admin logged_in main_namespace">
+<body class="edit [resource_plural] admin_[resource_plural] active_admin logged_in main_namespace">
 <div id="wrapper">
 
   <div id="header">
-    <h1><a href="#">My App Admin</a></h1>
+    <h1><a href="#">[App Name]</a></h1>
     <ul class="header-item tabs">
-      <li class="current"><a href="#">Reports</a></li>
-      <li><a href="#">Advisors</a></li>
-      <li><a href="#">Custom Fields</a></li>
-      <li><a href="#">Workflows</a></li>
+      <!-- one <li> per item in the admin nav menu; duplicate/edit/delete as needed -->
+      <li class="current"><a href="#">[Resource Plural]</a></li>
+      <li><a href="#">[Other Resource]</a></li>
     </ul>
     <ul id="utility_nav" class="header-item tabs">
-      <li>Signed in as <strong style="color:#fff;">jsmith</strong></li>
+      <li>Signed in as <strong style="color:#fff;">[user]</strong></li>
       <li><a href="#">Logout</a></li>
     </ul>
   </div>
 
   <div id="title_bar">
     <div id="titlebar_left">
-      <span class="breadcrumb"><a href="#">Admin</a><span class="breadcrumb_sep">/</span><a href="#">Reports</a><span class="breadcrumb_sep">/</span><a href="#">Q3 Advisor Activity</a><span class="breadcrumb_sep">/</span></span>
-      <h2 id="page_title">Edit Report</h2>
+      <span class="breadcrumb"><a href="#">Admin</a><span class="breadcrumb_sep">/</span><a href="#">[Resource Plural]</a><span class="breadcrumb_sep">/</span><a href="#">[Record Title]</a><span class="breadcrumb_sep">/</span></span>
+      <h2 id="page_title">Edit [Resource Singular]</h2>
     </div>
     <div id="titlebar_right"></div>
   </div>
@@ -242,48 +243,53 @@
       <div id="main_content">
 
         <div class="panel">
-          <h3>Report Details</h3>
+          <h3>[Panel Title]</h3>
           <div class="panel_contents">
             <form>
               <fieldset class="inputs">
-                <legend><span>Report Details</span></legend>
+                <legend><span>[Section Title]</span></legend>
                 <ol>
+                  <!-- string input, required -->
                   <li class="string required">
-                    <label>Name <abbr title="required">*</abbr></label>
-                    <input type="text" value="Q3 Advisor Activity">
+                    <label>[Field Label] <abbr title="required">*</abbr></label>
+                    <input type="text" value="">
                   </li>
+                  <!-- select input, required -->
                   <li class="select required">
-                    <label>Status <abbr title="required">*</abbr></label>
+                    <label>[Field Label] <abbr title="required">*</abbr></label>
                     <select>
-                      <option>complete</option>
-                      <option>pending</option>
-                      <option>failed</option>
+                      <option>[Option]</option>
+                      <option>[Option]</option>
                     </select>
                   </li>
+                  <!-- select input, optional -->
                   <li class="select">
-                    <label>Owner</label>
+                    <label>[Field Label]</label>
                     <select>
-                      <option>Jane Smith</option>
-                      <option>Marcus Lee</option>
+                      <option>[Option]</option>
+                      <option>[Option]</option>
                     </select>
                   </li>
+                  <!-- string input with a hint -->
                   <li class="string">
-                    <label>Schedule</label>
-                    <input type="text" value="Every Monday, 6:00 AM ET">
-                    <p class="inline-hints">Cron-style schedule or a plain-English description.</p>
+                    <label>[Field Label]</label>
+                    <input type="text" value="">
+                    <p class="inline-hints">[Hint text describing the field]</p>
                   </li>
+                  <!-- boolean / checkbox input -->
                   <li class="boolean">
-                    <label><input type="checkbox" checked> Email recipients on completion</label>
+                    <label><input type="checkbox"> [Checkbox label]</label>
                   </li>
+                  <!-- text / textarea input -->
                   <li class="text">
-                    <label>Notes</label>
+                    <label>[Field Label]</label>
                     <textarea></textarea>
                   </li>
                 </ol>
               </fieldset>
               <fieldset class="actions">
                 <ol>
-                  <li><input type="submit" value="Update Report"></li>
+                  <li><input type="submit" value="Save [Resource Singular]"></li>
                   <li class="cancel"><a href="#" class="cancel_link">Cancel</a></li>
                 </ol>
               </fieldset>
