@@ -66,6 +66,30 @@
         "Explains that running rails db:migrate in CI catches unsafe migrations automatically",
         "Explains the safety_assured escape hatch and warns against misuse"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "Add a nullable jsonb `preferences` column to the users table.",
+      "expected_output": "Recognizes this as a simple, safe migration. Shows the rails generate migration command (e.g. AddPreferencesToUsers preferences:jsonb) and the resulting add_column migration. Does not impose a multi-deploy expand/contract ritual, since adding a nullable column is safe as-is.",
+      "files": [],
+      "assertions": [
+        "Uses the Rails generator (rails generate migration) with a name that auto-generates the body",
+        "Shows a straightforward add_column :users, :preferences, :jsonb migration",
+        "Does NOT force an unnecessary multi-deploy sequence for a plain nullable column add",
+        "Treats this as safe rather than dangerous"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "I need to add a `user_id` foreign key column with an index to the products table in production. Can I just use add_reference?",
+      "expected_output": "Advises against a single-step add_reference on a live table (non-concurrent index + validated FK, both blocking) and splits it into safe steps: add the plain column, add the index with algorithm: :concurrently + disable_ddl_transaction!, then add the FK with validate: false and validate it in a separate migration.",
+      "files": [],
+      "assertions": [
+        "Does NOT recommend a single-step add_reference on a large/live table",
+        "Adds the index with algorithm: :concurrently inside a disable_ddl_transaction! migration",
+        "Adds the foreign key with validate: false and validates it in a separate migration",
+        "Explains that add_reference builds a non-concurrent index and validated FK that block writes"
+      ]
     }
   ]
 }
