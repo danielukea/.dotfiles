@@ -51,6 +51,9 @@ templates: `references/templates.md`. Load them when producing a map, not to pic
 - **Output feeds the Problem Brief** (its Users & Stakeholders section), so the "who" reaches
   `arch-design` instead of evaporating. Outside a brainstorm session, render inline and offer
   to fold the map into whatever artifact the work feeds.
+- **`shape-up` is a natural sibling** — the who / why / current-pain baseline mapped here is
+  exactly what shaping narrows into a bounded solution at an appetite. Run the two together and
+  the pair forms a strong project concept.
 - **`arch-design` consumes, doesn't reproduce** — it inherits the map via the Brief. A
   user-facing design arriving with no map is the signal to run this lens first.
 - **The tracker is downstream** — stories here are problem-framing; turning them into
