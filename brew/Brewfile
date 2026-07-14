@@ -8,6 +8,7 @@ brew "gitleaks"                # Secret scanning (pre-commit hook, see githooks/
 
 # Cloud tools
 brew "awscli"                 # AWS CLI
+brew "newrelic-cli"           # New Relic CLI (NRQL/NerdGraph; see newrelic-observability skill)
 
 # Terminal and shell enhancements
 brew "fzf"                    # Fuzzy finder
