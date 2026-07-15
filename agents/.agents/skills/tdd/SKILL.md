@@ -17,31 +17,43 @@ allowed-tools: Read, Grep, Glob, Bash, Edit, Write
 A disciplined five-step cycle — not "write some tests," but a specific loop
 with specific failure modes.
 
+Before starting, inspect existing test conventions and read nearby project
+context or ADRs when present.
+
 ## The cycle
 
-1. **Write a list** of the test scenarios you want to cover.
+1. **Sketch a short, ordered list** of the behaviors or public seams to cover.
 2. **Turn exactly one item** on the list into an actual, concrete, runnable test.
-3. **Change the code** to make the test and all previous tests pass, adding new items to the list as you discover them.
-4. **Optionally refactor** to improve the implementation design.
+3. **Change only enough code** to make the test and all previous tests pass,
+   adding, reordering, or deleting list items as you learn more.
+4. **Optionally refactor** the current slice to improve its design.
 5. **Until the list is empty**, go back to step 2.
 
 The most common way to get this wrong: turning every list item into a test
 before making any of them pass. Don't. The list is scaffolding for your
 attention, not a spec to complete before you start coding.
 
-## Test List: living notes, not a fixed plan
+## Test List: short, living notes
 
-Write down every scenario you can think of before you start, but expect it to
-grow — discovering a new case mid-implementation isn't a planning failure.
+Start with a short list of user-visible behaviors or public seams, not an
+exhaustive inventory of edge cases. Let it grow, shrink, and reorder as the
+implementation teaches you more. Discovering a new case mid-implementation
+isn't a planning failure.
+
+## Start at a public seam
+
+Before writing each test, name the public seam and observable outcome under test.
+Choose one seam at a time; do not design tests around private methods or internal
+collaborators. For assertion and test-double guidance, see `test-principles`.
 
 ## Picking the next test
 
 Order matters — it shapes both the coding experience and the final design.
 
-- The first test must force real behavior, not just look simple. If the
-  simplest-looking case can be satisfied by a constant return value (e.g.
-  "empty cart total is 0"), it's not a good starting test — go one step past
-  it to the smallest case that forces the code to actually do something.
+- The first test should distinguish the intended behavior from a trivial
+  implementation. Choose the smallest meaningful example that forces the design
+  to take a real step; do not skip a valid simple behavior merely because it is
+  simple.
 - Order tests so each one forces the smallest next increment of design,
   rather than jumping straight to the hardest case.
 - If a test would force you to solve two problems at once, split it — that's
@@ -50,39 +62,35 @@ Order matters — it shapes both the coding experience and the final design.
 ## Interface first, implementation second
 
 When writing a test, decide the interface first: how it's invoked, what goes
-in, what comes out. Implementation — how the behavior actually gets
-produced — is postponed to the "make it pass" step, and can change freely
-under refactoring later without the test caring.
+in, what comes out, and what observable result proves success. Implementation —
+how the behavior gets produced — is postponed to the "make it pass" step.
 
 ## One hat at a time
 
-"Make it pass" and "make it clean" are different steps. Get to green by
-whatever means necessary — even a hardcoded return — then refactor
-separately. Mixing the two makes it hard to tell whether a failure is a real
-regression or a refactor gone wrong.
+"Make it pass" and "make it clean" are different steps. Get to green with only
+enough production behavior to pass the current test and preserve previous tests.
+Do not weaken assertions, anticipate future list items, or add speculative
+behavior. Refactor separately so failures remain easy to interpret.
 
 ## Refactor with restraint
 
-Refactoring is optional per cycle — only do it when it actually improves the
-design. Duplication is a hint, not a command — only unify when it's actually
-costing you. Stop at "better than before," not "perfect."
+Refactoring is optional per cycle — limit it to the current slice and only do it
+when it improves the design. Duplication is a hint, not a command — unify only
+when it is actually costing you. Stop at "better than before," not "perfect."
 
 ## Gotchas
 
 - Mixing implementation design decisions into the Test List step — naming the
   interface is fine, choosing the algorithm or data structure is not.
-- Writing tests without assertions just to get code coverage.
-- Writing every test up front, then treating a trivial failure (a missing
-  class or method, not a real assertion) as proof you're "red" — then writing
-  all the implementation in one pass. One test at a time is the point;
-  batching defeats it.
-- Deleting assertions so a test pretends to pass.
-- Copying the actual, computed value into the expected value — this makes a
-  test that can never fail.
+- Writing every test up front, then treating a trivial failure (a missing class
+  or method, not a real assertion) as proof you're "red" — then writing all the
+  implementation in one pass. One seam, one test, and one minimal implementation
+  at a time; batching defeats the feedback loop.
 - Abstracting too soon.
 
 ---
 
-For RSpec-specific test _quality_ (non-tautological tests, mocking,
-structure), see the `write-tests` skill — this skill is the process; that one
-is the bar for each test.
+For test quality — public behavior, non-tautological assertions, test levels,
+mocking boundaries, and framework-specific references — see the `test-principles`
+skill. This skill owns the process; `test-principles` owns the quality bar for
+each test.

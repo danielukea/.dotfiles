@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Principles"
+  short_description: "Write high-signal tests around public behavior"
+  default_prompt: "Apply test principles to this change: identify public behavior, choose the narrowest confidence-giving test level, mock only appropriate boundaries, and avoid tautological or implementation-coupled assertions."
