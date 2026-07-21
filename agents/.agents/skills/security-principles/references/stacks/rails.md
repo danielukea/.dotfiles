@@ -1,6 +1,55 @@
-# Rails Security Patterns
+# Stack Adapter: Ruby on Rails
 
-Rails-specific vulnerabilities and code patterns to look for during security review.
+Rails-specific security knowledge — what the framework guarantees automatically,
+and the unsafe/safe code forms for each vulnerability class. Loaded once a
+`Gemfile` is detected.
+
+## What Rails already guarantees
+
+Half of would-be vulnerabilities are handled by the framework or its common
+libraries. Know these so you neither reinvent them nor mistake safe code for
+unsafe:
+
+- **HTML escaping (XSS):** ERB auto-escapes all output. `<%= user.field %>` with
+  no `html_safe`/`raw()` call is safe — unsafe only when the developer explicitly
+  opts out (`raw`, `.html_safe`, `content_tag(..., escape: false)`).
+- **SQL injection:** ActiveRecord parameterizes hash/array-form queries
+  (`where(name: x)`, `where("name = ?", x)`) — injectable only when the developer
+  builds a raw SQL string with interpolation.
+- **Mass assignment:** Rails 4+ raises `ForbiddenAttributesError` on unpermitted
+  params rather than silently assigning. `User.new(params[:user])` crashes (bad
+  practice, not attribute injection); the real vulnerability is `.permit!`.
+- **CSRF:** `protect_from_forgery` is on by default; all non-GET requests require a
+  token. A `skip_before_action :verify_authenticity_token` is only a vulnerability
+  on a **cookie-authenticated** endpoint — Bearer-token APIs legitimately skip it.
+- **Session cookies:** `config.force_ssl = true` sets `Secure` on cookies and
+  enables HSTS; `session_store` sets `HttpOnly` by default. All three are covered
+  by that one setting — not separate gaps.
+- **CSP:** if `config/initializers/content_security_policy.rb` exists, CSP is
+  configured — not a missing-header gap.
+
+### Library guarantees
+
+- **Devise:** bcrypt password hashing (`database_authenticatable`),
+  `reset_session` on sign-in/out, token TTL via `confirmable`/`recoverable`,
+  account lockout via `lockable`. Check `config/initializers/devise.rb` before
+  treating auth as home-rolled or weak.
+- **Pundit / CanCanCan:** `load_and_authorize_resource` or `after_action
+  :verify_authorized` means `Model.find(params[:id])` is scoped and authorized —
+  not IDOR.
+- **Rack::Attack:** if `config/initializers/rack_attack.rb` throttles an endpoint,
+  rate limiting is not missing there.
+- **SecureHeaders:** the `secure_headers` gem adds CSP, HSTS, X-Frame-Options,
+  X-Content-Type-Options automatically when configured.
+
+### Brakeman noise
+
+Brakeman flags patterns that are often already safe — check for a nearby allowlist
+or sanitization step it missed:
+- "Possible SQL injection" on `order(params[:sort])` when the column is validated
+  against an allowlist in the same method.
+- "Cross-site scripting" on `link_to` with a URL from `url_for`/a route helper.
+- "Session setting" warnings when `reset_session` is called correctly.
 
 ---
 
@@ -19,7 +68,7 @@ User.new(params.require(:user).permit(:name, :email))
 params.require(:user).permit!
 ```
 
-**Look for:** `.permit!`, `update(params)`, `new(params[:model])` without permit list, params passed directly to `create`/`update_attributes`.
+**Code signals:** `.permit!`, `update(params)`, `new(params[:model])` without permit list, params passed directly to `create`/`update_attributes`.
 
 ---
 
@@ -39,7 +88,7 @@ User.where("role = ?", role)
 User.order(created_at: :desc)                         # allowlist sort columns
 ```
 
-**Look for:** String interpolation in `.where()`, `.order()`, `.group()`, `.having()`, `.joins()`, `.select()`, `.find_by_sql()`, raw `execute()`.
+**Code signals:** String interpolation in `.where()`, `.order()`, `.group()`, `.having()`, `.joins()`, `.select()`, `.find_by_sql()`, raw `execute()`.
 
 ---
 
@@ -72,7 +121,7 @@ ERB::Util.html_escape()  # same
 # Rails auto-escapes by default in templates — unsafe only when using html_safe/raw
 ```
 
-**Look for:** `.html_safe` on user-controlled values, `raw()` helper, `render inline:` with params, `escape: false` on content helpers.
+**Code signals:** `.html_safe` on user-controlled values, `raw()` helper, `render inline:` with params, `escape: false` on content helpers.
 
 ---
 
@@ -111,7 +160,7 @@ def destroy
 end
 ```
 
-**Look for:** Login action missing `reset_session` before setting session data. Logout missing `reset_session`.
+**Code signals:** Login action missing `reset_session` before setting session data. Logout missing `reset_session`.
 
 ---
 
@@ -129,7 +178,7 @@ authorize! :read, @document   # CanCanCan
 policy(@document).show?       # Pundit
 ```
 
-**Look for:** `Model.find(params[:id])` at top of actions without subsequent authorization check, missing `before_action :authenticate_user!` or `before_action :authorize!`, admin-only actions without role check.
+**Code signals:** `Model.find(params[:id])` at top of actions without subsequent authorization check, missing `before_action :authenticate_user!` or `before_action :authorize!`, admin-only actions without role check.
 
 ---
 
@@ -146,7 +195,7 @@ File.read(params[:filename])              # arbitrary file read
 `cat #{params[:file]}`                    # command injection + file read
 ```
 
-**Check:** File type validation (extension AND magic bytes), storage outside public/ directory, no direct execution of uploaded files, virus scanning for sensitive apps.
+**Requires:** File type validation (extension AND magic bytes), storage outside public/ directory, no direct execution of uploaded files, virus scanning for sensitive apps.
 
 ---
 
@@ -162,13 +211,13 @@ YAML.safe_load(params[:config])   # restricts to safe types
 JSON.parse(params[:data])         # JSON is safe
 ```
 
-**Look for:** `Marshal.load`, `YAML.load` (not `.safe_load`), `.load` on any serialization library with user input.
+**Code signals:** `Marshal.load`, `YAML.load` (not `.safe_load`), `.load` on any serialization library with user input.
 
 ---
 
 ## Secrets & Configuration
 
-**Look for:**
+**Code signals:**
 - API keys, tokens, passwords in `config/` files checked into git
 - `ENV.fetch('KEY', 'hardcoded_default')` where default is a real secret
 - `Rails.application.credentials` used correctly vs. hardcoded alternatives
@@ -210,7 +259,7 @@ end
 
 ## Rate Limiting (Rack::Attack)
 
-**Look for absence of rate limiting on:**
+**Rate limiting is expected on:**
 - `POST /sessions` (login)
 - `POST /passwords` (password reset request)
 - `GET /passwords/edit` (reset token consumption)
@@ -229,4 +278,4 @@ if params[:token] == stored_token
 if ActiveSupport::SecurityUtils.secure_compare(params[:token], stored_token)
 ```
 
-**Look for:** `==` comparisons of security tokens, API keys, signatures, HMAC values.
+**Code signals:** `==` comparisons of security tokens, API keys, signatures, HMAC values.

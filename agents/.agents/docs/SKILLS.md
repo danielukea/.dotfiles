@@ -29,7 +29,8 @@ fixed output formats, finding caps).
 
 - **Knowledge skills**: durable principles/patterns/gotchas. Composable, no mandatory
   workflow, trigger on their own descriptions. Models in this repo:
-  `rails-composition-dhh`, `react-composition`, `design-principles`, `test-principles`.
+  `rails-composition-dhh`, `react-composition`, `design-principles`, `test-principles`,
+  `security-principles`.
 - **Orchestration skills**: workflows, parallel agent dispatch, API sequences. Keep
   them thin and have them **reference knowledge skills by name** rather than embedding
   the knowledge (e.g. `arch-design` → `design-principles`).

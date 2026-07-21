@@ -1,6 +1,24 @@
-# React / Frontend Security Patterns
+# Stack Adapter: React / Frontend
 
-Frontend-specific vulnerabilities to look for during security review.
+Frontend-specific security knowledge — what React guarantees automatically, and
+the unsafe/safe code forms for each vulnerability class. Loaded once a
+`package.json` with React (or `*.tsx`/`*.jsx`) is detected. For the Rails↔React
+seams (CSRF tokens on API calls, token storage, CSP coordination), also load
+[cross-stack.md](cross-stack.md).
+
+## What React already guarantees
+
+- **JSX auto-escaping (XSS):** React escapes every value rendered in JSX.
+  `{user.field}`, `{comment.text}`, and template-literal children are safe —
+  unsafe only via `dangerouslySetInnerHTML`.
+- **Router redirects:** `<Navigate to="/safe-path" />` with a hardcoded string is
+  safe; only user-controlled `to`/`navigate()` targets are open-redirect vectors.
+- **`fetch()` is not SSRF:** the same-origin policy sandboxes browser requests.
+  Client-side `fetch(userUrl)` is not SSRF — that requires the *server* to make
+  the request.
+- **CSP via meta tag:** a `<meta http-equiv="Content-Security-Policy">` tag makes
+  CSP active even without an HTTP header — check the HTML template before treating
+  CSP as missing.
 
 ---
 
@@ -19,7 +37,7 @@ import DOMPurify from 'dompurify'
 <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(user.bio) }} />
 ```
 
-**Look for:** Any `dangerouslySetInnerHTML` — flag for review even if seemingly safe. Check if the value can ever contain user-supplied content.
+**Code signals:** Any `dangerouslySetInnerHTML` — unsafe whenever the value can ever contain user-supplied content, even if it looks safe at a glance.
 
 ---
 
@@ -35,7 +53,7 @@ document.write(location.search)
 element.textContent = userData   // sets text, not HTML
 ```
 
-**Look for:** `.innerHTML =` with anything that could be user-controlled, `document.write()`, `.insertAdjacentHTML()`.
+**Code signals:** `.innerHTML =` with anything that could be user-controlled, `document.write()`, `.insertAdjacentHTML()`.
 
 ---
 
@@ -49,7 +67,7 @@ setTimeout(userString, 100)   // string form executes as code
 setInterval(userString, 100)
 ```
 
-**Look for:** `eval(`, `new Function(`, string-form `setTimeout`/`setInterval`.
+**Code signals:** `eval(`, `new Function(`, string-form `setTimeout`/`setInterval`.
 
 ---
 
@@ -66,7 +84,7 @@ Object.assign(target, userJSON)  // shallow, less dangerous but watch deep merge
 const dict = Object.create(null)
 ```
 
-**Look for:** Deep merge functions (`_.merge`, `deepmerge`, `extend`) with user-controlled source objects.
+**Code signals:** Deep merge functions (`_.merge`, `deepmerge`, `extend`) with user-controlled source objects.
 
 ---
 
@@ -82,7 +100,7 @@ window.token = token
 // If localStorage is unavoidable, ensure strict CSP and no XSS vectors
 ```
 
-**Look for:** `localStorage.setItem` or `sessionStorage.setItem` storing tokens, JWTs, or session identifiers.
+**Code signals:** `localStorage.setItem` or `sessionStorage.setItem` storing tokens, JWTs, or session identifiers. (The server-vs-client storage decision is a full-stack seam — see [cross-stack.md](cross-stack.md).)
 
 ---
 
@@ -96,21 +114,21 @@ window.location.href = `/${userInput}`
 // Dangerous input: javascript:alert(1) or https://evil.com
 ```
 
-**Look for:** `window.location =`, `window.location.href =`, `window.location.replace(` with user-controlled values. Check if the URL is validated to be relative or same-origin.
+**Code signals:** `window.location =`, `window.location.href =`, `window.location.replace(` with user-controlled values. Check if the URL is validated to be relative or same-origin.
 
 ---
 
 ## Content Security Policy
 
-**Check for CSP header or meta tag:**
+CSP can be delivered as a meta tag or (better) an HTTP header:
 ```html
 <!-- In HTML meta tag -->
 <meta http-equiv="Content-Security-Policy" content="...">
 ```
 
-Or as HTTP header (better). A missing or weak CSP dramatically increases XSS impact.
+A missing or weak CSP dramatically increases XSS impact.
 
-**Weak CSP signs:**
+**Weak CSP signals:**
 - `script-src *` — allows scripts from anywhere
 - `script-src 'unsafe-inline'` without nonce — allows inline scripts
 - `script-src 'unsafe-eval'` — allows eval() and similar
@@ -132,25 +150,7 @@ Or as HTTP header (better). A missing or weak CSP dramatically increases XSS imp
 ></script>
 ```
 
-**Look for:** External `<script src>` tags without `integrity` attribute.
-
----
-
-## CSRF on API Calls
-
-For cookie-authenticated SPAs, API calls need CSRF protection:
-
-```js
-// Must include CSRF token in state-changing requests
-fetch('/api/users/1', {
-  method: 'DELETE',
-  headers: {
-    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-  }
-})
-```
-
-**Look for:** Mutations (POST/PUT/PATCH/DELETE) to cookie-authenticated endpoints without CSRF token in headers.
+**Code signals:** External `<script src>` tags without `integrity` attribute.
 
 ---
 
@@ -171,7 +171,7 @@ if (isRelative(returnTo)) navigate(returnTo)
 
 ## Sensitive Data in State / Redux
 
-**Look for:**
+**Code signals:**
 - Full credit card numbers, SSNs, passwords stored in Redux state or React state (accessible via DevTools)
 - Sensitive data in component props that get serialized to localStorage for persistence
 - `console.log` statements outputting auth tokens or sensitive user data
@@ -193,7 +193,7 @@ window.addEventListener('message', (event) => {
 })
 ```
 
-**Look for:** `window.addEventListener('message', ...)` without `event.origin` validation.
+**Code signals:** `window.addEventListener('message', ...)` without `event.origin` validation.
 
 ---
 
@@ -210,7 +210,7 @@ const privateKey = import.meta.env.VITE_PRIVATE_KEY
 
 Any secret that must stay private cannot have `REACT_APP_` or `VITE_` prefix — those values end up in the browser bundle. Only public API keys (publishable Stripe key, public analytics ID) should be in frontend env vars.
 
-**Look for:** `process.env.REACT_APP_*` or `import.meta.env.VITE_*` containing secret keys, private API tokens, or internal URLs.
+**Code signals:** `process.env.REACT_APP_*` or `import.meta.env.VITE_*` containing secret keys, private API tokens, or internal URLs.
 
 ---
 
