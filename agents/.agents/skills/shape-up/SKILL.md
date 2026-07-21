@@ -1,20 +1,6 @@
 ---
 name: shape-up
-description: >
-  Concepts from the Shape Up methodology (Basecamp / Ryan Singer) for shaping, planning, and
-  building a project — a running lens applied across the whole arc, used à la carte and
-  alongside other skills, not as a team cadence. Teaches shaping work at the right level of
-  abstraction (rough/solved/bounded, breadboarding, de-risking rabbit holes before starting),
-  fixed time / variable scope via an appetite, building in integrated vertical slices, and
-  slicing work into scopes (tracked on a hill chart) that map to issues. Use when a user says
-  "shape up", "shape this", "shape a project", "appetite", "vertical slice", "scopes", "slice
-  into scopes", "break into issues", "breadboard", "hill chart", "scope hammering", "fixed
-  time variable scope", or wants to scope work to a time budget rather than estimate it. Runs
-  concurrently with `brainstorm` / `user-centered-problem-definition` (problem depth) and
-  `html-mockup` (prototypes), and complements `arch-design` — reach for those directly for
-  generic "define the problem" / "plan the approach for this feature"; reach here for the
-  appetite, scope-slicing, and build-to-a-budget lens. Teaches WHAT the concepts optimize for
-  and where they go wrong, not a workflow.
+description: Concepts from Shape Up (Basecamp) for shaping, planning, and building a project — a lens used à la carte, not a team cadence. Teaches shaping at the right abstraction (rough/solved/bounded, breadboarding, de-risking rabbit holes), fixed time/variable scope via an appetite, vertical slices, and hill-chart scopes. Use when a user says "shape up", "appetite", "vertical slice", "breadboard", "hill chart", or wants to scope to a budget rather than estimate. Complements `brainstorm`/`arch-design`.
 allowed-tools: Read, Grep, Glob
 ---
 

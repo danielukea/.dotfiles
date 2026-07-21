@@ -1,6 +1,6 @@
 ---
 name: active-admin
-description: Deep DSL reference for the ActiveAdmin Ruby gem (activeadmin.info) — registering resources, index/show/form pages, filters, scopes, batch actions, custom controller/page actions, sidebars, decorators, and authorization adapters (CanCanCan/Pundit/custom). Use whenever building, reviewing, or debugging an `ActiveAdmin.register` block, an `app/admin/*.rb` file, an ActiveAdmin index/show/form/filter/sidebar, a `batch_action`/`member_action`/`collection_action`, an ActiveAdmin authorization adapter, or anything under an ActiveAdmin-mounted admin panel. Also trigger on "ActiveAdmin", "admin panel gem", "Formtastic admin form", "Arbre component", or "Ransack filter" in an ActiveAdmin context. Targets ActiveAdmin 3.x.
+description: Deep DSL reference for the ActiveAdmin Ruby gem (activeadmin.info) — resources, index/show/form pages, filters, scopes, batch/member/collection actions, sidebars, decorators, and authorization adapters (CanCanCan/Pundit/custom). Use for any `ActiveAdmin.register` block, `app/admin/*.rb` file, admin index/show/form/filter/sidebar, or authorization adapter. Trigger on "ActiveAdmin", "admin panel gem", "Formtastic", "Arbre", or "Ransack filter". Targets ActiveAdmin 3.x.
 ---
 
 # ActiveAdmin DSL

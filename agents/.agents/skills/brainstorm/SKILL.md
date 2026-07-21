@@ -1,15 +1,6 @@
 ---
 name: brainstorm
-description: >
-  Collaborative brainstorming and problem definition session. Gathers context, interviews
-  you through structured questioning, generates prototypes (Mermaid diagrams, ASCII
-  wireframes, decision matrices, outlines), and synthesizes a Problem Brief — a saved
-  artifact defining the problem and birds-eye solution direction. Use when you say
-  "brainstorm", "help me think through", "I have an idea", "let's explore", "I'm not
-  sure how to approach", "whiteboard this", "rubber duck", or when you want to sharpen
-  a vague idea before committing to a design or implementation. Not for: code review
-  or architecture (use arch-design once the problem is defined), factual research
-  (use deep-research), or detailed implementation planning.
+description: Collaborative brainstorming and problem-definition session. Gathers context, interviews you through structured questioning, generates prototypes (Mermaid diagrams, ASCII wireframes, decision matrices), and synthesizes a Problem Brief defining the problem and solution direction. Use when you say "brainstorm", "help me think through", "I have an idea", "let's explore", "whiteboard this", "rubber duck", or want to sharpen a vague idea before committing to a design. Not for: architecture (use arch-design), factual research (use deep-research), or implementation planning.
 allowed-tools: Read, Write, Bash, AskUserQuestion, WebFetch
 ---
 

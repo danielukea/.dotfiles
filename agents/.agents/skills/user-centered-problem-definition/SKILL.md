@@ -1,17 +1,6 @@
 ---
 name: user-centered-problem-definition
-description: >
-  Framework-agnostic lens for defining a problem from the people's side — a structured
-  map of who's involved (stakeholders vs users), what outcome they're after (jobs), how
-  they move through it today (journeys), what they need to accomplish (stories), and what
-  the system must make possible (affordances). Use when a problem is user-facing and the
-  "who" needs real structure, or when a user says "map the users", "who are the
-  stakeholders", "user journey", "user stories", "jobs to be done", "who is this for",
-  "personas", or "map the affordances". Pairs with `brainstorm` (which invokes this when
-  its "who feels the pain?" needs depth) and feeds the Problem Brief. Teaches WHAT to map
-  and the traps, not a workflow. Not for: implementation or UI components (use
-  `arch-design`), backlog tickets with estimates/acceptance criteria (use the issue
-  tracker flow), or getting to a one-sentence problem fast (that's `brainstorm`).
+description: Framework-agnostic lens for defining a problem from the people's side — who's involved (stakeholders vs users), the outcome they're after (jobs), how they move through it (journeys), what they need to accomplish (stories), and what the system must enable (affordances). Use when a problem is user-facing and needs structure, or when a user says "map the users", "user journey", "jobs to be done". Pairs with `brainstorm`, feeds the Problem Brief. Not for: implementation (`arch-design`) or a one-sentence problem.
 allowed-tools: Read, Grep, Glob, AskUserQuestion
 ---
 

@@ -1,17 +1,6 @@
 ---
 name: design-principles
-description: >
-  Durable, framework-agnostic principles for evaluating and shaping software
-  design — Easy To Change (ETC), Tell-Don't-Ask, pragmatic SOLID, convention
-  over configuration, testability, and least surprise. Use whenever weighing a
-  design or architectural approach, reviewing a proposed structure, deciding
-  between two ways to factor something, or when a user says "design principles",
-  "is this well-designed?", "evaluate this approach", "critique this design",
-  "principles review", or "which of these is cleaner?". Also apply proactively
-  when sketching your own approach before writing code — you don't need to
-  dispatch anything to use these. Teaches WHAT good design optimizes for, not a
-  workflow. Stack-specific patterns live in rails-composition-dhh /
-  react-composition; this is the layer above them.
+description: Durable, framework-agnostic principles for evaluating software design — Easy To Change (ETC), Tell-Don't-Ask, pragmatic SOLID, convention over configuration, testability, and least surprise. Use when weighing a design approach, reviewing a proposed structure, or when a user says "design principles", "is this well-designed?", "evaluate this approach", "critique this design", "principles review". Apply proactively before writing code. Teaches WHAT good design optimizes for; stack-specific patterns live in rails-composition-dhh / react-composition.
 allowed-tools: Read, Grep, Glob
 ---
 

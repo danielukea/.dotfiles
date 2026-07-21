@@ -1,6 +1,6 @@
 ---
 name: strong-migrations
-description: Use whenever creating, generating, writing, editing, reviewing, or verifying a Rails database migration — including the everyday `rails generate migration` / simple add-column case, not only obviously dangerous ones. Covers the Rails migration generator and its name-parsing conventions, zero-downtime/rolling-deploy safety, the expand/contract multi-deploy pattern, strong_migrations verification, and the safe multi-step sequence for every operation that touches an existing production table or column (remove/rename/retype a column, add constraints, add an index, backfill data). Trigger even for a plain "add a column" migration or when someone asks "is this migration safe?" or pastes migration code for review. Not for splitting migrations out of a feature branch into a stacked PR (use extract-migrations) or syncing the local dev DB (use sprout-sync).
+description: Use whenever creating, writing, editing, reviewing, or verifying a Rails database migration — including the everyday `rails generate migration` / add-column case, not just dangerous ones. Covers generator naming conventions, zero-downtime safety, expand/contract, strong_migrations verification, and the safe sequence for operations on an existing table/column (remove/rename/retype, add constraints, add an index, backfill). Trigger even for a plain "add a column" migration. Not for extracting migrations into a stacked PR (`extract-migrations`) or syncing the local DB (`sprout-sync`).
 ---
 
 # Rails Migrations, Safe for Rolling Deploys

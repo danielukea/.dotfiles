@@ -1,14 +1,6 @@
 ---
 name: html-mockup
-description: >
-  Build a static HTML mockup of a UI surface, grounded in the project's real design
-  system — real components, tokens, CSS — rather than a generic invented look. Renders
-  it locally in the browser for fast iteration. Use when you say "html mockup", "mock
-  this up", "make a mockup", "show me what this would look like", "mock up this
-  screen/page/feature", "prototype the UI in HTML", or when brainstorm's Prototype gear
-  needs real visual fidelity rather than an ASCII wireframe. Not for structural/flow
-  sketches (stay with Mermaid/ASCII in brainstorm for that) and not for planning the real
-  implementation (a separate step, not this skill's job).
+description: Build a static HTML mockup of a UI surface, grounded in the project's real design system — real components, tokens, CSS — rather than a generic invented look. Renders locally in the browser for fast iteration. Use when you say "html mockup", "mock this up", "make a mockup", "show me what this would look like", "prototype the UI in HTML", or when brainstorm's Prototype gear needs real visual fidelity. Not for structural/flow sketches (use Mermaid/ASCII in brainstorm) or planning the real implementation.
 allowed-tools: Read, Grep, Glob, Write, Bash, Skill
 ---
 

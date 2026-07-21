@@ -1,6 +1,6 @@
 ---
 name: react-composition
-description: Generic, framework-agnostic React composition patterns for reusing logic and structuring component APIs — custom hooks, compound components, container/presentational separation, render props, and higher-order components. Use this whenever designing or refactoring React components, hooks, or contexts; deciding HOW to share stateful logic across components; building related component sets (tabs, menus, dropdowns, accordions, steppers); designing a reusable component API; or reviewing whether a component's composition is sound — even if the user doesn't name a specific pattern. Covers WHICH pattern to reach for and why. Does not cover version-specific React APIs or any particular data-fetching/UI library.
+description: Framework-agnostic React composition patterns for reusing logic and structuring component APIs — custom hooks, compound components, container/presentational separation, render props, and HOCs. Use when designing or refactoring React components, hooks, or contexts; sharing stateful logic; building related component sets (tabs, accordions, steppers); or reviewing whether a component's composition is sound — even without a named pattern. Covers WHICH pattern to reach for. Excludes version-specific APIs or data-fetching libraries.
 license: MIT
 metadata:
   author: consolidated from patterns.dev

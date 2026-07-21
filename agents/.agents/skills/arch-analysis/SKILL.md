@@ -1,21 +1,6 @@
 ---
 name: arch-analysis
-description: >
-  Deep architectural analysis of any codebase using parallel exploration agents.
-  Each agent examines a different dimension (coupling, complexity, churn, state
-  management, duplication, error handling, structure, extensibility, variation
-  points, contract surface, vertical slicing) and produces structured findings
-  that get synthesized into a prioritized improvement report grounded in
-  connascence and ETC ("Easier to Change"). Use this skill whenever the user
-  says "analyze architecture", "find architectural improvements", "codebase
-  analysis", "what should we refactor", "tech debt audit", "code health check",
-  "architectural review", "we have a lot of tech debt", "is this extensible",
-  "how hard will this be to change", or asks about structural problems,
-  hotspots, coupling issues, or extensibility across the whole codebase or a
-  scoped feature. Also use when the user wants to understand the overall
-  shape of an unfamiliar codebase before extending it. This is different from
-  code-review (which examines a diff) — this examines the entire codebase as
-  it exists today.
+description: Deep architectural analysis of a codebase using parallel exploration agents across coupling, complexity, churn, duplication, error handling, and extensibility, synthesized into a prioritized report grounded in connascence and ETC ("Easier to Change"). Use when the user says "analyze architecture", "tech debt audit", "code health check", "is this extensible", "how hard will this be to change", or wants to understand an unfamiliar codebase's shape before extending it. Differs from code-review (a diff): this examines the whole codebase as it exists today.
 user-invokeable: true
 allowed-tools: Read, Glob, Grep, Bash, Write, Edit, Agent, AskUserQuestion
 ---

@@ -91,6 +91,14 @@ The `description` frontmatter is how the skill gets selected — write it for th
 Include the activation keywords and phrasings a user would actually say. A vague
 description means the skill never fires.
 
+**Budget: 120 tokens max.** Every description loads into context on every turn, across
+every skill — length is a shared cost, not a free-form field. When trimming to fit, cut
+in this order before dropping trigger phrases: redundant/near-duplicate quoted triggers,
+verbose connective prose ("Also trigger on...", "Use whenever the user..."), and
+parenthetical elaboration that repeats what the trigger phrase already implies. Never cut
+the `Not for: ... — use X` disambiguation pointers; those are what keeps sibling skills
+from colliding.
+
 ## Composing skills — peers and seams
 
 Most useful skills plug into others. Two failure modes to design out:

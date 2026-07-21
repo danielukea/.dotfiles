@@ -1,6 +1,6 @@
 ---
 name: newrelic-observability
-description: Investigate and prove observability issues — especially LOGGING — with New Relic (docs.newrelic.com), via NRQL and the `newrelic` CLI / NerdGraph GraphQL API. Use whenever querying New Relic data, writing or reviewing NRQL, running `newrelic nrql query` or a NerdGraph curl, checking "are my logs arriving?", investigating an error/log spike, correlating logs to an APM trace via trace.id/span.id, confirming a fix with a before/after window, or defining an NRQL alert condition. Also trigger on "New Relic", "NRQL", "NerdGraph", "Log event type", "entity.guid", "logs in context", "are my logs arriving". Not for: Honeybadger faults — use `wealthbox:diagnose-and-fix-error` / `wealthbox:fix-honeybadger`; Wealthbox request-log search — use `wealthbox:request-log-search`.
+description: Investigate and prove observability issues — especially LOGGING — with New Relic, via NRQL and the `newrelic` CLI / NerdGraph API. Use when querying New Relic data, writing/reviewing NRQL, checking "are my logs arriving?", or correlating logs to an APM trace via trace.id/span.id. Trigger on "New Relic", "NRQL", "NerdGraph", "entity.guid". Not for: Honeybadger faults (`wealthbox:diagnose-and-fix-error`) or request-log search (`wealthbox:request-log-search`).
 ---
 
 # New Relic Observability — Prove It With NRQL

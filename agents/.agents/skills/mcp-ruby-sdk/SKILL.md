@@ -1,6 +1,6 @@
 ---
 name: mcp-ruby-sdk
-description: Deep API reference for the official Ruby SDK (the `mcp` gem, github.com/modelcontextprotocol/ruby-sdk) for building Model Context Protocol servers and clients in Ruby. Use whenever writing or reviewing an `MCP::Server` or `MCP::Client` in Ruby, defining an `MCP::Tool`/`MCP::Resource`/`MCP::Prompt` (class-based, `.define` block, or `server.define_tool` DSL), wiring the stdio or `StreamableHTTPTransport` (Rack-mountable — Rails/Sinatra), configuring `MCP.configure` (exception_reporter, around_request), or testing a server built with this gem. Also trigger on "mcp gem", "MCP::Server", "MCP::Tool", "MCP::Client", "StreamableHTTPTransport", or "Mcp::" in Ruby code. Covers the Ruby SDK's concrete API only — for protocol-level concepts (what a Tool/Resource/Sampling primitive IS, wire format, versioning, OAuth), see `model-context-protocol` first.
+description: Deep API reference for the official Ruby SDK (the `mcp` gem) for building MCP servers/clients in Ruby. Use when writing or reviewing an `MCP::Server`/`MCP::Client`, defining `MCP::Tool`/`Resource`/`Prompt`, wiring stdio or `StreamableHTTPTransport`, or configuring `MCP.configure`. Trigger on "mcp gem", "MCP::Server", "StreamableHTTPTransport", or "Mcp::" in Ruby. Concrete API only — for protocol concepts see `model-context-protocol` first.
 ---
 
 # MCP Ruby SDK

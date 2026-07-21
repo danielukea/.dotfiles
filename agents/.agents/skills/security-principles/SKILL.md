@@ -1,17 +1,6 @@
 ---
 name: security-principles
-description: >
-  Durable, framework-agnostic security principles for judging whether code is
-  safe: trust-boundary analysis, the OWASP Top 10 (2025) and API Security Top 10
-  (2023) categories, named attack patterns (injection, XSS, CSRF, IDOR, SSRF, and
-  more), and what your framework already guarantees automatically (Rails and
-  React stack adapters included). Use when writing
-  or evaluating security-sensitive code (auth, sessions, payments, file uploads,
-  admin functions, cryptography), or when a user says "security review", "security
-  audit", "check for vulnerabilities", "OWASP compliance", "find security issues",
-  "secure this code", "is this safe?", or "could this be exploited?". Teaches WHAT
-  makes code safe and WHAT the framework already guarantees — apply these lenses
-  directly wherever they bear on the code in front of you.
+description: Durable, framework-agnostic security principles for judging code safety: trust-boundary analysis, OWASP Top 10 (2025) and API Security Top 10 (2023) categories, named attack patterns (injection, XSS, CSRF, IDOR, SSRF, and more), and what your framework already guarantees (Rails/React adapters included). Use when writing or evaluating security-sensitive code (auth, sessions, payments, uploads, admin, crypto), or when a user says "security review", "check for vulnerabilities", "is this safe?", or "could this be exploited?".
 allowed-tools: Read, Grep, Glob, Bash
 ---
 

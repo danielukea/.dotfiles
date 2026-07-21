@@ -1,6 +1,6 @@
 ---
 name: style-review
-description: Composition and pattern review of a diff (current branch, named branch, or PR) against DHH Rails composition and headless-first React style guides. Fans out general-purpose subagents that load the DHH Rails composition and headless-first React knowledge skills to review in their own context, runs a principles review (ETC, Tell-Don't-Ask, SOLID, conventions, testability, least surprise), and returns severity-tagged refactor suggestions grounded in the codebase's actual patterns. Pattern fit only — not a bug-hunting reviewer. Use whenever the user says "style review", "review this branch", "refactor suggestions", "is this DHH-style", "is this headless-first", "/style-review", or wants to evaluate composition/pattern quality of a diff before pushing.
+description: Composition and pattern review of a diff (current branch, named branch, or PR) against DHH Rails composition and headless-first React style guides. Fans out subagents to review, runs a principles pass (ETC, Tell-Don't-Ask, SOLID, conventions, testability), and returns severity-tagged refactor suggestions grounded in the codebase's patterns. Pattern fit only — not a bug-hunting reviewer. Use when the user says "style review", "review this branch", "refactor suggestions", "is this DHH-style", or "/style-review".
 allowed-tools: Read, Grep, Glob, Bash, Agent, AskUserQuestion, Skill
 ---
 

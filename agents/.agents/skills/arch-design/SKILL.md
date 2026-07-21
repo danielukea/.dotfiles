@@ -1,6 +1,6 @@
 ---
 name: arch-design
-description: Style-guide-grounded architectural design for a feature. Fans out general-purpose subagents that load the DHH Rails composition and headless-first React knowledge skills, and runs a principles review against the `design-principles` skill, then continues into implementation however fits — Superpowers, Plan Mode, or just coding. Use whenever the user says "design this", "plan the approach", "how should I build X", "explore approaches", or invokes /arch-design. Scale the process to the feature: a small change may need only a quick principles check, a cross-layer feature warrants fanning out both stacks. **Not for:** bug fixes (just code), broad refactors of existing code (use `arch-analysis`), or initial product scoping (use `brainstorm`).
+description: Style-guide-grounded architectural design for a feature. Fans out subagents loading DHH Rails composition and headless-first React knowledge skills, runs a `design-principles` review, then continues into implementation. Use when the user says "design this", "plan the approach", "how should I build X", "explore approaches", or invokes /arch-design. Scale to the feature: a small change needs only a quick principles check. **Not for:** bug fixes (just code), broad refactors (use `arch-analysis`), or product scoping (use `brainstorm`).
 allowed-tools: Read, Grep, Glob, Bash, Agent, WebFetch, AskUserQuestion, Skill, mcp__basecamp__*
 ---
 
