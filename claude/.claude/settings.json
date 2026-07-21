@@ -30,16 +30,6 @@
   },
   "model": "opus[1m]",
   "skillOverrides": {
-    "ai-ui-patterns": "off",
-    "render-props-pattern": "off",
-    "incremental-static-rendering": "off",
-    "progressive-hydration": "off",
-    "client-side-rendering": "off",
-    "react-render-optimization": "off",
-    "compound-pattern": "off",
-    "hoc-pattern": "off",
-    "hooks-pattern": "off",
-    "presentational-container-pattern": "off",
     "library-docs": "off"
   },
   "hooks": {
@@ -168,18 +158,11 @@
   "enabledPlugins": {
     "context7@claude-plugins-official": false,
     "skill-creator@claude-plugins-official": true,
-    "wealthbox@wealthbox": true,
-    "frontend-design@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "explanatory-output-style@claude-plugins-official": true
   },
-  "extraKnownMarketplaces": {
-    "wealthbox": {
-      "source": {
-        "source": "git",
-        "url": "git@github.com:starburstlabs/wealthbox-claude-plugin.git"
-      },
-      "autoUpdate": true
-    }
-  },
+  "extraKnownMarketplaces": {},
   "alwaysThinkingEnabled": true,
   "effortLevel": "xhigh",
   "tui": "fullscreen",
