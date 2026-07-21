@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Delegates to the notes repo's own wq — that stays the single source of truth for query logic.
+# This wrapper exists so llm-wiki has a stable entry point (scripts/wq) plus a clear failure
+# message if the notes repo isn't present, instead of a bare "No such file or directory".
+set -euo pipefail
+
+NOTES_WQ="$HOME/Workspace/notes/wiki/bin/wq"
+
+if [ ! -x "$NOTES_WQ" ]; then
+  echo "llm-wiki: notes wiki not found at $NOTES_WQ — is ~/Workspace/notes present?" >&2
+  exit 1
+fi
+
+exec "$NOTES_WQ" "$@"
