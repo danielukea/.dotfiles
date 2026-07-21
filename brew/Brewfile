@@ -21,6 +21,7 @@ brew "mise"                   # Tool version manager (replaces asdf)
 brew "neovim"                 # Editor
 brew "tmux"                   # Terminal multiplexer
 brew "mermaid-cli"            # Mermaid diagram rendering (used by snacks.nvim image)
+cask "kitty"                  # GPU-based terminal emulator
 
 # Git enhancements
 brew "scmpuff"                # Git status number shortcuts
