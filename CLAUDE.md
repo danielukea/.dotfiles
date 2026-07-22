@@ -35,9 +35,11 @@ The install script auto-detects the OS:
 
 Each directory is a Stow package that mirrors `$HOME`:
 
+- `agents/` - Agent-agnostic config (`.agents/skills/`, `.agents/docs/`, `.agents/HEALTHCHECK.md`) shared across Claude Code, Codex, Gemini CLI
 - `brew/` - Brewfile for Homebrew dependencies (macOS)
 - `packages.apt` - apt package list (Ubuntu/Debian)
-- `claude/` - Claude Code configuration (`.claude/` settings, agents, commands, templates)
+- `claude/` - Claude Code configuration (`.claude/` settings, commands, templates) — skills live in `agents/`, not here
+- `codex/` - Codex config (`.codex/` AGENTS.md, hooks.json, rules)
 - `kitty/` - Terminal emulator config (`.config/kitty/`)
 - `launchd/` - macOS LaunchAgents for background tasks (`Library/LaunchAgents/`)
 - `mise/` - Tool version manager config (`.config/mise/`)
@@ -51,10 +53,17 @@ Each directory is a Stow package that mirrors `$HOME`:
 The `claude/` package contains:
 
 - `.claude/settings.json` - Default model, plugins, status line
-- `.claude/skills/` - Knowledge and orchestration skills (e.g. `rails-composition-dhh`, `arch-design`, `style-review`). Custom subagents were retired in favor of composable skills; orchestration skills fan out `general-purpose` subagents that `Skill`-load the relevant knowledge skill.
 - `.claude/commands/` - Slash commands (take-notes, remember-note, vibe-this)
 - `.claude/templates/` - Spec templates for bugs, features, refactors
-- `.claude/docs/` - Reference documentation (MAKING_AN_AGENT, MAKING_A_SKILL, MEMORIES, etc.)
+
+Skills are NOT under `claude/` — they're dotfiles-canonical under `agents/.agents/skills/`
+(agent-agnostic, shared with Codex/Gemini CLI), and `link.sh` auto-bridges them into
+`~/.claude/skills/` since Claude Code only discovers skills there. Add/edit skills under
+`agents/.agents/skills/<name>/`; run `./link.sh link` if a new one isn't showing up yet. Full
+bridging mechanism: see "Maintenance" in [~/.agents/docs/SKILLS.md](~/.agents/docs/SKILLS.md).
+
+Custom subagents were retired in favor of composable skills; orchestration skills fan out
+`general-purpose` subagents that `Skill`-load the relevant knowledge skill.
 
 ### Tool Management
 

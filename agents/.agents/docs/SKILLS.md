@@ -142,7 +142,19 @@ never clutters the skills tree or the git history:
 
 ## Maintenance
 
-- Where skills live and how they're linked: see the memory note on skill-source layout
-  (`~/.claude/skills` symlinks into this repo; keep skills dotfiles-canonical).
-- After creating/editing a skill in this repo, run `./link.sh link` so the symlink
-  picks it up.
+- **Where skills live**: dotfiles-canonical under `agents/.agents/skills/` (stows to
+  `~/.agents/skills/`), shared across Claude Code, Codex, and Gemini CLI. Add or edit skills
+  there — never under `claude/.claude/skills/`.
+- **The Claude Code bridge**: Claude Code only discovers skills under `~/.claude/skills/`, not
+  `~/.agents/skills/` directly. `link.sh`'s `bridge_claude_skills` step (runs after every
+  `./link.sh link`) walks `~/.agents/skills/*` and symlinks any entry missing from
+  `~/.claude/skills/` into it (`~/.claude/skills/<name>` → `../../.agents/skills/<name>`).
+  `unbridge_claude_skills` removes only the symlinks it created on unlink, leaving real
+  marketplace installs alone. The 5-minute auto-sync cron re-runs `link.sh link`, so the bridge
+  is self-healing.
+- After creating/editing a skill, run `./link.sh link` to force the bridge immediately rather
+  than waiting on the cron — a skill moved without the bridge picking it up can silently sit
+  undiscoverable by Claude Code (this happened for a week in 2026-07 during the agent-agnostic
+  restructure, before the bridge existed).
+- If a skill isn't showing up in Claude Code's available-skills list, confirm
+  `~/.claude/skills/<name>` resolves before assuming `~/.agents/skills/` alone is sufficient.
