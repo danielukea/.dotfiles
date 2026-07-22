@@ -31,5 +31,8 @@ description = "Known non-secret metadata suffixes and obvious placeholder values
 regexes = [
   '''(?i)_(url|id|ids|version|limit|hours|mode|prefix|name|offset)\s*[:=]''',
   '''(?i)['"](change_?me|placeholder|<[a-z0-9_-]+>|dev_secret|sample[-_]?value|dummy|fake[-_]?value|your[-_]|x{3,}|todo|fixme)''',
+  # `foreign_key` is an ActiveRecord association option (a column name), never a
+  # credential - e.g. `chat_foreign_key: "chat_id"` in ORM/gem documentation.
+  '''(?i)foreign_key\s*[:=]''',
 ]
 regexTarget = "match"
