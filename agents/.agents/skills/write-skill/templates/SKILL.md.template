@@ -1,0 +1,33 @@
+---
+name: skill-name
+description: <One clause on what it does> — <what it covers>. Use when <real user phrases a person would type>. Not for: <adjacent case> — use `<sibling-skill>`.
+# Optional: restrict or widen the tool set. Drop this line to inherit the default.
+allowed-tools: Read, Grep, Glob
+---
+
+# Skill Name
+
+<One short paragraph: what this skill is for and what it optimizes. If it's a knowledge
+skill with no workflow, say so — "there is no procedure here; apply the lenses that
+bear on the question." If it's an orchestrator, note that the steps are a toolkit, not
+a mandatory pipeline.>
+
+## When to use  <!-- optional: keep only if it says more than the description already does -->
+
+<The real activation contexts — mirror the description. Add a "not for" line pointing
+at any sibling skill it could be confused with. If this would just restate the
+always-loaded description, drop the section.>
+
+## <Core content>
+
+<For a knowledge skill: `##` sections per principle/pattern, detail pushed to
+references/. For an orchestrator: why-this-shape, usage, then the steps — referencing
+knowledge skills by name instead of embedding them.>
+
+## Gotchas
+
+The highest-value part of this skill. **Append new failure modes here as you hit them** —
+this list is meant to grow, and a skill with none usually isn't teaching anything the
+model didn't already know.
+
+- <First real gotcha: a concrete failure mode seen in practice, and what to do instead.>
