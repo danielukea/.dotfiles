@@ -6,6 +6,7 @@ Personal configuration and reference documentation for Codex.
 
 When the user is creating, modifying, or discussing these topics, read the relevant documentation BEFORE providing guidance:
 
+- **Writing or editing skills**: use the `write-skill` skill
 - **Writing AGENTS.md entries**: Read [~/.agents/docs/MEMORIES.md](~/.agents/docs/MEMORIES.md) first
 - **Testing/evaluating**: Read [~/.agents/docs/TESTING.md](~/.agents/docs/TESTING.md) first
 - **Team setup**: Read [~/.agents/docs/TEAM_WORKFLOWS.md](~/.agents/docs/TEAM_WORKFLOWS.md) first

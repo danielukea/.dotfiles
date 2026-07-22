@@ -19,6 +19,10 @@ principles for what makes a skill valuable (teach durable knowledge, don't railr
 judgment tasks; separate knowledge skills from orchestration; put project-specific
 conventions in that project's rules, not in a portable skill).
 
+The actionable entry point for the *craft* of authoring is the `write-skill` skill (in
+`agents/.agents/skills/write-skill/`); this section covers the repo mechanics it
+deliberately leaves out.
+
 Keep skills **dotfiles-canonical**: author them here, then run `./link.sh link`. A skill
 name that also exists in `~/.agents/skills` as a real directory (e.g. from the marketplace)
 breaks the stow re-link — make this repo the single source.
