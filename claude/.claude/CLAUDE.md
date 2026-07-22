@@ -6,7 +6,7 @@ Personal configuration and reference documentation for Claude Code.
 
 When the user is creating, modifying, or discussing these topics, read the relevant documentation BEFORE providing guidance:
 
-- **Writing or editing skills**: use the `write-skill` skill
+- **Writing or editing skills**: use the `write-skill` skill — its template/guidance is the format authority; don't copy a peer skill's shape (they may have drifted), and a passing `validate_skill.sh` is not a passed review (run its judgment passes)
 - **Writing CLAUDE.md entries**: Read [~/.agents/docs/MEMORIES.md](~/.agents/docs/MEMORIES.md) first
 - **Testing/evaluating**: Read [~/.agents/docs/TESTING.md](~/.agents/docs/TESTING.md) first
 - **Team setup**: Read [~/.agents/docs/TEAM_WORKFLOWS.md](~/.agents/docs/TEAM_WORKFLOWS.md) first

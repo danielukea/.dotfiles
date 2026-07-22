@@ -12,6 +12,8 @@ passes.
 - `scripts/validate_skill.sh <path-to/SKILL.md>` — frontmatter present, `name` matches the
   folder, `description` non-empty and under the 120-token ceiling, `## Gotchas` exists, and
   every `references/`/`templates/`/`scripts/` path named in the body exists on disk.
+- **A pass here is not a passed review.** It proves headings and paths exist — nothing about
+  DRY, altitude, or railroading. Always run the judgment passes below on your own output.
 
 ## Judgment passes
 
@@ -22,7 +24,10 @@ passes.
    isn't teaching anything. (→ `principles.md`)
 3. **DRY across layers** — does any `SKILL.md` line *re-teach* a reference instead of
    hooking to it? does any reference restate the `SKILL.md`? Redundancy is earned only as a
-   hook→full-detail relationship. (→ `principles.md`)
+   hook→full-detail relationship. Watch the `## Gotchas` section specifically: if a
+   `references/gotchas.md` exists, the SKILL.md list must be compressed *hooks* pointing to
+   it, not a second full copy — and the format authority is the template / this guidance,
+   **not** a peer skill that happens to use a fat mirror table. (→ `principles.md`)
 4. **Altitude** — is `SKILL.md` on the right side of the decide/do line? Framing and
    routing stay loaded; worked examples and fill-in detail move to `references/`.
    (→ `principles.md`)

@@ -63,3 +63,16 @@ Each line below is a hook, not the full teaching — follow the pointer for the 
   not re-teach it — see `references/principles.md`.
 - **Peer collision.** Read a new skill's `description` beside its nearest sibling before
   shipping — overlapping triggers fire the wrong skill — see `references/descriptions.md`.
+- **The format authority is this guidance, not the nearest existing skill.** Peer skills
+  may predate the current rules — copying one's shape (e.g. a fat `## Gotchas` _table_ that
+  mirrors its own gotchas reference in full) reproduces its drift. This section — a compressed,
+  append-only hook list — and `templates/SKILL.md.template` are the model. Reach for the
+  peer only to learn the domain, not the format.
+- **A green `validate_skill.sh` is not a passed review.** The linter proves the heading
+  _exists_; it can't see DRY duplication, altitude, or railroading. Run the judgment passes
+  in `references/reviewing.md` on your own output before shipping — don't let the mechanical
+  check stand in for them.
+- **A gotcha is a learning that changes a future decision — not a definition or commentary.**
+  Writing this list, an agent tried to add "`## Gotchas` documents traps in using the skill"
+  — true, but it tells a reader nothing to _do_. If an agent wouldn't act differently after
+  reading it, it isn't a gotcha. Name the failure that actually happened and the fix.
