@@ -29,11 +29,11 @@ fixed output formats, finding caps).
 
 - **Knowledge skills**: durable principles/patterns/gotchas. Composable, no mandatory
   workflow, trigger on their own descriptions. Models in this repo:
-  `rails-composition-dhh`, `react-composition`, `design-principles`, `test-principles`,
+  `rails-composition-dhh`, `react-composition`, `code-design-principles`, `test-principles`,
   `security-principles`.
 - **Orchestration skills**: workflows, parallel agent dispatch, API sequences. Keep
   them thin and have them **reference knowledge skills by name** rather than embedding
-  the knowledge (e.g. `arch-design` → `design-principles`).
+  the knowledge (e.g. `arch-design` → `code-design-principles`).
 
 Anti-pattern: durable knowledge trapped inside a mandatory orchestration ritual, so it
 can't be used any other way.
@@ -41,7 +41,9 @@ can't be used any other way.
 ## Naming convention
 
 The name tracks content **scope** — never let it outrun what's inside:
-- `<discipline>-principles` — a broad principle set (`design-principles`, `testing-principles`).
+- `<discipline>-principles` — a broad principle set (`test-principles`, `security-principles`).
+  Qualify the discipline when the bare word is ambiguous — `code-design-principles`, not
+  `design-principles`, which reads as visual design and gets loaded for UI work.
 - `<stack>-composition` / a specific pattern name — a focused catalog (`rails-composition-dhh`).
 
 Keep opinionated provenance in the name (`-dhh`) — a generic "best-practices" rename
@@ -63,7 +65,7 @@ portable skill.
 Corollary for a knowledge skill over frameworks the model already knows (JTBD, SOLID,
 journey maps): the value is the **traps and the when-to-reach-for-it call**, not the
 framework definitions. Keep the definitions to one-line pointers and spend the words on what
-goes wrong — `design-principles` and `user-centered-problem-definition` are built this way.
+goes wrong — `code-design-principles` and `user-centered-problem-definition` are built this way.
 
 ## Progressive disclosure
 

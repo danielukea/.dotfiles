@@ -17,11 +17,11 @@ Litmus test: does this skill teach **WHAT to know** or dictate **HOW to work**?
 ## Two layers — keep them separate
 
 - **Knowledge skills** — durable principles / patterns / gotchas. Composable, no
-  mandatory workflow, trigger on their own descriptions. (e.g. `design-principles`,
+  mandatory workflow, trigger on their own descriptions. (e.g. `code-design-principles`,
   `test-principles`, `rails-composition-dhh`.)
 - **Orchestration skills** — workflows, parallel agent dispatch, API sequences. Keep
   them *thin*, and have them **reference knowledge skills by name** rather than embedding
-  the knowledge (e.g. `arch-design` → `design-principles`).
+  the knowledge (e.g. `arch-design` → `code-design-principles`).
 
 **Anti-pattern:** durable knowledge trapped inside a mandatory orchestration ritual, so
 it can't be reused any other way. If the knowledge is valuable, it belongs in a
@@ -31,7 +31,11 @@ knowledge skill the orchestrator *calls*.
 
 The name must never outrun what's inside:
 
-- `<discipline>-principles` — a broad principle set (`design-principles`).
+- `<discipline>-principles` — a broad principle set (`test-principles`).
+- **Qualify a discipline whose bare word is ambiguous.** `code-design-principles`, not
+  `design-principles` — the unqualified name reads as *visual* design, so agents load it
+  for frontend work it doesn't cover. The qualifier is the cheapest disambiguation there
+  is; reach for it before a `Not for:` pointer.
 - `<stack>-composition` / a specific pattern name — a focused catalog
   (`rails-composition-dhh`).
 - **Keep opinionated provenance in the name** (`-dhh`). A generic "best-practices"

@@ -15,7 +15,7 @@ using your available tools (bash, file read, etc.) and report findings.
    ```
    Note: `-L` is required to follow stow-managed symlinks into dotfiles skill directories.
 
-4. **Spot-check** — read `~/.agents/skills/design-principles/SKILL.md` and
+4. **Spot-check** — read `~/.agents/skills/code-design-principles/SKILL.md` and
    confirm it loads (report the first line of the description field)
 
 5. **Docs check** — confirm `~/.agents/docs/` is accessible:

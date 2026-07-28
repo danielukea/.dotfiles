@@ -1,17 +1,17 @@
 ---
-name: design-principles
-description: Durable, framework-agnostic principles for evaluating software design — Easy To Change (ETC), Tell-Don't-Ask, pragmatic SOLID, convention over configuration, testability, and least surprise. Use when weighing a design approach, reviewing a proposed structure, or when a user says "design principles", "is this well-designed?", "evaluate this approach", "critique this design", "principles review". Apply proactively before writing code. Teaches WHAT good design optimizes for; stack-specific patterns live in rails-composition-dhh / react-composition.
+name: code-design-principles
+description: Principles for judging whether a code design is sound. Use when weighing a design approach or when a user says "is this well-designed?", "critique this design", "principles review".
 allowed-tools: Read, Grep, Glob
 ---
 
-# Design Principles
+# Code Design Principles
 
-A compact set of durable principles for judging whether a design is sound. These
-are the criteria to reason *with* — apply them to a sketch, a diff, or a decision
-between two options. There is no workflow here: pick the lenses that bear on the
-question and use them.
+A compact set of durable, framework-agnostic principles for judging whether a code
+design is sound. These are the criteria to reason _with_ — apply them to a sketch, a
+diff, or a decision between two options. There is no workflow here: pick the lenses
+that bear on the question and use them.
 
-These sit *above* stack-specific pattern catalogs. When the question is "how do I
+These sit _above_ stack-specific pattern catalogs. When the question is "how do I
 factor this Rails model / React component," reach for `rails-composition-dhh` or
 `react-composition`. When the question is "is this approach well-designed, whatever
 the stack," use these.
@@ -25,10 +25,11 @@ change than bad design.** When you weigh two approaches, ask which one leaves th
 system easier to change when the requirement you didn't anticipate arrives.
 
 Make it concrete by asking, of a proposed design:
+
 - If this requirement shifts, how many places change? (fewer is better)
 - What is coupled that shouldn't be — what knowledge is duplicated across modules?
 - What is isolated well — can I replace this piece without touching its neighbors?
-- What decisions are *reversible* vs. baked in? Prefer keeping expensive decisions
+- What decisions are _reversible_ vs. baked in? Prefer keeping expensive decisions
   reversible (the database, the API contract, the framework boundary) behind a seam.
 
 ETC is a value, not a rule. It gives you the tiebreaker when two designs both "work."
@@ -52,7 +53,7 @@ account.withdraw(amount)   # decides and enforces internally
 Symptoms of violation: controllers/callers reaching through an object's getters to
 make decisions; the same "is it valid to do X" check duplicated at every call site;
 an object exposing internal state only so callers can manipulate it. The fix moves the
-decision *to* the data. This is the design-level statement of encapsulation.
+decision _to_ the data. This is the design-level statement of encapsulation.
 
 ## SOLID — pragmatic, not dogmatic
 
@@ -60,9 +61,9 @@ SOLID is a set of pressure-tests, not commandments. Apply each where it earns it
 keep; don't manufacture abstractions to satisfy a letter.
 
 - **Single Responsibility** — a module should have one reason to change. If a class
-  changes for two unrelated reasons (billing rules *and* email formatting), the seam
+  changes for two unrelated reasons (billing rules _and_ email formatting), the seam
   is wrong. But don't shred a cohesive object into anemic fragments chasing purity.
-- **Open/Closed** — extend without modifying, *when* a real variation axis exists.
+- **Open/Closed** — extend without modifying, _when_ a real variation axis exists.
   Premature "pluggability" for a variation that never comes is just indirection.
 - **Liskov Substitution** — a subtype must honor the supertype's contract. A subclass
   that raises on a method the parent supports is a design lie.
@@ -71,7 +72,7 @@ keep; don't manufacture abstractions to satisfy a letter.
 - **Dependency Inversion** — depend on abstractions at the boundaries you actually
   need to swap (external services, IO), not everywhere.
 
-The test for every one: does applying it here make the system *easier to change* (ETC),
+The test for every one: does applying it here make the system _easier to change_ (ETC),
 or just more abstract? If it doesn't reduce future change cost, skip it.
 
 ## Convention over configuration
@@ -81,7 +82,7 @@ invents a new way to do something the codebase already does one way is a tax: ev
 reader now learns two patterns, and the new one lacks the framework's support.
 
 Ask: is there an existing convention for this (in this codebase or the framework's
-idioms)? If yes, the burden of proof is on the *deviation*. New patterns are worth it
+idioms)? If yes, the burden of proof is on the _deviation_. New patterns are worth it
 only when the existing one genuinely doesn't fit — and then the new pattern should be
 applied consistently, not sprinkled.
 
@@ -98,7 +99,7 @@ design is hard to test, that is information about the design, not the test.
 - Hard-to-test is a coupling smell: too many collaborators, hidden global state,
   behavior reachable only through a wide interface.
 
-Use "how would I test this?" as a design probe *before* the code exists.
+Use "how would I test this?" as a design probe _before_ the code exists.
 
 ## Least surprise
 
@@ -121,14 +122,14 @@ trade under ETC.
 When critiquing a design (yours or an architect's), give each relevant principle a
 one-line verdict and reason rather than prose:
 
-| Principle | Rating | Reason |
-|-----------|--------|--------|
-| ETC (easier to change) | Strong / Acceptable / Weak | what couples / isolates / breaks on change |
-| Tell, Don't Ask | … | does behavior live with its data? |
-| SOLID (where it lands) | … | which principle bears here, and is the tradeoff worth it? |
-| Conventions | … | follows established patterns or invents new ones? |
-| Testability | … | fast unit tests, or forced integration tests? |
-| Least surprise | … | would another dev immediately understand it? |
+| Principle              | Rating                     | Reason                                                    |
+| ---------------------- | -------------------------- | --------------------------------------------------------- |
+| ETC (easier to change) | Strong / Acceptable / Weak | what couples / isolates / breaks on change                |
+| Tell, Don't Ask        | …                          | does behavior live with its data?                         |
+| SOLID (where it lands) | …                          | which principle bears here, and is the tradeoff worth it? |
+| Conventions            | …                          | follows established patterns or invents new ones?         |
+| Testability            | …                          | fast unit tests, or forced integration tests?             |
+| Least surprise         | …                          | would another dev immediately understand it?              |
 
 Close with a verdict (**Sound** / **Sound with concerns** / **Needs revision**), the
 concerns worth raising before implementation, and small suggested tweaks — not a rewrite.
@@ -141,12 +142,12 @@ on least-surprise usually beats a clever one that's "Strong" on paper and opaque
 
 Match the ceremony to the surface area. This is a judgment aid, not a gate.
 
-| Signal | Weight |
-|--------|--------|
-| Single file, single layer, surgical | Just code it — no design step needed |
-| A few files, one layer, contained | A short plan in your head or a Plan Mode pass |
+| Signal                                           | Weight                                                     |
+| ------------------------------------------------ | ---------------------------------------------------------- |
+| Single file, single layer, surgical              | Just code it — no design step needed                       |
+| A few files, one layer, contained                | A short plan in your head or a Plan Mode pass              |
 | Cross-layer, several files, a real design choice | Worth a design pass (dispatch an architect / write a spec) |
-| Large, multi-day, or many independent slices | A tracked spec + plan, sliced into steps |
+| Large, multi-day, or many independent slices     | A tracked spec + plan, sliced into steps                   |
 
-When unsure, err toward *less* process for reversible changes and *more* for the
+When unsure, err toward _less_ process for reversible changes and _more_ for the
 expensive, hard-to-reverse ones (schema, public contracts, framework boundaries).

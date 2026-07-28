@@ -1,6 +1,6 @@
 ---
 name: arch-design
-description: Style-guide-grounded architectural design for a feature. Fans out subagents loading DHH Rails composition and headless-first React knowledge skills, runs a `design-principles` review, then continues into implementation. Use when the user says "design this", "plan the approach", "how should I build X", "explore approaches", or invokes /arch-design. Scale to the feature: a small change needs only a quick principles check. **Not for:** bug fixes (just code), broad refactors (use `arch-analysis`), or product scoping (use `brainstorm`).
+description: Style-guide-grounded architectural design for a feature. Fans out subagents loading DHH Rails composition and headless-first React knowledge skills, runs a `code-design-principles` review, then continues into implementation. Use when the user says "design this", "plan the approach", "how should I build X", "explore approaches", or invokes /arch-design. Scale to the feature: a small change needs only a quick principles check. **Not for:** bug fixes (just code), broad refactors (use `arch-analysis`), or product scoping (use `brainstorm`).
 allowed-tools: Read, Grep, Glob, Bash, Agent, WebFetch, AskUserQuestion, Skill, mcp__basecamp__*
 ---
 
@@ -15,7 +15,7 @@ checks the result against durable design principles.
 mandatory pipeline. A one-file change might need only the principles lens; a
 cross-layer feature warrants fanning out both stacks and a review. Skip any
 step that doesn't earn its keep for the feature in front of you — see the
-complexity heuristic in the `design-principles` skill.
+complexity heuristic in the `code-design-principles` skill.
 
 ## Why this shape
 
@@ -28,7 +28,7 @@ This skill doesn't reproduce that knowledge and doesn't need a bespoke architect
 to hold it. It **fans out `general-purpose` subagents, each told to `Skill`-load the
 relevant pattern skill**, then design against it. The knowledge rides in through the
 skill; the subagent supplies the isolated context window and lets both stacks run in
-parallel. Evaluation criteria come from the `design-principles` skill, not from here.
+parallel. Evaluation criteria come from the `code-design-principles` skill, not from here.
 
 For a small, single-layer change you understand well, skip the fan-out and design
 inline in the main thread — loading the one relevant skill yourself.
@@ -96,13 +96,13 @@ For a small change you're handling inline, skip the fan-out: `Skill`-load the on
 relevant pattern skill in the main thread and produce the same four-part output yourself.
 
 ### Principles review (scale to the change)
-Evaluate the approach against the `design-principles` skill's criteria — ETC,
+Evaluate the approach against the `code-design-principles` skill's criteria — ETC,
 Tell-Don't-Ask, pragmatic SOLID, conventions, testability, least surprise. For a
 substantial or cross-layer design, spawn one review agent (`Agent`,
 `subagent_type=general-purpose`) with the feature context and each design subagent's
 full recommendation, and have it produce the per-principle ratings table that
-`design-principles` defines. For a small change, apply the same lens yourself inline —
-no agent needed. Either way, the criteria come from `design-principles`, not from here.
+`code-design-principles` defines. For a small change, apply the same lens yourself inline —
+no agent needed. Either way, the criteria come from `code-design-principles`, not from here.
 
 ### Present and decide
 One in-conversation message:
@@ -116,7 +116,7 @@ One in-conversation message:
 ### Alternatives Considered
 <reasoning trail>
 ### Principles Review
-<ratings table from design-principles, or a short inline assessment for small changes>
+<ratings table from code-design-principles, or a short inline assessment for small changes>
 **Verdict / Concerns / Suggested tweaks**
 ### Open Questions
 - …

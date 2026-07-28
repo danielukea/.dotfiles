@@ -96,7 +96,7 @@ them together and the pair is a strong project concept — the map is exactly th
 shaping's "narrow the problem" step needs. `brainstorm` sharpens a fuzzy idea into that problem
 frame; `html-mockup` prototypes a surface to de-risk it.
 
-`arch-design` / `design-principles` are the focused pass for whether a specific solution is
+`arch-design` / `code-design-principles` are the focused pass for whether a specific solution is
 sound. What this lens adds that none of those carry: the **appetite constraint**, **slicing into
 scopes**, and the **discipline of building to a fixed budget**. So for a bare "define the
 problem" or "is this design sound?" go to those skills directly; keep this open for *how much is
