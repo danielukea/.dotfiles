@@ -9,32 +9,8 @@ An issue is a contract with whoever picks it up next — often not you, and incr
 agent. It should be **atomic** (one change that can merge on its own), say what changes and
 how you'll know it's done, and _point at_ the code rather than reproduce it.
 
-## The shape
-
-Only the title is load-bearing — per Linear, descriptions are optional, not required. Add a
-section when it carries something the title can't, and drop it otherwise.
-
-- **Title** — short and scannable; state directly what the task is. Most people read it in a
-  list or board, never opening the issue.
-- **What** — one or two sentences on the observable change, with a clear defined outcome.
-- **Why** _(optional)_ — one line, and only when the What doesn't already imply it.
-- **Context / where to begin** _(optional)_ — real paths, symbols, prior issues or PRs.
-- **Acceptance criteria** — a short checklist.
-
-## Bugs
-
-A bug is the other register. The gap between expected and actual _is_ the issue, so evidence
-replaces the What — and a reliable repro replaces most acceptance criteria, because "the repro
-no longer reproduces" is the bar.
-
-- **Title** — the symptom. Not a diagnosis, unless you've confirmed the cause.
-- **Summary** — one or two sentences: what breaks, for whom, how badly.
-- **Repro** — numbered steps from a known starting state.
-- **Expected vs actual** — both, explicitly. Either one alone is unactionable.
-- **Evidence** _(optional)_ — error text, stack trace, log line, screenshot, request ID.
-- **Environment** _(optional)_ — where it was seen (prod / staging / local), build or commit.
-- **Provenance** _(optional)_ — where it surfaced: a PR review, QA of another issue, a support
-  thread. Cheap to write, and it's what makes the issue legible months later.
+Only the title is load-bearing — per Linear, descriptions are optional. Open one template, not
+both: `templates/feature.md` (also chores and tech debt) or `templates/bug.md`.
 
 ## Gotchas
 
