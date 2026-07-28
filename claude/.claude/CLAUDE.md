@@ -25,3 +25,7 @@ Detailed guides for extending Claude Code:
 
 For version-specific or unfamiliar library/framework/API questions, fetch current docs from the official source (via web) rather than relying on training memory.
 
+## Planning
+
+When planning, use targeted pseudo-code — short snippets anchored to real file/function names — instead of prose descriptions or full implementations.
+

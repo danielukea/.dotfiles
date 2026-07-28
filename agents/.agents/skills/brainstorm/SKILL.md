@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: Collaborative brainstorming and problem-definition session. Gathers context, interviews you through structured questioning, generates prototypes (Mermaid diagrams, ASCII wireframes, decision matrices), and synthesizes a Problem Brief defining the problem and solution direction. Use when you say "brainstorm", "help me think through", "I have an idea", "let's explore", "whiteboard this", "rubber duck", or want to sharpen a vague idea before committing to a design. Not for: architecture (use arch-design), factual research (use deep-research), or implementation planning.
+description: Collaborative brainstorming and problem-definition session. Use when you say "brainstorm", "help me think through", "I have an idea", "let's explore", "whiteboard this", "rubber duck", or want to sharpen a vague idea before committing to a design.
 allowed-tools: Read, Write, Bash, AskUserQuestion, WebFetch
 ---
 
@@ -14,11 +14,13 @@ Match the ceremony to the surface area: a clear idea might need two gears in 10 
 tangled one might cycle through all four twice. Don't run gears you don't need.
 
 ## Orient — what do we know
+
 Read whatever context is given (fetch a URL/file, reflect back an inline description, or ask
 for a seed idea). State what you understand and what's unclear — this surfaces wrong
 assumptions early.
 
 ## Sharpen — interview until the problem snaps
+
 - **Why before what.** "Why does this matter now? Who feels the pain?" before "What should
   it do?" The solution space opens once the problem is real and owned. When "who feels the
   pain?" needs more than a one-line answer — multiple user types, stakeholders vs users,
@@ -34,20 +36,21 @@ assumptions early.
 - **Stop when you can state the problem in one sentence they'd nod at.**
 
 ## Prototype — make something concrete
+
 Build a rough artifact to be wrong quickly — a wrong diagram reveals hidden assumptions
 faster than five more questions. You can prototype mid-interview.
 
-| Situation | Prototype |
-|-----------|-----------|
-| Flow / process / sequence | Mermaid flowchart or sequence diagram |
-| State machine / lifecycle | Mermaid state diagram |
-| UI layout or screen | ASCII wireframe or structured section list |
-| Visual look & feel of a UI surface | `html-mockup` skill (real HTML, grounded in the actual design system) |
-| Data model / relationships | Mermaid ER or class diagram |
-| Options comparison | Decision matrix (markdown table) |
-| User journey | Step-by-step narrative with decision points |
+| Situation                                    | Prototype                                                                         |
+| -------------------------------------------- | --------------------------------------------------------------------------------- |
+| Flow / process / sequence                    | Mermaid flowchart or sequence diagram                                             |
+| State machine / lifecycle                    | Mermaid state diagram                                                             |
+| UI layout or screen                          | ASCII wireframe or structured section list                                        |
+| Visual look & feel of a UI surface           | `html-mockup` skill (real HTML, grounded in the actual design system)             |
+| Data model / relationships                   | Mermaid ER or class diagram                                                       |
+| Options comparison                           | Decision matrix (markdown table)                                                  |
+| User journey                                 | Step-by-step narrative with decision points                                       |
 | Users, stakeholders, or a structured journey | `user-centered-problem-definition` skill (maps who's involved and what they need) |
-| Hierarchy or taxonomy | Indented outline |
+| Hierarchy or taxonomy                        | Indented outline                                                                  |
 
 **Ground UI prototypes in the real surface.** If what you're sketching already exists in the
 codebase, read its actual components and styles before drawing — a wireframe or mockup that
@@ -58,24 +61,25 @@ approximate it.
 
 Write prototypes inline by default (Mermaid renders as a code block; ASCII renders directly).
 
-**Optional live preview.** When a prototype would be genuinely clearer *seen than read* — a
+**Optional live preview.** When a prototype would be genuinely clearer _seen than read_ — a
 diagram, a layout, side-by-side options — you can render it in the user's browser with a
 tiny live-reload server that draws Mermaid and markdown for real. It's a tool, not a mode:
 offer it just-in-time, never upfront, and keep text-shaped questions in the terminal. To use
 it, read `references/visual-preview.md`.
 
 ## Synthesize — write the Problem Brief
+
 Once the problem is defined and a direction sketched, write the Brief and offer to save it
 (suggest `BRIEF.md` in cwd, or ask). Template and rules: `references/brief-template.md`.
 
 ## Gotchas
+
 - **Resist the pull into planning.** Once the problem is sharp, momentum wants to keep going —
   sketch the data model, list the PRs, write the tickets. That's `arch-design`'s job. If you
   notice yourself enumerating concrete implementation steps, that's the signal to close the
   Brief now and name `arch-design` as the next step, not to keep drafting.
 - **Three rounds of questions with no prototype → make a diagram.** Show, don't ask.
-- **Don't anchor the solution during sharpening.** Keep the problem frame open until the real
-  constraint or pain surfaces.
+- **Don't anchor the solution during sharpening.** Keep the problem frame open until the real constraint or pain surfaces.
 - **Don't write the Brief early.** A Brief written before the problem is defined formalizes
   the confusion. And don't fake precision — put unknowns in Open Questions.
 - **The Brief is for them, not you.** Shareable and standalone, no session jargon.

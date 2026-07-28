@@ -17,3 +17,6 @@ claude/.claude/skill-evals/
 # Stray config and log files
 mise.toml
 *.log
+
+# macOS Finder metadata
+.DS_Store

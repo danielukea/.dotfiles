@@ -87,10 +87,3 @@ when it is actually costing you. Stop at "better than before," not "perfect."
   implementation in one pass. One seam, one test, and one minimal implementation
   at a time; batching defeats the feedback loop.
 - Abstracting too soon.
-
----
-
-For test quality — public behavior, non-tautological assertions, test levels,
-mocking boundaries, and framework-specific references — see the `test-principles`
-skill. This skill owns the process; `test-principles` owns the quality bar for
-each test.

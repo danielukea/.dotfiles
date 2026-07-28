@@ -28,7 +28,7 @@
       "/Users/lukedanielson/Worktrees/crm-web"
     ]
   },
-  "model": "opus[1m]",
+  "model": "sonnet",
   "skillOverrides": {
     "library-docs": "off"
   },
@@ -156,11 +156,12 @@
     "command": "input=$(cat); current_dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); model_name=$(echo \"$input\" | jq -r '.model.display_name'); printf \"➜  $(basename \"$current_dir\") \"; if git -C \"$current_dir\" rev-parse --git-dir >/dev/null 2>&1; then branch=$(git -C \"$current_dir\" branch --show-current 2>/dev/null || echo 'detached'); status=''; if ! git -C \"$current_dir\" diff-index --quiet HEAD -- 2>/dev/null; then status=' ✗'; fi; printf \"git:($branch)$status \"; fi; printf \"[$model_name]\""
   },
   "enabledPlugins": {
-    "context7@claude-plugins-official": false,
     "skill-creator@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,
-    "explanatory-output-style@claude-plugins-official": true
+    "explanatory-output-style@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "linear@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {},
   "alwaysThinkingEnabled": true,

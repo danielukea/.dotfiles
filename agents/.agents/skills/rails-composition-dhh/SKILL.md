@@ -21,7 +21,7 @@ Reach for this when:
 
 - Designing a new Rails feature — before you reach for a service, form object, or state machine gem
 - Reviewing a PR that introduces an abstraction "above" Active Record
-- Adding behavior to an existing model and deciding *where* (concern? method? new model? job? callback?)
+- Adding behavior to an existing model and deciding _where_ (concern? method? new model? job? callback?)
 - Choosing between a custom controller action vs a new resource
 - Adding async work and wondering how to shape the job class
 - Encountering cross-cutting concerns like tenancy, audit logging, search, or notifications
@@ -33,12 +33,13 @@ Reference material — consult it at decision points; you don't need to apply ev
 **Vanilla Rails is plenty.** Active Record is not the constraint — it's the substrate. Rich domain behavior belongs on rich models, not in a service layer parallel to them. Controllers are thin orchestrators that scope, authorize, and dispatch a single intention-revealing method on the model.
 
 Composition happens through:
+
 1. **Active Record associations** that model real domain relationships
 2. **Concerns** that bundle one cohesive behavior (associations + scopes + callbacks + methods)
 3. **Real tables** for things that have identity (state markers, joins, value records)
 4. **Polymorphism** when the same shape applies across the domain (events, reactions, search)
 
-When you feel an itch for "Service / Form / Interactor / Operation / Use Case", first try: *can this be a model method, a concern, or a new resource?* In 90% of cases it can.
+When you feel an itch for "Service / Form / Interactor / Operation / Use Case", first try: _can this be a model method, a concern, or a new resource?_ In 90% of cases it can.
 
 ---
 
@@ -48,19 +49,19 @@ The seven core patterns. Each links to its full treatment (prose + code) in
 [`references/core-patterns.md`](references/core-patterns.md). The three power-user patterns
 (8–10) live in [`references/advanced-patterns.md`](references/advanced-patterns.md).
 
-1. **[Aggregate Roots and Boundaries](references/core-patterns.md#1-aggregate-roots-and-boundaries)** — a root owns its dependents (`dependent: :destroy`), is queryable on its own, and is a transaction boundary. *Reach for it first* — roots shape everything downstream; identify them before modeling anything else.
+1. **[Aggregate Roots and Boundaries](references/core-patterns.md#1-aggregate-roots-and-boundaries)** — a root owns its dependents (`dependent: :destroy`), is queryable on its own, and is a transaction boundary. _Reach for it first_ — roots shape everything downstream; identify them before modeling anything else.
 
-2. **[State as a Resource](references/core-patterns.md#2-state-as-a-resource-routes-and-records)** — the most important pattern. When an action doesn't fit CRUD, introduce a *resource* (`resource :closure`), not a custom action — and model the state as a real `has_one` record, not a boolean/enum. *Reach for it* for any state transition (close/reopen, publish, postpone) or when tempted to add `post :close`.
+2. **[State as a Resource](references/core-patterns.md#2-state-as-a-resource-routes-and-records)** — the most important pattern. When an action doesn't fit CRUD, introduce a _resource_ (`resource :closure`), not a custom action — and model the state as a real `has_one` record, not a boolean/enum. _Reach for it_ for any state transition (close/reopen, publish, postpone) or when tempted to add `post :close`.
 
-3. **[Concerns](references/core-patterns.md#3-concerns-how-to-compose-behavior)** — the primary unit of composition. One concern = one cohesive behavior (associations + scopes + callbacks + methods). Namespaced (`Card::Closeable`) if model-specific, flat (`Searchable`) if shared. *Reach for it* when a cluster of related associations/scopes/methods belongs together.
+3. **[Concerns](references/core-patterns.md#3-concerns-how-to-compose-behavior)** — the primary unit of composition. One concern = one cohesive behavior (associations + scopes + callbacks + methods). Namespaced (`Card::Closeable`) if model-specific, flat (`Searchable`) if shared. _Reach for it_ when a cluster of related associations/scopes/methods belongs together.
 
-4. **[Thin Controllers, Rich Models](references/core-patterns.md#4-thin-controllers-rich-models)** — one model method per controller action; authorization via query scoping (`Current.user.accessible_cards`), not policy objects; `params.expect`. *Reach for it* whenever a `create`/`update` action grows past 3–4 lines.
+4. **[Thin Controllers, Rich Models](references/core-patterns.md#4-thin-controllers-rich-models)** — one model method per controller action; authorization via query scoping (`Current.user.accessible_cards`), not policy objects; `params.expect`. _Reach for it_ whenever a `create`/`update` action grows past 3–4 lines.
 
-5. **[Intention-Revealing Model APIs](references/core-patterns.md#5-intention-revealing-model-apis)** — `card.close` contains the mutation, event, fan-out, and broadcast; callers don't reconstruct it. Unfussy domain verbs; no gratuitous `!`. *Reach for it* every time a controller or caller would otherwise assemble a multi-step mutation inline.
+5. **[Intention-Revealing Model APIs](references/core-patterns.md#5-intention-revealing-model-apis)** — `card.close` contains the mutation, event, fan-out, and broadcast; callers don't reconstruct it. Unfussy domain verbs; no gratuitous `!`. _Reach for it_ every time a controller or caller would otherwise assemble a multi-step mutation inline.
 
-6. **[Callbacks vs Explicit Calls](references/core-patterns.md#6-callbacks-vs-explicit-calls)** — callbacks for *passive* side effects (timestamps, broadcasts, indexing); explicit methods for *state transitions a user means to do*. Use `after_create_commit` for anything that enqueues/broadcasts. *Reach for it* when deciding whether new behavior fires automatically or on an explicit call.
+6. **[Callbacks vs Explicit Calls](references/core-patterns.md#6-callbacks-vs-explicit-calls)** — callbacks for _passive_ side effects (timestamps, broadcasts, indexing); explicit methods for _state transitions a user means to do_. Use `after_create_commit` for anything that enqueues/broadcasts. _Reach for it_ when deciding whether new behavior fires automatically or on an explicit call.
 
-7. **[Jobs: `_later` / `_now`](references/core-patterns.md#7-jobs-the-_later--_now-pattern)** — shallow job classes; real work lives on the model. `_later` (private, callback-wired) enqueues; the job's `perform` is one line delegating back to the model. *Reach for it* for any async work; also covers job tenancy and recurring jobs.
+7. **[Jobs: `_later` / `_now`](references/core-patterns.md#7-jobs-the-_later--_now-pattern)** — shallow job classes; real work lives on the model. `_later` (private, callback-wired) enqueues; the job's `perform` is one line delegating back to the model. _Reach for it_ for any async work; also covers job tenancy and recurring jobs.
 
 Power-user patterns (open only when the situation calls for it):
 
@@ -123,4 +124,4 @@ If you reach for one of those, first try the patterns above. The full anti-patte
 
 ---
 
-*Source: [37signals' fizzy](https://github.com/basecamp/fizzy). Referenced filenames are conventional locations, not load-bearing.*
+_Source: [37signals' fizzy](https://github.com/basecamp/fizzy). Referenced filenames are conventional locations, not load-bearing._
