@@ -103,18 +103,14 @@ Spawn **one** review agent (Agent with `subagent_type=general-purpose`). Pass it
 
 Prompt:
 
-> Evaluate the **diff** against these principles. You are reviewing the changes themselves, not proposing alternatives.
+> `Skill`-load `code-design-principles` and evaluate the **diff** against its lenses. You are
+> reviewing the changes themselves, not proposing alternatives — for each lens, ask whether
+> the diff leaves this code easier or harder to change than before.
 >
-> - **Easy To Change (ETC)** — does the diff make this code easier or harder to change next time?
-> - **Tell, Don't Ask** — does behavior live with its data, or does the diff push logic outward?
-> - **SOLID** — pragmatic. Where does the diff land, and is any tradeoff worth it?
-> - **Codebase conventions** — does the diff follow patterns already present, or introduce new ones?
-> - **Testability** — does the diff make the code easier or harder to test?
-> - **Least surprise** — could another developer pick up the changed code without a guide?
->
-> For each principle, give a one-line rating (Strong / Acceptable / Weak) and the reason. End with:
-> - **Verdict:** Ship / Ship with tweaks / Refactor before shipping
-> - **Top 3 concerns** (or fewer if there are fewer)
+> Use the ratings table and closing rules in that skill's `references/review-format.md`,
+> with the **diff** verdict scale: Ship / Ship with tweaks / Refactor before shipping. Rate
+> only the lenses that bear on this diff, and end with the **top 3 concerns** (or fewer if
+> there are fewer).
 
 ## Step 6: Present Findings
 
@@ -142,16 +138,9 @@ One in-conversation message. Structure:
 - …
 
 ### Principles Review
-| Principle | Rating | Reason |
-|-----------|--------|--------|
-| ETC | … | … |
-| Tell, Don't Ask | … | … |
-| SOLID | … | … |
-| Conventions | … | … |
-| Testability | … | … |
-| Least Surprise | … | … |
+<ratings table per code-design-principles' references/review-format.md — only the lenses that bear on this diff>
 
-**Verdict:** …
+**Verdict:** Ship / Ship with tweaks / Refactor before shipping
 **Top concerns:** …
 
 ### Open questions for the author

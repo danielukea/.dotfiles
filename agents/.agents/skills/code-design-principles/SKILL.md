@@ -6,148 +6,103 @@ allowed-tools: Read, Grep, Glob
 
 # Code Design Principles
 
-A compact set of durable, framework-agnostic principles for judging whether a code
-design is sound. These are the criteria to reason _with_ — apply them to a sketch, a
-diff, or a decision between two options. There is no workflow here: pick the lenses
-that bear on the question and use them.
-
-These sit _above_ stack-specific pattern catalogs. When the question is "how do I
-factor this Rails model / React component," reach for `rails-composition-dhh` or
-`react-composition`. When the question is "is this approach well-designed, whatever
-the stack," use these.
+Durable, framework-agnostic lenses for judging whether a code design is sound. No workflow
+here: pick the lenses that bear on the question and apply them to a sketch, a diff, or a
+choice between two options. These sit _above_ stack-specific pattern catalogs — "how do I
+factor this Rails model / React component" is `rails-composition-dhh` or
+`react-composition`; "is this approach sound, whatever the stack" is here.
 
 ---
 
 ## ETC — Easier To Change (the overriding principle)
 
-Every other principle is a special case of this one: **good design is easier to
-change than bad design.** When you weigh two approaches, ask which one leaves the
-system easier to change when the requirement you didn't anticipate arrives.
+Every other lens is a special case of this one: **good design is easier to change than bad
+design.** It's the tiebreaker when two designs both work — ask which one leaves the system
+easier to change when the requirement you didn't anticipate arrives.
 
-Make it concrete by asking, of a proposed design:
+Concrete probes:
 
 - If this requirement shifts, how many places change? (fewer is better)
 - What is coupled that shouldn't be — what knowledge is duplicated across modules?
 - What is isolated well — can I replace this piece without touching its neighbors?
-- What decisions are _reversible_ vs. baked in? Prefer keeping expensive decisions
-  reversible (the database, the API contract, the framework boundary) behind a seam.
+- What decisions are _reversible_ vs. baked in? Keep the expensive ones (database, API
+  contract, framework boundary) behind a seam.
 
-ETC is a value, not a rule. It gives you the tiebreaker when two designs both "work."
+ETC is a value, not a rule.
 
 ## Tell, Don't Ask
 
-Behavior should live with the data it operates on. A caller that pulls state out of
-an object, makes a decision, and pushes a result back is doing work the object should
-do itself.
+Behavior belongs with the data it operates on — a caller that pulls state out of an object,
+decides, and pushes a result back is doing the object's work. The sharpest symptom is
+duplicated judgment: the same "is it valid to do X" check at every call site, because no
+object owns the invariant. The fix moves the decision _to_ the data.
 
-```
-# Ask — logic leaks into the caller
-if account.balance >= amount && account.active?
-  account.balance -= amount
-end
+## SOLID — pressure-tests, not commandments
 
-# Tell — the object owns its invariant
-account.withdraw(amount)   # decides and enforces internally
-```
-
-Symptoms of violation: controllers/callers reaching through an object's getters to
-make decisions; the same "is it valid to do X" check duplicated at every call site;
-an object exposing internal state only so callers can manipulate it. The fix moves the
-decision _to_ the data. This is the design-level statement of encapsulation.
-
-## SOLID — pragmatic, not dogmatic
-
-SOLID is a set of pressure-tests, not commandments. Apply each where it earns its
-keep; don't manufacture abstractions to satisfy a letter.
-
-- **Single Responsibility** — a module should have one reason to change. If a class
-  changes for two unrelated reasons (billing rules _and_ email formatting), the seam
-  is wrong. But don't shred a cohesive object into anemic fragments chasing purity.
-- **Open/Closed** — extend without modifying, _when_ a real variation axis exists.
-  Premature "pluggability" for a variation that never comes is just indirection.
-- **Liskov Substitution** — a subtype must honor the supertype's contract. A subclass
-  that raises on a method the parent supports is a design lie.
-- **Interface Segregation** — don't force clients to depend on methods they don't use.
-  Fat interfaces couple unrelated callers.
-- **Dependency Inversion** — depend on abstractions at the boundaries you actually
-  need to swap (external services, IO), not everywhere.
-
-The test for every one: does applying it here make the system _easier to change_ (ETC),
-or just more abstract? If it doesn't reduce future change cost, skip it.
+You already know the five letters; each earns its keep only where a real variation axis,
+contract, or swap boundary already exists. The test for every one: does applying it here
+make the system _easier to change_, or just more abstract? If it doesn't reduce future
+change cost, drop it.
 
 ## Convention over configuration
 
-Follow the patterns the codebase and framework already establish. A design that
-invents a new way to do something the codebase already does one way is a tax: every
-reader now learns two patterns, and the new one lacks the framework's support.
-
-Ask: is there an existing convention for this (in this codebase or the framework's
-idioms)? If yes, the burden of proof is on the _deviation_. New patterns are worth it
-only when the existing one genuinely doesn't fit — and then the new pattern should be
-applied consistently, not sprinkled.
+Follow the patterns the codebase and framework already establish. A second way to do what
+the codebase already does one way is a tax — every reader now learns two patterns, and the
+new one lacks the framework's support. The burden of proof is on the _deviation_, and a
+warranted new pattern gets applied consistently rather than sprinkled.
 
 ## Testability
 
-Testable design and good design are the same thing viewed from different angles. If a
-design is hard to test, that is information about the design, not the test.
-
-- Can the core behavior be exercised with a simple, fast unit test — or does it require
-  standing up half the system?
-- Does the design force integration/end-to-end tests where unit tests should suffice?
-  That usually means logic is entangled with IO or framework glue that should be
-  separated behind a seam.
-- Hard-to-test is a coupling smell: too many collaborators, hidden global state,
-  behavior reachable only through a wide interface.
-
-Use "how would I test this?" as a design probe _before_ the code exists.
+Testable design and good design are the same thing from different angles: if a design is
+hard to test, that is information about the design, not about the test. Hard-to-test is
+specifically a coupling signal — too many collaborators, hidden global state, behavior
+reachable only through a wide interface. Use "how would I test this?" as a probe _before_
+the code exists.
 
 ## Least surprise
 
-Another engineer should understand the design immediately. Clever is the enemy of
-clear. The best design is often the boring one that the next reader predicts correctly
-without having to reverse-engineer it.
-
-- Would a competent teammate guess how this works from its shape and names?
-- Does it do anything surprising — a side effect where none is expected, a name that
-  lies about what the method does, indirection that hides the actual work?
-- Between a clever solution and an obvious one that's slightly longer, prefer obvious.
-
-Cleverness that saves five lines but costs every future reader a double-take is a bad
-trade under ETC.
+Another engineer should predict how this works from its shape and names without
+reverse-engineering it. Watch for a side effect where none is expected, a name that lies
+about what the method does, or indirection that hides the actual work. Between a clever
+solution and an obvious one that's slightly longer, prefer obvious.
 
 ---
 
-## Using these in a review
+## Producing a review
 
-When critiquing a design (yours or an architect's), give each relevant principle a
-one-line verdict and reason rather than prose:
-
-| Principle              | Rating                     | Reason                                                    |
-| ---------------------- | -------------------------- | --------------------------------------------------------- |
-| ETC (easier to change) | Strong / Acceptable / Weak | what couples / isolates / breaks on change                |
-| Tell, Don't Ask        | …                          | does behavior live with its data?                         |
-| SOLID (where it lands) | …                          | which principle bears here, and is the tradeoff worth it? |
-| Conventions            | …                          | follows established patterns or invents new ones?         |
-| Testability            | …                          | fast unit tests, or forced integration tests?             |
-| Least surprise         | …                          | would another dev immediately understand it?              |
-
-Close with a verdict (**Sound** / **Sound with concerns** / **Needs revision**), the
-concerns worth raising before implementation, and small suggested tweaks — not a rewrite.
-Don't penalize simplicity: a plain design that scores "Acceptable" everywhere and "Strong"
-on least-surprise usually beats a clever one that's "Strong" on paper and opaque in practice.
-
----
+Rate only the lenses that bear on the question — one line each, with the reason. The
+ratings table and both verdict scales are in
+[review-format.md](references/review-format.md).
 
 ## Complexity heuristic — how much process does this change deserve
 
-Match the ceremony to the surface area. This is a judgment aid, not a gate.
+Match the ceremony to the surface area. A judgment aid, not a gate.
 
-| Signal                                           | Weight                                                     |
-| ------------------------------------------------ | ---------------------------------------------------------- |
-| Single file, single layer, surgical              | Just code it — no design step needed                       |
-| A few files, one layer, contained                | A short plan in your head or a Plan Mode pass              |
-| Cross-layer, several files, a real design choice | Worth a design pass (dispatch an architect / write a spec) |
-| Large, multi-day, or many independent slices     | A tracked spec + plan, sliced into steps                   |
+| Signal                                           | Weight                                        |
+| ------------------------------------------------ | --------------------------------------------- |
+| Single file, single layer, surgical              | Just code it — no design step needed           |
+| A few files, one layer, contained                | A short plan in your head or a Plan Mode pass |
+| Cross-layer, several files, a real design choice | Worth a design pass (dispatch an architect)   |
+| Large, multi-day, or many independent slices     | A tracked spec + plan, sliced into steps      |
 
-When unsure, err toward _less_ process for reversible changes and _more_ for the
-expensive, hard-to-reverse ones (schema, public contracts, framework boundaries).
+When unsure, err toward _less_ process for reversible changes and _more_ for the expensive,
+hard-to-reverse ones (schema, public contracts, framework boundaries).
+
+## Gotchas
+
+**Append new failure modes here as you hit them.**
+
+- **No opinion on visual design.** These lenses say nothing about spacing, hierarchy,
+  color, or interaction feel. If that's the question, say so and point at `frontend-design`
+  — don't stretch ETC or SOLID into a critique of a UI.
+- **Don't rate all six lenses mechanically.** A fixed table invites filler rows
+  ("Interface Segregation: N/A"). Rate what bears on the question; a two-row review is a
+  complete review.
+- **Simplicity is not mediocrity.** A plain design rating "Acceptable" across the board
+  beats a clever one rating "Strong" on paper. Least-surprise breaks ties _against_ the
+  more abstract option — never recommend a rewrite to raise a score.
+- **SOLID is for testing an abstraction, not justifying one.** Citing Open/Closed to add a
+  strategy object for a variation that doesn't exist yet is the common misuse.
+- **"Hard to test" is a finding, not an obstacle.** The reflex is to propose heavier mocking
+  or setup to force an awkward design under test. Report the coupling as a design finding
+  instead.

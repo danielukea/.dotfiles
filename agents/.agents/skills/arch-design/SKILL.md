@@ -96,13 +96,13 @@ For a small change you're handling inline, skip the fan-out: `Skill`-load the on
 relevant pattern skill in the main thread and produce the same four-part output yourself.
 
 ### Principles review (scale to the change)
-Evaluate the approach against the `code-design-principles` skill's criteria — ETC,
-Tell-Don't-Ask, pragmatic SOLID, conventions, testability, least surprise. For a
+Evaluate the approach against the `code-design-principles` skill's lenses. For a
 substantial or cross-layer design, spawn one review agent (`Agent`,
 `subagent_type=general-purpose`) with the feature context and each design subagent's
-full recommendation, and have it produce the per-principle ratings table that
-`code-design-principles` defines. For a small change, apply the same lens yourself inline —
-no agent needed. Either way, the criteria come from `code-design-principles`, not from here.
+full recommendation, and tell it to `Skill`-load `code-design-principles` and use the
+ratings table in that skill's `references/review-format.md` (verdict scale: **a design or
+proposed approach**). For a small change, apply the same lens yourself inline — no agent
+needed. Either way, the criteria come from `code-design-principles`, not from here.
 
 ### Present and decide
 One in-conversation message:
