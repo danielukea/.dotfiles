@@ -100,7 +100,7 @@ Evaluate the approach against the `code-design-principles` skill's lenses. For a
 substantial or cross-layer design, spawn one review agent (`Agent`,
 `subagent_type=general-purpose`) with the feature context and each design subagent's
 full recommendation, and tell it to `Skill`-load `code-design-principles` and use the
-ratings table in that skill's `references/review-format.md` (verdict scale: **a design or
+ratings table from that skill's `review-format.md` reference (verdict scale: **a design or
 proposed approach**). For a small change, apply the same lens yourself inline — no agent
 needed. Either way, the criteria come from `code-design-principles`, not from here.
 

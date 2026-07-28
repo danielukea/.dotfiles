@@ -1,6 +1,6 @@
 ---
 name: style-review
-description: Composition and pattern review of a diff (current branch, named branch, or PR) against DHH Rails composition and headless-first React style guides. Fans out subagents to review, runs a principles pass (ETC, Tell-Don't-Ask, SOLID, conventions, testability), and returns severity-tagged refactor suggestions grounded in the codebase's patterns. Pattern fit only — not a bug-hunting reviewer. Use when the user says "style review", "review this branch", "refactor suggestions", "is this DHH-style", or "/style-review".
+description: Composition and pattern review of a diff, branch, or PR against the codebase's style guides. Use on "style review", "review this branch", "refactor suggestions", or "is this DHH-style". Not for: bugs or security — use `code-review`.
 allowed-tools: Read, Grep, Glob, Bash, Agent, AskUserQuestion, Skill
 ---
 
@@ -107,7 +107,7 @@ Prompt:
 > reviewing the changes themselves, not proposing alternatives — for each lens, ask whether
 > the diff leaves this code easier or harder to change than before.
 >
-> Use the ratings table and closing rules in that skill's `references/review-format.md`,
+> Use the ratings table and closing rules from that skill's `review-format.md` reference,
 > with the **diff** verdict scale: Ship / Ship with tweaks / Refactor before shipping. Rate
 > only the lenses that bear on this diff, and end with the **top 3 concerns** (or fewer if
 > there are fewer).
@@ -138,7 +138,7 @@ One in-conversation message. Structure:
 - …
 
 ### Principles Review
-<ratings table per code-design-principles' references/review-format.md — only the lenses that bear on this diff>
+<ratings table per code-design-principles' review-format.md — only the lenses that bear on this diff>
 
 **Verdict:** Ship / Ship with tweaks / Refactor before shipping
 **Top concerns:** …

@@ -80,7 +80,7 @@ Match the ceremony to the surface area. A judgment aid, not a gate.
 
 | Signal                                           | Weight                                        |
 | ------------------------------------------------ | --------------------------------------------- |
-| Single file, single layer, surgical              | Just code it — no design step needed           |
+| Single file, single layer, surgical              | Just code it — no design step needed          |
 | A few files, one layer, contained                | A short plan in your head or a Plan Mode pass |
 | Cross-layer, several files, a real design choice | Worth a design pass (dispatch an architect)   |
 | Large, multi-day, or many independent slices     | A tracked spec + plan, sliced into steps      |
