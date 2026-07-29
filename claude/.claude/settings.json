@@ -28,7 +28,7 @@
       "/Users/lukedanielson/Worktrees/crm-web"
     ]
   },
-  "model": "sonnet",
+  "model": "opus[1m]",
   "skillOverrides": {
     "library-docs": "off"
   },
