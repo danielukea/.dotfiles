@@ -49,12 +49,23 @@ live connection plus that mutable, per-user state — it is not.
 - If you want warm-session reuse across requests, persist the *session ID string* (and OAuth
   tokens — see below) in your app's shared store, and rehydrate a pooled client with it. But treat
   any reused session as an optimization that must tolerate the server returning **404** (session
-  terminated) and transparently re-`initialize` — never as a guarantee. That same tolerance also
-  future-proofs you if a later spec revision removes the session/handshake model in favor of
-  fully stateless requests — the SEPs proposing this direction (SEP-2575 "Make MCP Stateless" and
-  SEP-2567 "Sessionless via explicit state handles") are named proposals, not shipped behavior;
-  treat them as forward-looking only. The 404-tolerant design above works either way, so there's no
-  need to bet on which proposal (if either) lands.
+  terminated) and transparently re-`initialize` — never as a guarantee. The gem surfaces this as
+  `MCP::Client::SessionExpiredError`, so it's straightforward to rescue.
+
+  **That advice is now also your migration path.** SEP-2575 ("Make MCP Stateless") and SEP-2567
+  ("Sessionless via explicit state handles") **shipped** in the `2026-07-28` spec, which removes the
+  handshake and `Mcp-Session-Id` entirely. The gem hasn't followed yet — sessions are still how 1.x
+  works, and the stateless rewrite is
+  [reserved for 2.0](testing-and-gotchas.md#version--spec-compatibility--the-era-gap) — so everything
+  in this file remains correct for 1.x. A 404-tolerant, never-memoized design is exactly what makes the
+  2.0 upgrade uneventful: when sessions disappear, the session-rehydration step simply becomes
+  unnecessary rather than wrong.
+
+  One forward-looking caution: in the modern protocol, cross-request state moves to **server-minted
+  handles passed as ordinary tool arguments** — and possession of a handle is *not* authentication.
+  If you start using such handles against a modern server, bind them to the authenticated user
+  server-side; see **state handle hijacking** in
+  [security.md](../../model-context-protocol/references/security.md#named-attack-patterns).
 
 ## OAuth: token storage is a clean seam; the interactive flow is not
 
@@ -92,9 +103,9 @@ which loses everything on process exit and is unusable across a multi-process we
   for the full round trip to a server you don't control. Only reasonable with hard, short timeouts.
 - **Offload to your background-job system, then push or poll the result back:** the safer default
   for anything not reliably fast — it keeps a slow or down downstream MCP server from starving
-  unrelated requests. If the call is genuinely long-running, MCP's experimental **Tasks** primitive
+  unrelated requests. If the call is genuinely long-running, MCP's **Tasks** extension
   (a pollable task handle returned from `tools/call` — see `model-context-protocol`'s
-  [primitives.md](../../model-context-protocol/references/primitives.md#logging--tasks)) is a
+  [primitives.md](../../model-context-protocol/references/primitives.md#tasks--now-an-extension-not-a-primitive)) is a
   natural fit for a background job to hold and poll instead of a request thread blocking on it.
   **This pairing (Tasks + background-job offload) is a design suggestion, not documented MCP or SDK
   guidance** — nothing in the sources connects them explicitly.
