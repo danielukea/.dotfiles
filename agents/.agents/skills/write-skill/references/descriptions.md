@@ -58,4 +58,4 @@ Broader knowledge skill, still trigger-first, with a disambiguation tail:
 > Durable, framework-agnostic principles for evaluating software design… Use when
 > weighing a design approach… or when a user says "design principles", "is this
 > well-designed?", "critique this design". … stack-specific patterns live in
-> `rails-composition-dhh` / `react-composition`.
+> `rails` / `react-composition`.

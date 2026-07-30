@@ -1,12 +1,12 @@
 ---
 name: arch-design
-description: Style-guide-grounded architectural design for a feature. Fans out subagents loading DHH Rails composition and headless-first React knowledge skills, runs a `code-design-principles` review, then continues into implementation. Use when the user says "design this", "plan the approach", "how should I build X", "explore approaches", or invokes /arch-design. Scale to the feature: a small change needs only a quick principles check. **Not for:** bug fixes (just code), broad refactors (use `arch-analysis`), or product scoping (use `brainstorm`).
+description: Style-guide-grounded architectural design for a feature. Fans out subagents loading Rails composition and headless-first React knowledge skills, runs a `code-design-principles` review, then continues into implementation. Use when the user says "design this", "plan the approach", "how should I build X", "explore approaches", or invokes /arch-design. Scale to the feature: a small change needs only a quick principles check. **Not for:** bug fixes (just code), broad refactors (use `arch-analysis`), or product scoping (use `brainstorm`).
 allowed-tools: Read, Grep, Glob, Bash, Agent, WebFetch, AskUserQuestion, Skill, mcp__basecamp__*
 ---
 
 # Arch Design
 
-A design pass for a feature, grounded in the project's style guides (DHH Rails
+A design pass for a feature, grounded in the project's style guides (Rails
 composition, headless-first React). This skill is a thin, **optional-by-part**
 orchestrator: it fans out subagents that load the pattern-catalog skills and
 checks the result against durable design principles.
@@ -20,7 +20,7 @@ complexity heuristic in the `code-design-principles` skill.
 ## Why this shape
 
 The style-guide knowledge lives in **knowledge skills**, not agents.
-`rails-composition-dhh` carries the DHH composition catalog; `react-composition`,
+`rails` carries the Rails composition and style catalog; `react-composition`,
 `react-data-fetching`, `react-render-optimization`, and
 `wealthbox:headless-component-designer` carry the headless-first React patterns.
 
@@ -63,7 +63,7 @@ behavioral ambiguities, constraints. Skip entirely if the context is already spe
 
 | Signal | Pattern skill to load |
 |--------|-----------------------|
-| Rails models, controllers, jobs, mailers, views, migrations | `rails-composition-dhh` |
+| Rails models, controllers, jobs, mailers, views, migrations | `rails` |
 | React components, hooks, contexts, frontend routing | `react-composition` (+ `wealthbox:headless-component-designer` for new component seams) |
 | React data fetching, caching, optimistic updates | `react-data-fetching` |
 | React memoization / render perf | `react-render-optimization` |

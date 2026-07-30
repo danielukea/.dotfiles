@@ -29,7 +29,7 @@ fixed output formats, finding caps).
 
 - **Knowledge skills**: durable principles/patterns/gotchas. Composable, no mandatory
   workflow, trigger on their own descriptions. Models in this repo:
-  `rails-composition-dhh`, `react-composition`, `code-design-principles`, `test-principles`,
+  `rails`, `react-composition`, `code-design-principles`, `test-principles`,
   `security-principles`.
 - **Orchestration skills**: workflows, parallel agent dispatch, API sequences. Keep
   them thin and have them **reference knowledge skills by name** rather than embedding
@@ -44,11 +44,20 @@ The name tracks content **scope** — never let it outrun what's inside:
 - `<discipline>-principles` — a broad principle set (`test-principles`, `security-principles`).
   Qualify the discipline when the bare word is ambiguous — `code-design-principles`, not
   `design-principles`, which reads as visual design and gets loaded for UI work.
-- `<stack>-composition` / a specific pattern name — a focused catalog (`rails-composition-dhh`).
+- `<stack>-composition` / a specific pattern name — a focused catalog (`react-composition`).
+- `<domain>` alone — a router that owns a whole domain and dispatches to its own
+  references (`rails`). Earn the name first: it must cover the domain broadly, not one
+  opinionated slice.
 
-Keep opinionated provenance in the name (`-dhh`) — a generic "best-practices" rename
-launders the opinion and invites contradictory additions. Broader coverage → a new
-sibling skill, not a catch-all rename.
+Don't launder an opinion into a neutral-sounding name — a focused catalog renamed to
+"best practices" invites contradictory additions later, because nothing signals what the
+guidance is committed to. Keep the commitment legible: in the name, or, in a domain
+router, by stating the position outright and grounding each claim with a `file:line`
+citation or a measurement. Provenance can move; it can't evaporate.
+
+Broader coverage → usually a new sibling skill, not a catch-all rename. Consolidate only
+when the siblings are facets of one domain an agent meets as a unit — then repoint every
+skill and doc that named the old one.
 
 ## What to put in (high-signal content)
 

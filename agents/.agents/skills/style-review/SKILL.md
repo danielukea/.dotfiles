@@ -1,6 +1,6 @@
 ---
 name: style-review
-description: Composition and pattern review of a diff, branch, or PR against the codebase's style guides. Use on "style review", "review this branch", "refactor suggestions", or "is this DHH-style". Not for: bugs or security — use `code-review`.
+description: Composition and pattern review of a diff, branch, or PR against the codebase's style guides. Use on "style review", "review this branch", "refactor suggestions", or "is this idiomatic Rails". Not for: bugs or security — use `code-review`.
 allowed-tools: Read, Grep, Glob, Bash, Agent, AskUserQuestion, Skill
 ---
 
@@ -12,7 +12,7 @@ Composition/pattern review of a diff. The skill orchestrates: gather the diff, f
 
 ## Why this shape
 
-The style guides live in **knowledge skills** — `rails-composition-dhh` for Rails; `react-composition`, `react-data-fetching`, `react-render-optimization`, and `wealthbox:headless-component-designer` for React. This skill fans out a `general-purpose` subagent per applicable stack, each told to `Skill`-load its pattern skill and review the diff against it in its own context window (both stacks in parallel), then adds a principles pass on the diff, then presents the unified findings. The knowledge rides in via `Skill`; the subagent supplies the isolated context — no bespoke architect agent required.
+The style guides live in **knowledge skills** — `rails` for Rails; `react-composition`, `react-data-fetching`, `react-render-optimization`, and `wealthbox:headless-component-designer` for React. This skill fans out a `general-purpose` subagent per applicable stack, each told to `Skill`-load its pattern skill and review the diff against it in its own context window (both stacks in parallel), then adds a principles pass on the diff, then presents the unified findings. The knowledge rides in via `Skill`; the subagent supplies the isolated context — no bespoke architect agent required.
 
 ## Usage
 
@@ -42,7 +42,7 @@ Use the changed-file list to decide which pattern skill(s) to fan out.
 
 | File signal | Pattern skill |
 |-------------|---------------|
-| `app/models/`, `app/controllers/`, `app/jobs/`, `app/mailers/`, `db/migrate/`, `*.rb` | `rails-composition-dhh` |
+| `app/models/`, `app/controllers/`, `app/jobs/`, `app/mailers/`, `db/migrate/`, `*.rb` | `rails` |
 | `.tsx`, `.ts`, `.jsx`, frontend `components/`, `hooks/`, `contexts/` | `react-composition` (+ `react-data-fetching` / `react-render-optimization` / `wealthbox:headless-component-designer` as the diff warrants) |
 | Both | fan out one Rails subagent and one React subagent in parallel |
 | `db/migrate/` only, no `app/` changes | flag as out of scope for style review and stop |
@@ -56,7 +56,7 @@ Reference table:
 
 | Diff shape | Skill to load |
 |------------|---------------|
-| Rails diff (always, for the DHH composition lens) | `rails-composition-dhh` |
+| Rails diff (always, for the Rails composition lens) | `rails` |
 | New or substantially changed React components/hooks | `wealthbox:headless-component-designer` |
 | Composition: hooks, compound, HOC, render props | `react-composition` |
 | Data fetching, caching, optimistic updates | `react-data-fetching` |
@@ -78,7 +78,7 @@ Use `Agent`, one call per applicable stack (`subagent_type=general-purpose`), in
 > **Changed files:**
 > <list>
 >
-> **Your job:** evaluate the diff against the loaded style guide (DHH composition for Rails, headless-first React for frontend).
+> **Your job:** evaluate the diff against the loaded style guide (Rails composition for backend, headless-first React for frontend).
 >
 > Produce:
 > 1. **Findings** — each one tagged severity (`must-fix` / `suggestion` / `nit`), with:
@@ -89,7 +89,7 @@ Use `Agent`, one call per applicable stack (`subagent_type=general-purpose`), in
 > 3. **Open questions for the author** — things you'd want to ask before recommending a final direction.
 
 **Example finding (must-fix):**
-- **app/controllers/articles_controller.rb:42** — thin-controller violation — the publish + notify + log sequence belongs on `Article#publish!`; controller should call it and render. Per DHH thin-controller pattern.
+- **app/controllers/articles_controller.rb:42** — thin-controller violation — the publish + notify + log sequence belongs on `Article#publish!`; controller should call it and render. Per the Rails thin-controller convention.
 
 **Small diffs:** for a one-file, single-stack diff you can evaluate directly, skip the fan-out — `Skill`-load the one relevant pattern skill in the main thread and produce the same output yourself.
 
@@ -162,7 +162,7 @@ Don't auto-invoke `/arch-design` or any implementation flow — leave that to th
 
 - **Pattern fit only.** Don't flag bugs, security, or performance unless they're style-driven (e.g., a leaky abstraction caused by misplaced logic). Point to `code-review` for the broader pass.
 - **No code edits in this skill.** Findings are recommendations, not patches.
-- **Cite specific lines and patterns.** "This is non-Rails-y" is useless; "controllers/articles#publish does the work itself; should be `article.publish!` on the model per DHH thin-controller pattern" is useful.
+- **Cite specific lines and patterns.** "This is non-Rails-y" is useless; "controllers/articles#publish does the work itself; should be `article.publish!` on the model per the Rails thin-controller convention" is useful.
 - **Use the loaded skills' style guides, not your own.** Don't invent patterns.
 - **Stay focused.** If the diff has no Rails or React content, say so and stop.
 - **Severity discipline:**

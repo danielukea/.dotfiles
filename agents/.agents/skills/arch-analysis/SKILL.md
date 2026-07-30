@@ -339,7 +339,7 @@ For specific finding types, suggest chaining into a sibling skill instead:
 | Finding type | Chain into |
 |--------------|-----------|
 | Missing React headless seam | `wealthbox:headless-component-designer` |
-| Rails service/concern refactor | `rails-composition-dhh` skill |
+| Rails service/concern refactor | `rails` skill |
 | New feature on top of unstable seam | `planning-feature` |
 | Whole-system follow-up | `roadmap` |
 

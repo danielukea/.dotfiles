@@ -9,7 +9,7 @@ allowed-tools: Read, Grep, Glob
 Durable, framework-agnostic lenses for judging whether a code design is sound. No workflow
 here: pick the lenses that bear on the question and apply them to a sketch, a diff, or a
 choice between two options. These sit _above_ stack-specific pattern catalogs — "how do I
-factor this Rails model / React component" is `rails-composition-dhh` or
+factor this Rails model / React component" is `rails` or
 `react-composition`; "is this approach sound, whatever the stack" is here.
 
 ---
