@@ -9,9 +9,8 @@ claude/.claude/shell-snapshots/
 claude/.claude/statsig/
 claude/.claude/todos/
 
-# Skill-creator eval run-outputs (regenerable). Eval *specs* live at
-# claude/.claude/skills/<skill>/evals/evals.json and stay tracked.
-claude/.claude/skills/*-workspace/
+# Skill-creator eval run-outputs (regenerable), including its *-workspace/ dirs.
+# Eval *specs* live at agents/.agents/skills/<skill>/evals/evals.json and stay tracked.
 claude/.claude/skill-evals/
 
 # Stray config and log files
