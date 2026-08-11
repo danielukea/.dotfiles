@@ -1,0 +1,82 @@
+[
+  {
+    "query": "our Contact model is 900 lines and half of it is note/mention/audit stuff. i want to pull that apart but not into a pile of service objects. what's the right cut?",
+    "should_trigger": true
+  },
+  {
+    "query": "got a controller action that's ~60 lines - creates an Opportunity, sends 2 emails, moves a pipeline stage, writes an audit log. what's the idiomatic way to break that up in rails 8?",
+    "should_trigger": true
+  },
+  {
+    "query": "my team wants to add app/services/ with a CreateInvoiceService for this. i'm not convinced - make the case either way",
+    "should_trigger": true
+  },
+  {
+    "query": "we need a subscription that goes trial -> active -> past_due -> canceled. aasm, an enum column, or something else?",
+    "should_trigger": true
+  },
+  {
+    "query": "i enqueue a welcome email from an after_create and it sometimes runs before the row is visible to the worker. how should this actually be structured?",
+    "should_trigger": true
+  },
+  {
+    "query": "this hits the db per row: contacts.each { |c| puts c.company.name } - and later i call contacts.count on the same already-loaded relation. what am i doing wrong",
+    "should_trigger": true
+  },
+  {
+    "query": "i need an endpoint to \"archive\" a project. custom archive action on ProjectsController, or is there a more rails-y shape?",
+    "should_trigger": true
+  },
+  {
+    "query": "new feature where a user can merge two contact records. where does the merge logic belong - model, concern, or somewhere else?",
+    "should_trigger": true
+  },
+  {
+    "query": "is normalizes available in our rails version, and where should email downcasing live anyway - a callback, normalizes, or a setter override?",
+    "should_trigger": true
+  },
+  {
+    "query": "is a presenter the right call here or am i adding a layer for nothing: class ReportPresenter; def initialize(user); @user = user; end; def rows; @user.orders.map { |o| [o.id, o.total] }; end; end",
+    "should_trigger": true
+  },
+  {
+    "query": "need to add a not-null status column with a default to a 4M-row orders table, rolling deploys, pg 14. give me the safe sequence",
+    "should_trigger": false
+  },
+  {
+    "query": "these specs mock ActiveRecord everywhere and assert on instance variables. how do i rewrite them to test behavior?",
+    "should_trigger": false
+  },
+  {
+    "query": "in app/admin/users.rb i need a scoped index with a ransack filter on company name and a batch action to deactivate",
+    "should_trigger": false
+  },
+  {
+    "query": "we let users pass a redirect_to param after login. how do i lock that down",
+    "should_trigger": false
+  },
+  {
+    "query": "this tabs component duplicates state in three places, i want to turn it into compound components",
+    "should_trigger": false
+  },
+  {
+    "query": "standalone ruby script to parse a 2gb csv and dedupe by email, no rails. fastest approach?",
+    "should_trigger": false
+  },
+  {
+    "query": "rebasing onto main, conflict in Gemfile.lock plus two model files. how do i work through it",
+    "should_trigger": false
+  },
+  {
+    "query": "sidekiq latency on the default queue spiked to 40s last night. how do i find which job is starving it",
+    "should_trigger": false
+  },
+  {
+    "query": "turn this into a linear ticket: contacts index is slow for orgs with >50k contacts",
+    "should_trigger": false
+  },
+  {
+    "query": "rubocop is fighting our formatter on hash alignment. want a config that stops the churn",
+    "should_trigger": false
+  }
+]

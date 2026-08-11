@@ -144,8 +144,9 @@ once `brainstorm`'s Problem Brief template gained a Users & Stakeholders section
 `/skill-creator` produces two kinds of eval artifact — keep them apart so run output
 never clutters the skills tree or the git history:
 
-- **Eval specs** (`evals.json`) are the source of truth: small, hand-authored, tracked.
-  They live *beside* the skill at `claude/.claude/skills/<skill>/evals/evals.json`.
+- **Eval specs** (`evals.json`, or `trigger-evals.json` for a description's trigger set) are
+  the source of truth: small, hand-authored, tracked. They live *beside* the skill at
+  `agents/.agents/skills/<skill>/evals/`.
 - **Eval runs** (benchmark/grading/timing JSON, generated reports) are large and
   regenerable. They live *outside* the skills tree at `claude/.claude/skill-evals/<skill>/`
   and are gitignored. Anything skill-creator drops as `<skill>-workspace/` inside `skills/`

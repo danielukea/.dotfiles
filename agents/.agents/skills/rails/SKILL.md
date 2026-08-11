@@ -1,6 +1,6 @@
 ---
 name: rails
-description: How Rails is written — models, controllers, jobs, Active Record, transactions, version APIs. Trigger whenever writing or reviewing Ruby/Rails.
+description: How Rails is written - trigger on any Ruby/Rails question: models, controllers, jobs, queries, service objects, where behavior belongs, version gotchas.
 license: MIT
 metadata:
   version: "2.0"
