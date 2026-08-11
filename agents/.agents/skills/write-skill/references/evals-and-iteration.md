@@ -1,15 +1,10 @@
-# Evals and iteration — grow the skill from real use
+# Evals and iteration — grow a shipped skill from real use
 
 A skill is not done when it's written. It's a living document that gets sharper as you
-see where it fails.
+see where it fails. (Writing the *first* draft is `starting-small.md`.)
 
-## Start small, grow from usage
+## Grow from usage
 
-- **Start aggressively small.** A new skill is often just *one paragraph* of framing plus a
-  `## Gotchas` section with one real gotcha — nothing else. Hold off on `references/`,
-  `templates/`, and extra `##` sections until concrete detail actually crosses the
-  decide/do line. Don't speculate a comprehensive skill up front — most good skills began
-  tiny and grew from real use.
 - Add to the `## Gotchas` section every time you catch the skill (or its absence)
   causing a mistake. That list is the skill's compounding value.
 - Prune as you go: if a section is never what the model needed, cut it (see DRY and the
@@ -41,6 +36,15 @@ loop; there's no reason to reproduce them here.
 For the operational plumbing that lives only in the fuller narrative — usage logging
 (`skill-usage.jsonl`, explicit vs inferred detection), the evals specs-vs-runs split, and
 skill maintenance/bridging — see `~/.agents/docs/SKILLS.md`.
+
+**Its trigger eval is only valid at `--num-workers 1`.** `run_eval.py` writes each run's
+throwaway command as `<skill>-skill-<uuid>.md` into one *shared*
+`<project_root>/.claude/commands/`, but scores a trigger only when the model picks that
+run's own uuid. At N workers the model sees N identical candidates and picks one, so
+measured recall collapses to ≈1/N — and `run_loop` then "improves" the description against
+pure noise. The tell is recall near 1/N with precision pinned at 100%. Either drop to one
+worker or drive `run_single_query` yourself with a per-run project root (verified
+2026-08-11: `rails` measured 11% recall at 10 workers, 77% at one root per run).
 
 Two things worth internalizing from that loop even when you iterate by hand:
 
